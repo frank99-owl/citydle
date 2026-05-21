@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Vintage Cartography Palette */
+  --parchment-light: #f4ebd0;
+  --parchment-dark: #e6dfc7;
+  --parchment-deep: #d8ceb0;
+  --ink-dark: #2c2519;
+  --ink-sepia: #4e3629;
+  --accent-gold: #c5a059;
+  --accent-gold-glow: rgba(197, 160, 89, 0.4);
+  --accent-crimson: #8a3324;
+  --accent-green: #3a5f43;
+  --accent-blue: #2a4d69;
+  --wood-border: #423023;
+  
+  --font-serif: var(--font-im-fell), Georgia, serif;
+  --font-display: var(--font-cinzel), serif;
+}
+
+body {
+  color: var(--ink-dark);
+  background-color: var(--parchment-dark);
+  background-image: radial-gradient(var(--parchment-light) 30%, var(--parchment-dark) 100%);
+  font-family: var(--font-serif);
+  overflow-x: hidden;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Vintage Paper Card styling */
+.vintage-panel {
+  background-color: var(--parchment-light);
+  border: 2px solid var(--wood-border);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 
+              0 8px 10px -6px rgba(0, 0, 0, 0.2),
+              inset 0 0 15px rgba(44, 37, 25, 0.1);
+  border-radius: 4px;
+  position: relative;
+}
+
+.vintage-panel::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  border: 1px solid rgba(66, 48, 35, 0.3);
+  pointer-events: none;
+}
+
+/* Vintage Buttons */
+.vintage-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--parchment-light);
+  background: var(--ink-sepia);
+  border: 2px solid var(--wood-border);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.vintage-btn:hover {
+  background: var(--accent-gold);
+  color: var(--ink-dark);
+  box-shadow: 0 6px 12px var(--accent-gold-glow);
+  transform: translateY(-1px);
+  text-shadow: none;
+}
+
+.vintage-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Heading Display */
+.vintage-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+  color: var(--ink-dark);
+}
+
+.vintage-subtitle {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink-sepia);
+}
+
+/* Custom map styling to match the paper style */
+.leaflet-container {
+  background: #f4ebd0 !important;
+  font-family: var(--font-serif) !important;
+}
+
+.leaflet-tile-pane {
+  filter: sepia(0.65) contrast(1.1) brightness(0.95) hue-rotate(-5deg);
+}
+
+/* Scrollbar Vintage styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--parchment-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-sepia);
+  border: 2px solid var(--parchment-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}
+
+/* Streak animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--accent-gold-glow);
+    border-color: var(--wood-border);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--accent-gold), 0 0 5px var(--accent-gold);
+    border-color: var(--accent-gold);
+  }
+}
+
+.streak-active {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
