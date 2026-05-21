@@ -4,6 +4,20 @@ import { getDb } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 
+import newYorkPreset from '../../../../data/presets/new-york.json';
+import londonPreset from '../../../../data/presets/london.json';
+import tokyoPreset from '../../../../data/presets/tokyo.json';
+import hongKongPreset from '../../../../data/presets/hong-kong.json';
+import singaporePreset from '../../../../data/presets/singapore.json';
+
+const PRESET_DATA: Record<string, any> = {
+  'new-york': newYorkPreset,
+  'london': londonPreset,
+  'tokyo': tokyoPreset,
+  'hong-kong': hongKongPreset,
+  'singapore': singaporePreset,
+};
+
 export const dynamic = 'force-dynamic';
 
 const ALLOWED_HIGHWAY_TYPES = [
@@ -90,29 +104,24 @@ export async function POST(req: NextRequest) {
 
     // Check if it matches a preset city
     const presetId = getPresetIdForBounds(bounds);
-    if (presetId) {
-      try {
-        const filepath = path.join(process.cwd(), 'data', 'presets', `${presetId}.json`);
-        if (fs.existsSync(filepath)) {
-          const raw = fs.readFileSync(filepath, 'utf-8');
-          const data = JSON.parse(raw);
-          return NextResponse.json({ streets: data.streets, count: data.count, source: 'local_preset' });
-        }
-      } catch (err) {
-        console.error(`Failed to read local preset JSON for ${presetId}:`, err);
-      }
+    if (presetId && PRESET_DATA[presetId]) {
+      const data = PRESET_DATA[presetId];
+      return NextResponse.json({ streets: data.streets, count: data.count, source: 'local_preset' });
     }
 
-    // Check SQLite cache for custom bounds
     const cacheKey = `${south.toFixed(4)}_${west.toFixed(4)}_${north.toFixed(4)}_${east.toFixed(4)}`;
-    try {
-      const cachedRow = db.prepare('SELECT streets_json FROM street_cache WHERE bounds_key = ?').get(cacheKey) as { streets_json: string } | undefined;
-      if (cachedRow) {
-        const streets = JSON.parse(cachedRow.streets_json);
-        return NextResponse.json({ streets, count: streets.length, source: 'sqlite_cache' });
+
+    // Check SQLite cache for custom bounds
+    if (db) {
+      try {
+        const cachedRow = db.prepare('SELECT streets_json FROM street_cache WHERE bounds_key = ?').get(cacheKey) as { streets_json: string } | undefined;
+        if (cachedRow) {
+          const streets = JSON.parse(cachedRow.streets_json);
+          return NextResponse.json({ streets, count: streets.length, source: 'sqlite_cache' });
+        }
+      } catch (err) {
+        console.error('Failed to read from SQLite cache:', err);
       }
-    } catch (err) {
-      console.error('Failed to read from SQLite cache:', err);
     }
 
     // Validate bounds size (prevent huge custom queries)
@@ -160,11 +169,13 @@ export async function POST(req: NextRequest) {
     streets.sort((a, b) => a.name.localeCompare(b.name));
 
     // Save to SQLite cache asynchronously (don't block the response)
-    try {
-      db.prepare('INSERT OR REPLACE INTO street_cache (bounds_key, streets_json) VALUES (?, ?)')
-        .run(cacheKey, JSON.stringify(streets));
-    } catch (err) {
-      console.error('Failed to write to SQLite cache:', err);
+    if (db) {
+      try {
+        db.prepare('INSERT OR REPLACE INTO street_cache (bounds_key, streets_json) VALUES (?, ?)')
+          .run(cacheKey, JSON.stringify(streets));
+      } catch (err) {
+        console.error('Failed to write to SQLite cache:', err);
+      }
     }
 
     return NextResponse.json({ streets, count: streets.length, source: 'overpass_live' });

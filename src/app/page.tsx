@@ -126,9 +126,9 @@ function GameApp() {
     }
 
     const savedProvider = localStorage.getItem('cartographer_provider') as any;
-    if (savedProvider === 'cartodb-dark') {
-      setMapProvider('cartodb-dark');
-      prevProviderRef.current = 'cartodb-dark';
+    if (savedProvider && ['cartodb', 'cartodb-dark', 'osm', 'amap'].includes(savedProvider)) {
+      setMapProvider(savedProvider);
+      prevProviderRef.current = savedProvider;
     } else {
       setMapProvider('cartodb-dark');
       prevProviderRef.current = 'cartodb-dark';
@@ -473,7 +473,7 @@ function GameApp() {
     }
   }, [view, customMode, gameStarted, mapLoaded]);
 
-  // Tile Layer Loading (CartoDB Dark Theme only)
+  // Tile Layer Loading
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -484,8 +484,8 @@ function GameApp() {
         tileLayerRef.current = null;
       }
 
-      const url = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
-      const options = {
+      let url = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
+      let options: any = {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20,
@@ -494,9 +494,20 @@ function GameApp() {
         updateWhenZooming: false,
       };
 
+      if (mapProvider === 'cartodb') {
+        url = 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
+      } else if (mapProvider === 'osm') {
+        url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        options.attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+      } else if (mapProvider === 'amap') {
+        url = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
+        options.attribution = '&copy; <a href="https://www.amap.com/">AutoNavi</a>';
+        options.subdomains = '1234';
+      }
+
       tileLayerRef.current = L.tileLayer(url, options).addTo(map);
     });
-  }, [mapLoaded]);
+  }, [mapLoaded, mapProvider]);
 
   // Redraw layers when mapProvider or difficulty changes to adjust coordinate projections
   useEffect(() => {
@@ -1314,11 +1325,49 @@ function GameApp() {
             ⚙️ {t.mapSettingsTitle}
           </h3>
           <div style={{
-            display: 'flex',
-            justifyContent: 'center',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '1.5rem',
+            width: '100%',
+            maxWidth: '720px',
+            margin: '0 auto',
           }}>
+            {/* Map Provider Selection */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{
+                fontFamily: 'var(--font-cinzel), serif',
+                fontSize: '0.8rem',
+                color: 'rgba(244,235,208,0.7)',
+                letterSpacing: '0.1em',
+                textAlign: 'center',
+              }}>
+                🗺️ {t.mapProviderLabel}
+              </label>
+              <select
+                value={mapProvider}
+                onChange={(e) => updateMapProvider(e.target.value as any)}
+                style={{
+                  padding: '0.6rem 1rem',
+                  background: '#1a1610',
+                  color: '#f4ebd0',
+                  border: '1px solid rgba(197,160,89,0.45)',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--font-serif), serif',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+              >
+                <option value="cartodb-dark">{t.mapProviderCartoDark}</option>
+                <option value="cartodb">{t.mapProviderCarto}</option>
+                <option value="osm">{t.mapProviderOSM}</option>
+                <option value="amap">{t.mapProviderAmap}</option>
+              </select>
+            </div>
+
             {/* Difficulty Selection */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%', maxWidth: '360px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label style={{
                 fontFamily: 'var(--font-cinzel), serif',
                 fontSize: '0.8rem',
@@ -1637,7 +1686,7 @@ function GameApp() {
             {/* Mini Settings Selection in game */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '1fr',
+              gridTemplateColumns: '1fr 1fr',
               gap: '0.5rem',
               marginBottom: '1rem',
             }}>
@@ -1660,6 +1709,27 @@ function GameApp() {
                 <option value="easy">{lang === 'zh' ? '简单难度 (提示)' : 'Easy (Hints)'}</option>
                 <option value="medium">{lang === 'zh' ? '中等难度 (首字母)' : 'Medium (Letters)'}</option>
                 <option value="hard">{lang === 'zh' ? '困难难度 (无提示)' : 'Hard (Blind)'}</option>
+              </select>
+              <select
+                value={mapProvider}
+                onChange={(e) => updateMapProvider(e.target.value as any)}
+                style={{
+                  padding: '0.4rem 0.5rem',
+                  background: '#fcfaf2',
+                  color: 'var(--ink-dark)',
+                  border: '1px solid var(--wood-border)',
+                  borderRadius: '2px',
+                  fontFamily: 'var(--font-serif), serif',
+                  fontSize: '0.8rem',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+              >
+                <option value="cartodb-dark">{lang === 'zh' ? '深色纸质' : 'Dark Paper'}</option>
+                <option value="cartodb">{lang === 'zh' ? '浅色纸质' : 'Light Paper'}</option>
+                <option value="osm">{lang === 'zh' ? 'OpenStreetMap' : 'OpenStreetMap'}</option>
+                <option value="amap">{lang === 'zh' ? '高德地图' : 'Amap'}</option>
               </select>
             </div>
 

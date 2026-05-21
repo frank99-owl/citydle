@@ -16,6 +16,9 @@ interface HistoryRow {
 export async function GET() {
   try {
     const db = getDb();
+    if (!db) {
+      return NextResponse.json({ history: [], highScore: 0 });
+    }
     const rows = db.prepare(
       `SELECT id, map_name, score, total_streets, completion_rate, max_streak, played_at
        FROM game_history WHERE user_id = 1 ORDER BY played_at DESC LIMIT 50`
@@ -35,6 +38,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const db = getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+    }
     const body = await req.json() as {
       mapName: string;
       score: number;

@@ -14,6 +14,9 @@ interface FavoriteRow {
 export async function GET() {
   try {
     const db = getDb();
+    if (!db) {
+      return NextResponse.json({ favorites: [] });
+    }
     const rows = db.prepare(
       'SELECT id, name, city_name, bounds FROM favorite_maps WHERE user_id = 1 ORDER BY id DESC'
     ).all() as FavoriteRow[];
@@ -35,6 +38,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const db = getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+    }
     const body = await req.json() as { name: string; cityName?: string; bounds: Bounds };
     const { name, cityName, bounds } = body;
 
@@ -57,6 +63,9 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const db = getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+    }
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });

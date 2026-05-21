@@ -125,7 +125,10 @@ The UI forms a complete navigation loop. Every state has a clear path back to th
 
 ## 3. Database Design (SQLite)
 
-The project leverages Node.js 22.5+ native `node:sqlite` (`DatabaseSync`) synchronous interface. To prevent Next.js build-time static generation locks, the database is lazily initialized via a `getDb()` singleton pattern. The SQLite database is stored locally in `data/cartographer.db`.
+The project leverages Node.js 22.5+ native `node:sqlite` (`DatabaseSync`) synchronous interface. To prevent Next.js build-time static generation locks, the database is lazily initialized via a `getDb()` singleton pattern. 
+
+**Vercel Serverless Deployment Workaround:**
+Since Vercel's serverless runtime features a read-only filesystem (with the exception of `/tmp`), the database cannot write directly to the project root. On initialization, if the app detects a Vercel serverless environment, it copies the template database from `process.cwd()/data/cartographer.db` to `/tmp/cartographer.db` and loads it from there. If SQLite fails to initialize (e.g., due to local module mismatch or permission limits), the API routes fall back gracefully by returning empty arrays or HTTP 503 instead of crashing.
 
 ### Table Schemas:
 
@@ -183,9 +186,16 @@ To deliver a premium, 60fps experience, the map rendering stack includes several
 
 ## 5. Map Providers & Projection Systems
 
-* **CartoDB Dark Theme only**: The system uses CartoDB Dark (`dark_nolabels`) as its exclusive map styling interface, providing a unified, immersive, vintage aesthetic.
-* **Anti-Cheat Design**: The `dark_nolabels` layer completely removes street and landmark text labels from the map tiles, ensuring that users can only identify street shapes and configurations without cheating.
-* **WGS-84 Projections**: Since CartoDB Dark maps align natively with the standard WGS-84 coordinate system, coordinate shifting logic (e.g. GCJ-02 for Amap) is bypassed.
+* **Supported Map Providers**:
+  - **CartoDB Dark (`cartodb-dark`)**: Immersive dark paper aesthetic with labels removed for anti-cheat purposes. Uses standard WGS-84.
+  - **CartoDB Light (`cartodb`)**: Standard light paper aesthetic with labels removed for anti-cheat purposes. Uses standard WGS-84.
+  - **OpenStreetMap (`osm`)**: Standard osm tiles (including labels). Uses standard WGS-84.
+  - **Amap (`amap`)**: Domestic Gaode Map tiles. Located in China, this provider offers extremely fast map loading speeds for users based in China.
+* **Projection & GCJ-02 Coordinate Offsets**:
+  - Amap tiles use the GCJ-02 coordinate system (also known as the Mars coordinate system), which is artificially offset from the standard WGS-84 coordinates.
+  - To prevent alignment mismatch, the app implements translation functions (`wgs84togcj02` and `gcj02towgs84`) in `src/lib/coord.ts`.
+  - When Amap is active, the app automatically translates street lines, bounds, and user-drawn rect polygons from WGS-84 to GCJ-02 when rendering them onto Leaflet layers. If the user shifts providers mid-game, the center point and all layers are dynamically recalculated and redrawn.
+  - For standard providers (`osm`, `cartodb`, `cartodb-dark`), WGS-84 coords are rendered directly without offsets.
 
 ---
 
