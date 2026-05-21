@@ -75,7 +75,7 @@ function GameApp() {
   const [isSaved, setIsSaved] = useState(false);
 
   // Map settings and difficulty states
-  const [mapProvider, setMapProvider] = useState<'cartodb' | 'cartodb-dark' | 'osm' | 'amap'>('cartodb');
+  const [mapProvider, setMapProvider] = useState<'cartodb' | 'cartodb-dark' | 'osm' | 'amap'>('cartodb-dark');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('hard');
   const [hintClue, setHintClue] = useState<{ name: string; pattern: string; geom?: number[][] } | null>(null);
   const [hintsUsed, setHintsUsed] = useState<number>(0);
@@ -92,8 +92,8 @@ function GameApp() {
   const boundsLayerRef = useRef<any>(null);
   const tileLayerRef = useRef<any>(null);
   const hintLayerRef = useRef<any>(null);
-  const mapProviderRef = useRef<'cartodb' | 'cartodb-dark' | 'osm' | 'amap'>('cartodb');
-  const prevProviderRef = useRef<'cartodb' | 'cartodb-dark' | 'osm' | 'amap'>('cartodb');
+  const mapProviderRef = useRef<'cartodb' | 'cartodb-dark' | 'osm' | 'amap'>('cartodb-dark');
+  const prevProviderRef = useRef<'cartodb' | 'cartodb-dark' | 'osm' | 'amap'>('cartodb-dark');
   
   const streetsRef = useRef<Street[]>([]);
   const boundsRef = useRef<Bounds | null>(null);
@@ -126,9 +126,13 @@ function GameApp() {
     }
 
     const savedProvider = localStorage.getItem('cartographer_provider') as any;
-    if (savedProvider && ['cartodb', 'cartodb-dark', 'osm', 'amap'].includes(savedProvider)) {
-      setMapProvider(savedProvider);
-      prevProviderRef.current = savedProvider;
+    if (savedProvider === 'cartodb-dark') {
+      setMapProvider('cartodb-dark');
+      prevProviderRef.current = 'cartodb-dark';
+    } else {
+      setMapProvider('cartodb-dark');
+      prevProviderRef.current = 'cartodb-dark';
+      localStorage.setItem('cartographer_provider', 'cartodb-dark');
     }
     const savedDifficulty = localStorage.getItem('cartographer_difficulty') as any;
     if (savedDifficulty && ['easy', 'medium', 'hard'].includes(savedDifficulty)) {
@@ -469,7 +473,7 @@ function GameApp() {
     }
   }, [view, customMode, gameStarted, mapLoaded]);
 
-  // Dynamic Tile Layer Switching
+  // Tile Layer Loading (CartoDB Dark Theme only)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -480,53 +484,19 @@ function GameApp() {
         tileLayerRef.current = null;
       }
 
-      let url = '';
-      let options: any = {};
-
-      if (mapProvider === 'cartodb') {
-        url = 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
-        options = {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: 'abcd',
-          maxZoom: 20,
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false,
-        };
-      } else if (mapProvider === 'cartodb-dark') {
-        url = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
-        options = {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: 'abcd',
-          maxZoom: 20,
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false,
-        };
-      } else if (mapProvider === 'osm') {
-        url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        options = {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false,
-        };
-      } else if (mapProvider === 'amap') {
-        url = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
-        options = {
-          attribution: '&copy; <a href="https://ditu.amap.com/">Amap</a>',
-          subdomains: '1234',
-          maxZoom: 18,
-          keepBuffer: 6,
-          updateWhenIdle: true,
-          updateWhenZooming: false,
-        };
-      }
+      const url = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
+      const options = {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20,
+        keepBuffer: 6,
+        updateWhenIdle: true,
+        updateWhenZooming: false,
+      };
 
       tileLayerRef.current = L.tileLayer(url, options).addTo(map);
     });
-  }, [mapLoaded, mapProvider]);
+  }, [mapLoaded]);
 
   // Redraw layers when mapProvider or difficulty changes to adjust coordinate projections
   useEffect(() => {
@@ -1344,50 +1314,17 @@ function GameApp() {
             ⚙️ {t.mapSettingsTitle}
           </h3>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.5rem',
+            display: 'flex',
+            justifyContent: 'center',
           }}>
-            {/* Map Provider Selection */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{
-                fontFamily: 'var(--font-cinzel), serif',
-                fontSize: '0.8rem',
-                color: 'rgba(244,235,208,0.7)',
-                letterSpacing: '0.1em',
-              }}>
-                🗺️ {t.mapProviderLabel}
-              </label>
-              <select
-                value={mapProvider}
-                onChange={(e) => updateMapProvider(e.target.value as any)}
-                style={{
-                  padding: '0.6rem 1rem',
-                  background: '#1a1610',
-                  color: '#f4ebd0',
-                  border: '1px solid rgba(197,160,89,0.45)',
-                  borderRadius: '4px',
-                  fontFamily: 'var(--font-serif), serif',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  width: '100%',
-                }}
-              >
-                <option value="cartodb">{t.mapProviderCarto}</option>
-                <option value="cartodb-dark">{t.mapProviderCartoDark}</option>
-                <option value="osm">{t.mapProviderOSM}</option>
-                <option value="amap">{t.mapProviderAmap}</option>
-              </select>
-            </div>
-
             {/* Difficulty Selection */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%', maxWidth: '360px' }}>
               <label style={{
                 fontFamily: 'var(--font-cinzel), serif',
                 fontSize: '0.8rem',
                 color: 'rgba(244,235,208,0.7)',
                 letterSpacing: '0.1em',
+                textAlign: 'center',
               }}>
                 ⚖️ {t.difficultyLabel}
               </label>
@@ -1700,31 +1637,10 @@ function GameApp() {
             {/* Mini Settings Selection in game */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
+              gridTemplateColumns: '1fr',
               gap: '0.5rem',
               marginBottom: '1rem',
             }}>
-              <select
-                value={mapProvider}
-                onChange={(e) => updateMapProvider(e.target.value as any)}
-                style={{
-                  padding: '0.4rem 0.5rem',
-                  background: '#fcfaf2',
-                  color: 'var(--ink-dark)',
-                  border: '1px solid var(--wood-border)',
-                  borderRadius: '2px',
-                  fontFamily: 'var(--font-serif), serif',
-                  fontSize: '0.8rem',
-                  outline: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="cartodb">{lang === 'zh' ? 'CartoDB 浅色' : 'CartoDB Light'}</option>
-                <option value="cartodb-dark">{lang === 'zh' ? 'CartoDB 深色' : 'CartoDB Dark'}</option>
-                <option value="osm">{lang === 'zh' ? 'OSM 路名' : 'OSM Labeled'}</option>
-                <option value="amap">{lang === 'zh' ? '高德地图 (自动)' : 'Amap (Shifted)'}</option>
-              </select>
-
               <select
                 value={difficulty}
                 onChange={(e) => updateDifficulty(e.target.value as any)}
@@ -1738,6 +1654,7 @@ function GameApp() {
                   fontSize: '0.8rem',
                   outline: 'none',
                   cursor: 'pointer',
+                  width: '100%',
                 }}
               >
                 <option value="easy">{lang === 'zh' ? '简单难度 (提示)' : 'Easy (Hints)'}</option>

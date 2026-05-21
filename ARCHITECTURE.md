@@ -183,11 +183,9 @@ To deliver a premium, 60fps experience, the map rendering stack includes several
 
 ## 5. Map Providers & Projection Systems
 
-* **CartoDB Light & Dark**: Default anti-cheat maps (no labels).
-* **OpenStreetMap**: Provides default labels for relaxed gameplay.
-* **Amap (高德地图)**: Provides high-speed domestic map tiles. Amap tiles use the GCJ-02 coordinate system (obfuscated offset), whereas the global game database uses WGS-84 coordinates.
-* **Dynamic Coordinate Shift**: To prevent alignment issues, the system dynamically shifts coordinates between WGS-84 and GCJ-02 on-the-fly at the Leaflet rendering boundary *only* when Amap is selected. All internal logic, DB data, and API responses remain strictly in WGS-84.
-* **Mid-Game Dynamic Redraw**: Switching map providers mid-game dynamically translates map viewport centers, drawn rectangles, street polylines, and active hints, ensuring perfect alignment.
+* **CartoDB Dark Theme only**: The system uses CartoDB Dark (`dark_nolabels`) as its exclusive map styling interface, providing a unified, immersive, vintage aesthetic.
+* **Anti-Cheat Design**: The `dark_nolabels` layer completely removes street and landmark text labels from the map tiles, ensuring that users can only identify street shapes and configurations without cheating.
+* **WGS-84 Projections**: Since CartoDB Dark maps align natively with the standard WGS-84 coordinate system, coordinate shifting logic (e.g. GCJ-02 for Amap) is bypassed.
 
 ---
 
@@ -197,4 +195,22 @@ To deliver a premium, 60fps experience, the map rendering stack includes several
 * **Medium Mode**: Offers only the first-letter word pattern clue. No map highlight or viewport panning.
 * **Hard Mode**: Blind recall. No hints are available.
 * **Hint Settle Statistics**: Settle statistics dynamically display the count of hints used if the user plays in Easy or Medium mode.
+
+---
+
+## 7. Multi-lingual Street Name Matching
+
+To support international players in cities with local language street names (e.g. Japanese Kanji in Tokyo presets), a multi-lingual alias matching system is designed:
+
+1. **Multi-lingual Aliases in Preset Data**: Streets contain an `aliases` array representing standard translations and transliterations (e.g., `["新宿通り", "Shinjuku-dori", "Shinjuku Street", "新宿路"]`):
+   ```json
+   {
+     "name": "新宿通り",
+     "geometry": [...],
+     "aliases": ["新宿通り", "Shinjuku-dori", "Shinjuku Street", "新宿路"]
+   }
+   ```
+2. **Fuzzy Normalization Matching**: When a guess is submitted, the matcher normalizes both the input and the aliases (converting to lowercase, stripping punctuation/spaces, and removing generic road suffixes like `street`, `road`, `通り`, `通`, `路`). If the normalized input matches *any* alias, the guess is approved.
+3. **Contextual Clues**: Easy/Medium modes generate spelling clue patterns based on the user's active interface language (`lang = 'en' | 'zh'`) to provide accessible clues.
+
 
