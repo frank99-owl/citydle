@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 
 export function useLocalStorage<T>(key: string, defaultValue: T): [T, (value: T) => void] {
   const [value, setValue] = useState<T>(defaultValue);
-  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -14,7 +13,6 @@ export function useLocalStorage<T>(key: string, defaultValue: T): [T, (value: T)
     } catch {
       // ignore parse errors
     }
-    setInitialized(true);
   }, [key]);
 
   const setStoredValue = useCallback((newValue: T) => {

@@ -17,7 +17,6 @@ export function LoadingSpinner({ message, onBack, backLabel }: LoadingSpinnerPro
         animation: 'spin 1s linear infinite'
       }} />
       <p style={{ fontStyle: 'italic', fontSize: '0.9rem', textAlign: 'center' }}>{message}</p>
-      <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       {onBack && backLabel && (
         <button
           onClick={onBack}

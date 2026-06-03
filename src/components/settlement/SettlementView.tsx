@@ -1,6 +1,6 @@
 'use client';
 
-import { Street, Achievement, Language } from '@/types';
+import { Street, Achievement, Language, Difficulty } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
 interface SettlementViewProps {
@@ -9,7 +9,7 @@ interface SettlementViewProps {
   guessedCount: number;
   maxStreak: number;
   hintsUsed: number;
-  difficulty: string;
+  difficulty: Difficulty;
   badge: Achievement | null;
   onBackToLobby: () => void;
 }

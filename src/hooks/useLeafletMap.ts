@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { Bounds, Street, HintClue, MapProvider, Difficulty } from '@/types';
+import { Bounds, Street, MapProvider } from '@/types';
 import { gcj02towgs84 } from '@/lib/coord';
 
 interface UseLeafletMapOptions {
@@ -13,7 +13,7 @@ export function useLeafletMap({ toMapLatLng }: UseLeafletMapOptions) {
   const drawLayerRef = useRef<any>(null);
   const boundsLayerRef = useRef<any>(null);
   const tileLayerRef = useRef<any>(null);
-  const hintLayerRefRef = useRef<any>(null);
+  const hintLayerRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Initialize Leaflet map
@@ -181,12 +181,12 @@ export function useLeafletMap({ toMapLatLng }: UseLeafletMapOptions) {
     if (!map) return;
 
     import('leaflet').then((L) => {
-      if (hintLayerRefRef.current) {
-        if (hintLayerRefRef.current._pulseInterval) {
-          clearInterval(hintLayerRefRef.current._pulseInterval);
+      if (hintLayerRef.current) {
+        if (hintLayerRef.current._pulseInterval) {
+          clearInterval(hintLayerRef.current._pulseInterval);
         }
-        map.removeLayer(hintLayerRefRef.current);
-        hintLayerRefRef.current = null;
+        map.removeLayer(hintLayerRef.current);
+        hintLayerRef.current = null;
       }
 
       const mappedGeom = geom.map(([lat, lng]) => toMapLatLng(lat, lng));
@@ -198,7 +198,7 @@ export function useLeafletMap({ toMapLatLng }: UseLeafletMapOptions) {
         interactive: false,
       }).addTo(map);
 
-      hintLayerRefRef.current = layer;
+      hintLayerRef.current = layer;
 
       const bounds = layer.getBounds();
       map.panTo(bounds.getCenter());
@@ -228,14 +228,14 @@ export function useLeafletMap({ toMapLatLng }: UseLeafletMapOptions) {
   // Clear hint layer
   const clearHint = useCallback(() => {
     const map = mapRef.current;
-    if (hintLayerRefRef.current) {
-      if (hintLayerRefRef.current._pulseInterval) {
-        clearInterval(hintLayerRefRef.current._pulseInterval);
+    if (hintLayerRef.current) {
+      if (hintLayerRef.current._pulseInterval) {
+        clearInterval(hintLayerRef.current._pulseInterval);
       }
       if (map) {
-        map.removeLayer(hintLayerRefRef.current);
+        map.removeLayer(hintLayerRef.current);
       }
-      hintLayerRefRef.current = null;
+      hintLayerRef.current = null;
     }
   }, []);
 
@@ -333,7 +333,7 @@ export function useLeafletMap({ toMapLatLng }: UseLeafletMapOptions) {
     drawLayerRef,
     boundsLayerRef,
     tileLayerRef,
-    hintLayerRef: hintLayerRefRef,
+    hintLayerRef,
     syncTileLayer,
     drawBounds,
     fitToBounds,

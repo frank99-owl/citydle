@@ -1,5 +1,7 @@
+import { Bounds, Street, Achievement, Preset } from '@/types';
+
 // Preset financial center bounding boxes
-export const PRESETS = [
+export const PRESETS: Preset[] = [
   {
     id: 'new-york',
     name: '纽约 New York',
@@ -47,27 +49,8 @@ export const PRESETS = [
   },
 ];
 
-export type Bounds = {
-  south: number;
-  west: number;
-  north: number;
-  east: number;
-};
-
-export type Street = {
-  name: string;
-  guessed: boolean;
-  geometry?: number[][];
-};
-
-export type Achievement = {
-  id: string;
-  name: string;
-  nameCn: string;
-  description: string;
-  threshold: number; // percentage 0-1
-  tier: 'bronze' | 'silver' | 'gold';
-};
+// Re-export types for backward compatibility
+export type { Bounds, Street, Achievement };
 
 export const ACHIEVEMENTS: Achievement[] = [
   {

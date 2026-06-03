@@ -144,13 +144,6 @@ export function useGameLogic() {
     showResultRef.current = false;
   }, [clearHint]);
 
-  const getActiveBadge = useCallback((): Achievement | null => {
-    const rate = guessedCount > 0 ? guessedCount / (guessedCount + (showResult ? 0 : 0)) : 0;
-    // We need total streets to calculate, so pass it in or use a different approach
-    // For now, return null - will be calculated in component
-    return null;
-  }, [guessedCount, showResult]);
-
   const calculateBadge = useCallback((totalStreets: number): Achievement | null => {
     const rate = totalStreets > 0 ? guessedCount / totalStreets : 0;
     if (rate >= 0.8) return ACHIEVEMENTS[2];
