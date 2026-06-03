@@ -8,6 +8,7 @@ import { PresetCards } from './PresetCards';
 import { MapSettings } from './MapSettings';
 import { HistoryTable } from './HistoryTable';
 import { FavoritesList } from './FavoritesList';
+import { AchievementPanel } from '@/components/achievement/AchievementPanel';
 
 interface LobbyOverlayProps {
   lang: Language;
@@ -44,7 +45,7 @@ export function LobbyOverlay({
   onProviderChange,
   onDifficultyChange,
 }: LobbyOverlayProps) {
-  const [activeTab, setActiveTab] = useState<'history' | 'favorites'>('history');
+  const [activeTab, setActiveTab] = useState<'history' | 'favorites' | 'achievements'>('history');
   const t = TRANSLATIONS[lang];
 
   return (
@@ -166,7 +167,7 @@ export function LobbyOverlay({
       {/* History & Favorites Tabs */}
       <section style={{ width: '100%', maxWidth: '900px', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: '0', marginBottom: '0', borderBottom: '1px solid rgba(197,160,89,0.3)' }}>
-          {(['history', 'favorites'] as const).map(tab => (
+          {(['history', 'favorites', 'achievements'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -184,7 +185,7 @@ export function LobbyOverlay({
                 textTransform: 'uppercase',
               }}
             >
-              {tab === 'history' ? t.historyTab : t.favoritesTab}
+              {tab === 'history' ? t.historyTab : tab === 'favorites' ? t.favoritesTab : t.achievementsTab}
             </button>
           ))}
         </div>
@@ -207,6 +208,9 @@ export function LobbyOverlay({
               onStart={onStartFavorite}
               onDelete={onDeleteFavorite}
             />
+          )}
+          {activeTab === 'achievements' && (
+            <AchievementPanel lang={lang} isVisible={activeTab === 'achievements'} />
           )}
         </div>
       </section>

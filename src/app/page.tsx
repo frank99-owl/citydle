@@ -13,6 +13,7 @@ import { useLeafletMap } from '@/hooks/useLeafletMap';
 import { useStreets } from '@/hooks/useStreets';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useTutorial } from '@/hooks/useTutorial';
+import { useAchievements } from '@/hooks/useAchievements';
 
 // Components
 import { GameMap } from '@/components/map/GameMap';
@@ -20,6 +21,7 @@ import { LobbyOverlay } from '@/components/lobby/LobbyOverlay';
 import { GameSidebar } from '@/components/game/GameSidebar';
 import { SettlementView } from '@/components/settlement/SettlementView';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { AchievementPopup } from '@/components/achievement/AchievementPopup';
 
 function GameApp() {
   const searchParams = useSearchParams();
@@ -44,6 +46,8 @@ function GameApp() {
 
   // Active game logic states
   const [mapName, setMapName] = useState(searchParams.get('name') || 'Custom Area');
+  const [currentMapId, setCurrentMapId] = useState<string>('custom');
+  const [totalErrors, setTotalErrors] = useState(0);
   const [bounds, setBounds] = useState<Bounds | null>(() => {
     const s = searchParams.get('south');
     const w = searchParams.get('west');
@@ -108,6 +112,16 @@ function GameApp() {
   } = useStreets(lang);
 
   const tutorial = useTutorial();
+
+  const {
+    currentPopup: currentAchievementPopup,
+    dismissPopup: dismissAchievementPopup,
+    checkAchievements,
+    trackCustomUse,
+    trackCitySearch,
+    trackSpeedGuess,
+    resetGameTracking,
+  } = useAchievements();
 
   const {
     guess,
@@ -330,6 +344,7 @@ function GameApp() {
     );
 
     if (!result.found && guess.trim()) {
+      setTotalErrors(prev => prev + 1);
       setErrorMessage(t.guessWrong);
       setHintMessage(result.hint || null);
       setDirectionMessage(result.directionHint || null);
@@ -343,13 +358,29 @@ function GameApp() {
       setErrorMessage(null);
       setHintMessage(null);
       setDirectionMessage(null);
+      trackSpeedGuess();
     }
-  }, [checkGuess, guess, streets, bounds, lang, revealStreet, endGame, t]);
+  }, [checkGuess, guess, streets, bounds, lang, revealStreet, endGame, t, trackSpeedGuess]);
 
   // Handle end game
   const handleEndGame = useCallback(async () => {
     endGame();
     revealMissedStreets(streets);
+
+    // Check achievements
+    const completionRate = streets.length > 0 ? guessedCount / streets.length : 0;
+    checkAchievements({
+      completionRate,
+      maxStreak,
+      totalStreets: streets.length,
+      guessedCount,
+      errorsCount: totalErrors,
+      mapId: currentMapId,
+      customUsed: 0,
+      searchedCities: 0,
+      speedGuesses: 0,
+      timeMs: 0,
+    });
 
     try {
       await fetch('/api/history', {
@@ -359,19 +390,20 @@ function GameApp() {
           mapName,
           score: guessedCount,
           totalStreets: streets.length,
-          completionRate: streets.length > 0 ? guessedCount / streets.length : 0,
+          completionRate,
           maxStreak,
         }),
       });
     } catch (err) {
       console.error('Failed to save score history', err);
     }
-  }, [endGame, revealMissedStreets, streets, mapName, guessedCount, maxStreak]);
+  }, [endGame, revealMissedStreets, streets, mapName, guessedCount, maxStreak, checkAchievements, currentMapId, totalErrors]);
 
   // Start game with preset
   const startGame = useCallback((preset: typeof PRESETS[0]) => {
     const presetName = lang === 'zh' ? preset.name.split(' ')[0] : preset.name.split(' ').slice(1).join(' ') || preset.name;
     setMapName(presetName);
+    setCurrentMapId(preset.id);
     setCustomMode(false);
     setBounds(preset.bounds);
     setShowResult(false);
@@ -380,6 +412,8 @@ function GameApp() {
     setErrorMessage(null);
     setHintMessage(null);
     setDirectionMessage(null);
+    resetGameTracking();
+    setTotalErrors(0);
 
     fetchStreets(preset.bounds);
 
@@ -396,16 +430,19 @@ function GameApp() {
     });
 
     setTimeout(() => setIsTransitioning(false), 600);
-  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams]);
+  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking]);
 
   // Start from favorite
   const startFromFavorite = useCallback((fav: Favorite) => {
     setMapName(fav.name);
+    setCurrentMapId('custom');
     setCustomMode(false);
     setBounds(fav.bounds);
     setShowResult(false);
     clearGameHint();
     clearHint();
+    resetGameTracking();
+    setTotalErrors(0);
 
     fetchStreets(fav.bounds);
 
@@ -422,17 +459,21 @@ function GameApp() {
     });
 
     setTimeout(() => setIsTransitioning(false), 600);
-  }, [clearGameHint, clearHint, fetchStreets, updateURLParams]);
+  }, [clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking]);
 
   // Start custom area mode
   const startCustomAreaMode = useCallback(() => {
     setMapName(lang === 'zh' ? '自定义区域' : 'Custom Area');
+    setCurrentMapId('custom');
     setCustomMode(true);
     setBounds(null);
     clearStreets();
     setShowResult(false);
     clearGameHint();
     clearHint();
+    resetGameTracking();
+    trackCustomUse();
+    setTotalErrors(0);
 
     setIsTransitioning(true);
     setView('game');
@@ -444,7 +485,7 @@ function GameApp() {
     });
 
     setTimeout(() => setIsTransitioning(false), 600);
-  }, [lang, clearStreets, clearGameHint, clearHint, updateURLParams]);
+  }, [lang, clearStreets, clearGameHint, clearHint, updateURLParams, resetGameTracking, trackCustomUse]);
 
   // Handle start custom game
   const handleStartCustomGame = useCallback(() => {
@@ -522,6 +563,7 @@ function GameApp() {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         const place = data[0];
+        trackCitySearch(place.display_name || searchQuery);
         const lat = parseFloat(place.lat);
         const lon = parseFloat(place.lon);
 
@@ -554,7 +596,7 @@ function GameApp() {
     } finally {
       setSearchLoading(false);
     }
-  }, [searchQuery, lang, toMapLatLng, mapRef]);
+  }, [searchQuery, lang, toMapLatLng, mapRef, trackCitySearch]);
 
   // Calculate badge
   const badge = calculateBadge(streets.length);
@@ -667,6 +709,13 @@ function GameApp() {
         onMapNameChange={setMapName}
         onDifficultyChange={updateDifficulty}
         onMapProviderChange={updateMapProvider}
+      />
+
+      {/* Achievement Unlock Popup */}
+      <AchievementPopup
+        achievement={currentAchievementPopup}
+        lang={lang}
+        onDismiss={dismissAchievementPopup}
       />
 
       {/* Settlement View (inside sidebar when showing results) */}

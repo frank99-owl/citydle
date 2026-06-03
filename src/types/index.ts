@@ -48,6 +48,21 @@ export interface Achievement {
   description: string;
   threshold: number;
   tier: 'bronze' | 'silver' | 'gold';
+  city?: string;        // 城市系列成就
+  type?: string;        // 技能/探索系列
+}
+
+export interface GameResult {
+  completionRate: number;
+  maxStreak: number;
+  totalStreets: number;
+  guessedCount: number;
+  errorsCount: number;
+  mapId: string;
+  customUsed: number;     // cumulative custom area uses
+  searchedCities: number; // cumulative unique city searches
+  speedGuesses?: number;  // guesses in last 30s window
+  timeMs?: number;        // game duration in ms
 }
 
 export interface Preset {

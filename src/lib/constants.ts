@@ -53,6 +53,7 @@ export const PRESETS: Preset[] = [
 export type { Bounds, Street, Achievement };
 
 export const ACHIEVEMENTS: Achievement[] = [
+  // === Progress 系列 ===
   {
     id: 'explorer',
     name: 'Explorer',
@@ -76,5 +77,101 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: '猜中 80% 以上的街道',
     threshold: 0.8,
     tier: 'gold',
+  },
+
+  // === City Master 系列 ===
+  {
+    id: 'ny-master',
+    name: 'Wall Street Master',
+    nameCn: '华尔街征服者',
+    description: 'Complete New York 100%',
+    threshold: 1.0,
+    tier: 'gold',
+    city: 'new-york',
+  },
+  {
+    id: 'london-master',
+    name: 'London Expert',
+    nameCn: '伦敦通',
+    description: 'Complete London 100%',
+    threshold: 1.0,
+    tier: 'gold',
+    city: 'london',
+  },
+  {
+    id: 'tokyo-master',
+    name: 'Tokyo Master',
+    nameCn: '东京达人',
+    description: 'Complete Tokyo 100%',
+    threshold: 1.0,
+    tier: 'gold',
+    city: 'tokyo',
+  },
+  {
+    id: 'hk-master',
+    name: 'Hong Kong Elite',
+    nameCn: '港岛精英',
+    description: 'Complete Hong Kong 100%',
+    threshold: 1.0,
+    tier: 'gold',
+    city: 'hong-kong',
+  },
+  {
+    id: 'sg-master',
+    name: 'Singapore Pro',
+    nameCn: '狮城行家',
+    description: 'Complete Singapore 100%',
+    threshold: 1.0,
+    tier: 'gold',
+    city: 'singapore',
+  },
+
+  // === Skill 技能系列 ===
+  {
+    id: 'streak-20',
+    name: 'Streak Master',
+    nameCn: '连击大师',
+    description: 'Achieve 20+ streak',
+    threshold: 20,
+    tier: 'gold',
+    type: 'streak',
+  },
+  {
+    id: 'speed-5',
+    name: 'Lightning Hand',
+    nameCn: '闪电手',
+    description: 'Guess 5 streets in 30 seconds',
+    threshold: 5,
+    tier: 'silver',
+    type: 'speed',
+  },
+  {
+    id: 'perfect',
+    name: 'Sharpshooter',
+    nameCn: '精准射手',
+    description: 'Complete with zero errors',
+    threshold: 0,
+    tier: 'gold',
+    type: 'perfect',
+  },
+
+  // === Exploration 探索系列 ===
+  {
+    id: 'explorer-10',
+    name: 'Pathfinder',
+    nameCn: '探路者',
+    description: 'Use custom area 10 times',
+    threshold: 10,
+    tier: 'silver',
+    type: 'custom',
+  },
+  {
+    id: 'city-hunter',
+    name: 'City Hunter',
+    nameCn: '城市猎人',
+    description: 'Search 20 different cities',
+    threshold: 20,
+    tier: 'gold',
+    type: 'search',
   },
 ];
