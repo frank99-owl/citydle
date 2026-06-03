@@ -14,6 +14,7 @@ import { useStreets } from '@/hooks/useStreets';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useTutorial } from '@/hooks/useTutorial';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useStats } from '@/hooks/useStats';
 
 // Components
 import { GameMap } from '@/components/map/GameMap';
@@ -122,6 +123,18 @@ function GameApp() {
     trackSpeedGuess,
     resetGameTracking,
   } = useAchievements();
+
+  const {
+    stats: playerStats,
+    updateStats: updatePlayerStats,
+    startGameTimer,
+    getDailyChallenge,
+    isDailyCompletedToday,
+    getTodayDailyResult,
+  } = useStats();
+
+  // Daily challenge state
+  const [isDailyChallenge, setIsDailyChallenge] = useState(false);
 
   const {
     guess,
@@ -382,6 +395,17 @@ function GameApp() {
       timeMs: 0,
     });
 
+    // Update personal stats
+    updatePlayerStats(
+      currentMapId,
+      mapName,
+      completionRate,
+      maxStreak,
+      guessedCount,
+      streets.length,
+      isDailyChallenge,
+    );
+
     try {
       await fetch('/api/history', {
         method: 'POST',
@@ -397,7 +421,7 @@ function GameApp() {
     } catch (err) {
       console.error('Failed to save score history', err);
     }
-  }, [endGame, revealMissedStreets, streets, mapName, guessedCount, maxStreak, checkAchievements, currentMapId, totalErrors]);
+  }, [endGame, revealMissedStreets, streets, mapName, guessedCount, maxStreak, checkAchievements, currentMapId, totalErrors, updatePlayerStats, isDailyChallenge]);
 
   // Start game with preset
   const startGame = useCallback((preset: typeof PRESETS[0]) => {
@@ -414,8 +438,10 @@ function GameApp() {
     setDirectionMessage(null);
     resetGameTracking();
     setTotalErrors(0);
+    setIsDailyChallenge(false);
 
     fetchStreets(preset.bounds);
+    startGameTimer();
 
     setIsTransitioning(true);
     setView('game');
@@ -430,7 +456,7 @@ function GameApp() {
     });
 
     setTimeout(() => setIsTransitioning(false), 600);
-  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking]);
+  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking, startGameTimer]);
 
   // Start from favorite
   const startFromFavorite = useCallback((fav: Favorite) => {
@@ -500,6 +526,49 @@ function GameApp() {
     setGameStarted(true);
     fetchStreets(bounds);
   }, [bounds, mapName, lang, fetchStreets]);
+
+  // Start daily challenge
+  const startDailyChallenge = useCallback((presetIndex: number, diff: string) => {
+    const preset = PRESETS[presetIndex];
+    if (!preset) return;
+
+    const presetName = lang === 'zh' ? preset.name.split(' ')[0] : preset.name.split(' ').slice(1).join(' ') || preset.name;
+    setMapName(presetName);
+    setCurrentMapId(preset.id);
+    setCustomMode(false);
+    setBounds(preset.bounds);
+    setShowResult(false);
+    clearGameHint();
+    clearHint();
+    setErrorMessage(null);
+    setHintMessage(null);
+    setDirectionMessage(null);
+    resetGameTracking();
+    setTotalErrors(0);
+    setIsDailyChallenge(true);
+
+    // Apply difficulty
+    if (diff === 'easy' || diff === 'medium' || diff === 'hard') {
+      updateDifficulty(diff as Difficulty);
+    }
+
+    fetchStreets(preset.bounds);
+    startGameTimer();
+
+    setIsTransitioning(true);
+    setView('game');
+    setGameStarted(true);
+
+    updateURLParams({
+      name: presetName,
+      south: preset.bounds.south,
+      west: preset.bounds.west,
+      north: preset.bounds.north,
+      east: preset.bounds.east,
+    });
+
+    setTimeout(() => setIsTransitioning(false), 600);
+  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking, startGameTimer, updateDifficulty]);
 
   // Return to lobby
   const returnToLobby = useCallback(() => {
@@ -617,6 +686,10 @@ function GameApp() {
         favorites={favorites}
         mapProvider={mapProvider}
         difficulty={difficulty}
+        playerStats={playerStats}
+        dailyChallenge={getDailyChallenge()}
+        isDailyCompletedToday={isDailyCompletedToday()}
+        todayDailyResult={getTodayDailyResult()}
         onToggleLanguage={toggleLanguage}
         onSelectPreset={startGame}
         onStartCustom={startCustomAreaMode}
@@ -624,6 +697,7 @@ function GameApp() {
         onDeleteFavorite={deleteFavorite}
         onProviderChange={updateMapProvider}
         onDifficultyChange={updateDifficulty}
+        onStartDailyChallenge={startDailyChallenge}
       />
 
       {/* Tutorial "View Tutorial" button in lobby */}

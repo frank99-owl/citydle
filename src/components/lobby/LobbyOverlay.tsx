@@ -9,6 +9,9 @@ import { MapSettings } from './MapSettings';
 import { HistoryTable } from './HistoryTable';
 import { FavoritesList } from './FavoritesList';
 import { AchievementPanel } from '@/components/achievement/AchievementPanel';
+import { StatsPanel } from '@/components/stats/StatsPanel';
+import { DailyChallengeCard } from './DailyChallengeCard';
+import { PlayerStats, DailyChallenge, DailyChallengeRecord } from '@/hooks/useStats';
 
 interface LobbyOverlayProps {
   lang: Language;
@@ -19,6 +22,10 @@ interface LobbyOverlayProps {
   favorites: Favorite[];
   mapProvider: MapProvider;
   difficulty: Difficulty;
+  playerStats: PlayerStats;
+  dailyChallenge: DailyChallenge | null;
+  isDailyCompletedToday: boolean;
+  todayDailyResult: DailyChallengeRecord | null;
   onToggleLanguage: () => void;
   onSelectPreset: (preset: Preset) => void;
   onStartCustom: () => void;
@@ -26,6 +33,7 @@ interface LobbyOverlayProps {
   onDeleteFavorite: (id: number) => void;
   onProviderChange: (provider: MapProvider) => void;
   onDifficultyChange: (difficulty: Difficulty) => void;
+  onStartDailyChallenge: (presetIndex: number, difficulty: string) => void;
 }
 
 export function LobbyOverlay({
@@ -37,6 +45,10 @@ export function LobbyOverlay({
   favorites,
   mapProvider,
   difficulty,
+  playerStats,
+  dailyChallenge,
+  isDailyCompletedToday,
+  todayDailyResult,
   onToggleLanguage,
   onSelectPreset,
   onStartCustom,
@@ -44,8 +56,9 @@ export function LobbyOverlay({
   onDeleteFavorite,
   onProviderChange,
   onDifficultyChange,
+  onStartDailyChallenge,
 }: LobbyOverlayProps) {
-  const [activeTab, setActiveTab] = useState<'history' | 'favorites' | 'achievements'>('history');
+  const [activeTab, setActiveTab] = useState<'history' | 'favorites' | 'achievements' | 'stats'>('history');
   const t = TRANSLATIONS[lang];
 
   return (
@@ -147,6 +160,16 @@ export function LobbyOverlay({
         )}
       </div>
 
+      {/* Daily Challenge */}
+      <DailyChallengeCard
+        lang={lang}
+        dailyChallenge={dailyChallenge}
+        isCompletedToday={isDailyCompletedToday}
+        todayResult={todayDailyResult}
+        dailyStreak={playerStats.dailyChallengeStreak}
+        onStartChallenge={onStartDailyChallenge}
+      />
+
       {/* City Preset Cards */}
       <PresetCards
         presets={presets}
@@ -167,7 +190,7 @@ export function LobbyOverlay({
       {/* History & Favorites Tabs */}
       <section style={{ width: '100%', maxWidth: '900px', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: '0', marginBottom: '0', borderBottom: '1px solid rgba(197,160,89,0.3)' }}>
-          {(['history', 'favorites', 'achievements'] as const).map(tab => (
+          {(['history', 'favorites', 'achievements', 'stats'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -185,7 +208,7 @@ export function LobbyOverlay({
                 textTransform: 'uppercase',
               }}
             >
-              {tab === 'history' ? t.historyTab : tab === 'favorites' ? t.favoritesTab : t.achievementsTab}
+              {tab === 'history' ? t.historyTab : tab === 'favorites' ? t.favoritesTab : tab === 'achievements' ? t.achievementsTab : t.statsTab}
             </button>
           ))}
         </div>
@@ -211,6 +234,9 @@ export function LobbyOverlay({
           )}
           {activeTab === 'achievements' && (
             <AchievementPanel lang={lang} isVisible={activeTab === 'achievements'} />
+          )}
+          {activeTab === 'stats' && (
+            <StatsPanel lang={lang} stats={playerStats} isVisible={activeTab === 'stats'} />
           )}
         </div>
       </section>
