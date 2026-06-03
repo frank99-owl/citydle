@@ -15,6 +15,7 @@ export interface Street {
   name: string;
   guessed: boolean;
   geometry?: number[][];
+  aliases?: string[];
 }
 
 export interface HistoryEntry {
@@ -58,3 +59,11 @@ export interface Preset {
   zoom: number;
   center: [number, number];
 }
+
+export interface GuessResult {
+  found: boolean;
+  hint?: string;
+  directionHint?: string;
+}
+
+export type StreetFilter = 'all' | 'guessed' | 'unguessed';

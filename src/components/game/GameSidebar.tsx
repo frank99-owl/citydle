@@ -1,6 +1,6 @@
 'use client';
 
-import { Language, MapProvider, Difficulty, Street, HintClue } from '@/types';
+import { Language, MapProvider, Difficulty, Street, HintClue, Bounds } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
@@ -28,8 +28,12 @@ interface GameSidebarProps {
   hintClue: HintClue | null;
   difficulty: Difficulty;
   mapProvider: MapProvider;
+  bounds: Bounds | null;
   searchQuery: string;
   searchLoading: boolean;
+  errorMessage?: string | null;
+  hintMessage?: string | null;
+  directionMessage?: string | null;
   onToggleLanguage: () => void;
   onGuessChange: (value: string) => void;
   onGuessSubmit: (e: React.FormEvent) => void;
@@ -63,8 +67,12 @@ export function GameSidebar({
   hintClue,
   difficulty,
   mapProvider,
+  bounds,
   searchQuery,
   searchLoading,
+  errorMessage,
+  hintMessage,
+  directionMessage,
   onToggleLanguage,
   onGuessChange,
   onGuessSubmit,
@@ -270,6 +278,9 @@ export function GameSidebar({
             lang={lang}
             guess={guess}
             disabled={showResult}
+            errorMessage={errorMessage}
+            hintMessage={hintMessage}
+            directionMessage={directionMessage}
             onGuessChange={onGuessChange}
             onSubmit={onGuessSubmit}
           />

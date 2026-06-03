@@ -12,12 +12,14 @@ import { useMapProvider } from '@/hooks/useMapProvider';
 import { useLeafletMap } from '@/hooks/useLeafletMap';
 import { useStreets } from '@/hooks/useStreets';
 import { useGameLogic } from '@/hooks/useGameLogic';
+import { useTutorial } from '@/hooks/useTutorial';
 
 // Components
 import { GameMap } from '@/components/map/GameMap';
 import { LobbyOverlay } from '@/components/lobby/LobbyOverlay';
 import { GameSidebar } from '@/components/game/GameSidebar';
 import { SettlementView } from '@/components/settlement/SettlementView';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 
 function GameApp() {
   const searchParams = useSearchParams();
@@ -62,6 +64,11 @@ function GameApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
 
+  // Guess feedback states
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [hintMessage, setHintMessage] = useState<string | null>(null);
+  const [directionMessage, setDirectionMessage] = useState<string | null>(null);
+
   // Initialize hooks
   const {
     mapProvider,
@@ -100,6 +107,8 @@ function GameApp() {
     cancelFetch,
   } = useStreets(lang);
 
+  const tutorial = useTutorial();
+
   const {
     guess,
     setGuess,
@@ -126,6 +135,9 @@ function GameApp() {
     calculateBadge,
   } = useGameLogic();
 
+  // Translation accessor (needed early for feedback messages)
+  const t = TRANSLATIONS[lang];
+
   // Sync language and settings with localStorage on load
   useEffect(() => {
     const savedLang = localStorage.getItem('cartographer_lang') as Language;
@@ -139,6 +151,15 @@ function GameApp() {
     }
     loadDifficulty();
   }, [loadDifficulty]);
+
+  // Auto-start tutorial for first-time users (after language is determined)
+  useEffect(() => {
+    if (tutorial.shouldAutoStart && view === 'lobby') {
+      // Small delay so the lobby renders first
+      const timer = setTimeout(() => tutorial.startTutorial(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [tutorial.shouldAutoStart, tutorial.startTutorial, view]);
 
   // Toggle language
   const toggleLanguage = useCallback(() => {
@@ -179,6 +200,15 @@ function GameApp() {
   useEffect(() => {
     fetchHistoryAndFavorites();
   }, [fetchHistoryAndFavorites]);
+
+  // Refresh history/favorites after tutorial completes
+  const wasTutorialActiveRef = useRef(false);
+  useEffect(() => {
+    if (wasTutorialActiveRef.current && !tutorial.isActive) {
+      fetchHistoryAndFavorites();
+    }
+    wasTutorialActiveRef.current = tutorial.isActive;
+  }, [tutorial.isActive, fetchHistoryAndFavorites]);
 
   // Sync tile layer when provider changes
   useEffect(() => {
@@ -242,20 +272,79 @@ function GameApp() {
   // Handle guess submit with map reveal
   const handleGuessSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    checkGuess(
+    const result = checkGuess(
       guess,
       streets,
+      bounds,
+      lang,
       revealStreet,
-      (streak) => {
-        confetti({
-          particleCount: Math.min(30 + streak * 15, 180),
-          spread: Math.min(40 + streak * 10, 100),
-          origin: { y: 0.6 }
-        });
+      (streakCount) => {
+        // Enhanced confetti based on streak level
+        if (streakCount >= 20) {
+          // Big confetti + screen shake
+          confetti({
+            particleCount: 200,
+            spread: 160,
+            startVelocity: 40,
+            origin: { y: 0.5 },
+          });
+          // Second burst from side
+          setTimeout(() => {
+            confetti({
+              particleCount: 120,
+              angle: 60,
+              spread: 80,
+              origin: { x: 0, y: 0.6 },
+            });
+            confetti({
+              particleCount: 120,
+              angle: 120,
+              spread: 80,
+              origin: { x: 1, y: 0.6 },
+            });
+          }, 200);
+          // Screen shake
+          document.body.style.animation = 'none';
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          document.body.offsetHeight; // force reflow
+          document.body.style.animation = 'screen-shake 0.5s ease';
+          setTimeout(() => { document.body.style.animation = ''; }, 500);
+        } else if (streakCount >= 10) {
+          // Medium confetti
+          confetti({
+            particleCount: 80,
+            spread: 90,
+            startVelocity: 30,
+            origin: { y: 0.6 },
+          });
+        } else {
+          // Small confetti for streak 2-9
+          confetti({
+            particleCount: Math.min(30 + streakCount * 10, 80),
+            spread: Math.min(40 + streakCount * 5, 70),
+            origin: { y: 0.6 },
+          });
+        }
       },
       endGame
     );
-  }, [checkGuess, guess, streets, revealStreet, endGame]);
+
+    if (!result.found && guess.trim()) {
+      setErrorMessage(t.guessWrong);
+      setHintMessage(result.hint || null);
+      setDirectionMessage(result.directionHint || null);
+      setTimeout(() => setErrorMessage(null), 1000);
+      // Clear hint/direction after 3 seconds
+      setTimeout(() => {
+        setHintMessage(null);
+        setDirectionMessage(null);
+      }, 3000);
+    } else if (result.found) {
+      setErrorMessage(null);
+      setHintMessage(null);
+      setDirectionMessage(null);
+    }
+  }, [checkGuess, guess, streets, bounds, lang, revealStreet, endGame, t]);
 
   // Handle end game
   const handleEndGame = useCallback(async () => {
@@ -288,6 +377,9 @@ function GameApp() {
     setShowResult(false);
     clearGameHint();
     clearHint();
+    setErrorMessage(null);
+    setHintMessage(null);
+    setDirectionMessage(null);
 
     fetchStreets(preset.bounds);
 
@@ -379,6 +471,9 @@ function GameApp() {
     setShowResult(false);
     resetGame();
     clearAllLayers();
+    setErrorMessage(null);
+    setHintMessage(null);
+    setDirectionMessage(null);
 
     updateURLParams(null);
     fetchHistoryAndFavorites();
@@ -463,7 +558,6 @@ function GameApp() {
 
   // Calculate badge
   const badge = calculateBadge(streets.length);
-  const t = TRANSLATIONS[lang];
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
@@ -490,6 +584,51 @@ function GameApp() {
         onDifficultyChange={updateDifficulty}
       />
 
+      {/* Tutorial "View Tutorial" button in lobby */}
+      {view === 'lobby' && !tutorial.isActive && (
+        <button
+          onClick={tutorial.startTutorial}
+          style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            zIndex: 20,
+            fontFamily: 'var(--font-cinzel), serif',
+            fontSize: '0.7rem',
+            letterSpacing: '0.1em',
+            padding: '0.5rem 1rem',
+            background: 'rgba(44,37,25,0.85)',
+            border: '1.5px solid rgba(197,160,89,0.4)',
+            borderRadius: '3px',
+            color: '#c5a059',
+            cursor: 'pointer',
+            backdropFilter: 'blur(6px)',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(197,160,89,0.15)';
+            e.currentTarget.style.borderColor = '#c5a059';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'rgba(44,37,25,0.85)';
+            e.currentTarget.style.borderColor = 'rgba(197,160,89,0.4)';
+          }}
+        >
+          {lang === 'zh' ? '📖 查看教程' : '📖 View Tutorial'}
+        </button>
+      )}
+
+      {/* Tutorial Overlay */}
+      <TutorialOverlay
+        lang={lang}
+        isActive={tutorial.isActive}
+        currentStep={tutorial.currentStep}
+        totalSteps={tutorial.totalSteps}
+        onSkip={tutorial.skipTutorial}
+        onNext={tutorial.nextStep}
+        onPrev={tutorial.prevStep}
+      />
+
       {/* Game Sidebar */}
       <GameSidebar
         lang={lang}
@@ -508,8 +647,12 @@ function GameApp() {
         hintClue={hintClue}
         difficulty={difficulty}
         mapProvider={mapProvider}
+        bounds={bounds}
         searchQuery={searchQuery}
         searchLoading={searchLoading}
+        errorMessage={errorMessage}
+        hintMessage={hintMessage}
+        directionMessage={directionMessage}
         onToggleLanguage={toggleLanguage}
         onGuessChange={setGuess}
         onGuessSubmit={handleGuessSubmit}

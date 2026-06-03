@@ -84,6 +84,22 @@ export const TRANSLATIONS = {
     hintClueText: '提示：{pattern} (长度: {length})',
     hintLimitReached: '所有街道已被提示过！',
     hintUsageText: '已用提示数: {count}',
+    // Guess feedback
+    nearMissHint: '差一点！你是否想输入 "{name}"？',
+    directionHint: '这条街道在地图的 {direction} 方',
+    dirNorth: '北', dirSouth: '南', dirEast: '东', dirWest: '西',
+    dirNE: '东北', dirNW: '西北', dirSE: '东南', dirSW: '西南',
+    // Progress encouragement
+    progressRemaining: '还剩 {count} 条街道',
+    encourage50: '已过半程，继续加油！',
+    encourage75: '即将征服此图！',
+    encourage90: '只差几步即可完美通关！',
+    // Street list filters
+    filterAll: '全部',
+    filterGuessed: '已猜中',
+    filterUnguessed: '未猜中',
+    streetCount: '共 {total} 条',
+    guessWrong: '未找到匹配的街道',
   },
   en: {
     title: 'Financial Street Cartographer',
@@ -168,5 +184,21 @@ export const TRANSLATIONS = {
     hintClueText: 'Clue: {pattern} (Length: {length})',
     hintLimitReached: 'All streets have been hinted!',
     hintUsageText: 'Hints used: {count}',
+    // Guess feedback
+    nearMissHint: 'Almost! Did you mean "{name}"?',
+    directionHint: 'This street is in the {direction} part of the map',
+    dirNorth: 'North', dirSouth: 'South', dirEast: 'East', dirWest: 'West',
+    dirNE: 'Northeast', dirNW: 'Northwest', dirSE: 'Southeast', dirSW: 'Southwest',
+    // Progress encouragement
+    progressRemaining: '{count} streets remaining',
+    encourage50: 'Halfway there, keep going!',
+    encourage75: 'Almost conquered this map!',
+    encourage90: 'Just a few more to perfect completion!',
+    // Street list filters
+    filterAll: 'All',
+    filterGuessed: 'Guessed',
+    filterUnguessed: 'Unguessed',
+    streetCount: '{total} streets',
+    guessWrong: 'No matching street found',
   }
 };

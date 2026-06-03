@@ -31,6 +31,7 @@ export function useStreets(lang: Language) {
         name: s.name,
         guessed: false,
         geometry: s.geometry,
+        aliases: s.aliases,
       }));
 
       setStreets(formattedStreets);
