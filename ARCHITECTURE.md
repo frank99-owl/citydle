@@ -39,7 +39,86 @@ The system is built on a Next.js 14 full-stack monolithic architecture. The appl
 
 ---
 
-## 2. Core Data Flow
+## 2. Frontend Module Architecture (Refactored)
+
+The frontend has been refactored from a monolithic single-file component into a modular architecture with clear separation of concerns:
+
+```
+src/
+├── app/
+│   └── page.tsx                    # Root orchestrator (~570 lines)
+│       - Composes hooks and components
+│       - Manages top-level state transitions
+│       - Handles API calls for history/favorites
+├── types/
+│   └── index.ts                    # Centralized TypeScript types
+├── hooks/                          # Custom React hooks
+│   ├── useLeafletMap.ts            # Map lifecycle, layers, drawing
+│   ├── useMapProvider.ts           # Provider state, coordinate transforms
+│   ├── useStreets.ts               # Street data fetching & caching
+│   ├── useGameLogic.ts             # Guessing, streaks, hints, settlement
+│   └── useLocalStorage.ts          # Persistent localStorage wrapper
+├── components/
+│   ├── map/GameMap.tsx              # Leaflet container + overlay
+│   ├── lobby/                       # Lobby view components
+│   │   ├── LobbyOverlay.tsx         # Main lobby container
+│   │   ├── PresetCards.tsx          # City selection grid
+│   │   ├── MapSettings.tsx          # Provider & difficulty controls
+│   │   ├── HistoryTable.tsx         # Game history display
+│   │   └── FavoritesList.tsx        # Saved maps list
+│   ├── game/                        # Active game components
+│   │   ├── GameSidebar.tsx          # Game sidebar container
+│   │   ├── GameStats.tsx            # Score & completion display
+│   │   ├── GuessInput.tsx           # Street name input form
+│   │   ├── HintConsole.tsx          # Hint button & clue display
+│   │   ├── StreakDisplay.tsx        # Streak counter
+│   │   ├── StreetList.tsx           # Unlocked streets list
+│   │   └── GameActions.tsx          # Save/forfeit/exit buttons
+│   ├── settlement/
+│   │   └── SettlementView.tsx       # End-game results & badge
+│   └── shared/
+│       ├── LanguageToggle.tsx       # Language switch button
+│       └── LoadingSpinner.tsx       # Loading indicator
+└── lib/                             # Utilities (unchanged)
+    ├── constants.ts                 # Presets, achievements, types
+    ├── i18n.ts                      # Translations (zh/en)
+    ├── coord.ts                     # WGS-84/GCJ-02 conversions
+    └── db.ts                        # SQLite singleton
+```
+
+### Hook Responsibilities
+
+| Hook | Responsibility | Returns |
+|------|---------------|---------|
+| `useLeafletMap` | Map init/destroy, layer management, Geoman drawing | `mapRef`, drawing/layer operations |
+| `useMapProvider` | Provider state, tile config, coordinate transforms | `mapProvider`, `toMapLatLng`, `toGameLatLng` |
+| `useStreets` | Street API calls, fetch cancellation, loading state | `streets`, `fetchStreets`, `loading` |
+| `useGameLogic` | Guess matching, streaks, hints, settlement, badges | Game state + action handlers |
+| `useLocalStorage` | Read/write localStorage with SSR safety | `[value, setter]` |
+
+### Component Hierarchy
+
+```
+<page.tsx>
+├── <GameMap />                     # Background map
+├── <LobbyOverlay />                # Lobby (fades out during game)
+│   ├── <PresetCards />
+│   ├── <MapSettings />
+│   ├── <HistoryTable />
+│   └── <FavoritesList />
+├── <GameSidebar />                 # Game sidebar (slides in)
+│   ├── <GameStats />
+│   ├── <HintConsole />
+│   ├── <StreakDisplay />
+│   ├── <GuessInput />
+│   ├── <StreetList />
+│   └── <GameActions />
+└── <SettlementView />              # Results overlay
+```
+
+---
+
+## 3. Core Data Flow
 
 ### A. Street Quiz Data Flow (Game Initialization)
 1. **Background Map Rendering & Mount**: The Leaflet map is initialized in the background behind a full-screen Lobby UI cover immediately on page load.
@@ -123,7 +202,7 @@ The UI forms a complete navigation loop. Every state has a clear path back to th
 
 ---
 
-## 3. Database Design (SQLite)
+## 4. Database Design (SQLite)
 
 The project leverages Node.js 22.5+ native `node:sqlite` (`DatabaseSync`) synchronous interface. To prevent Next.js build-time static generation locks, the database is lazily initialized via a `getDb()` singleton pattern. 
 
@@ -162,7 +241,7 @@ Since Vercel's serverless runtime features a read-only filesystem (with the exce
 
 ---
 
-## 4. Map & Rendering Optimizations
+## 5. Map & Rendering Optimizations
 
 To deliver a premium, 60fps experience, the map rendering stack includes several optimization layers:
 
@@ -184,7 +263,7 @@ To deliver a premium, 60fps experience, the map rendering stack includes several
 
 ---
 
-## 5. Map Providers & Projection Systems
+## 6. Map Providers & Projection Systems
 
 * **Supported Map Providers**:
   - **CartoDB Dark (`cartodb-dark`)**: Immersive dark paper aesthetic with labels removed for anti-cheat purposes. Uses standard WGS-84.
@@ -199,7 +278,7 @@ To deliver a premium, 60fps experience, the map rendering stack includes several
 
 ---
 
-## 6. Gameplay Difficulty & Hint Systems
+## 7. Gameplay Difficulty & Hint Systems
 
 * **Easy Mode**: Offers first-letter clues (e.g. `W___ S_____`) and highlights/flashes the street geometry path in pulsing amber with a panning animation.
 * **Medium Mode**: Offers only the first-letter word pattern clue. No map highlight or viewport panning.
@@ -208,7 +287,7 @@ To deliver a premium, 60fps experience, the map rendering stack includes several
 
 ---
 
-## 7. Multi-lingual Street Name Matching
+## 8. Multi-lingual Street Name Matching
 
 To support international players in cities with local language street names (e.g. Japanese Kanji in Tokyo presets), a multi-lingual alias matching system is designed:
 

@@ -39,7 +39,86 @@
 
 ---
 
-## 2. 核心数据流
+## 2. 前端模块架构（重构后）
+
+前端已从单体巨型组件重构为模块化架构，职责分离清晰：
+
+```
+src/
+├── app/
+│   └── page.tsx                    # 根编排器（约 570 行）
+│       - 组合 hooks 和组件
+│       - 管理顶层状态转换
+│       - 处理历史/收藏 API 调用
+├── types/
+│   └── index.ts                    # 集中 TypeScript 类型定义
+├── hooks/                          # 自定义 React Hooks
+│   ├── useLeafletMap.ts            # 地图生命周期、图层、绘图
+│   ├── useMapProvider.ts           # 供应商状态、坐标转换
+│   ├── useStreets.ts               # 街道数据获取与缓存
+│   ├── useGameLogic.ts             # 猜测、连击、提示、结算
+│   └── useLocalStorage.ts          # localStorage 持久化封装
+├── components/
+│   ├── map/GameMap.tsx              # Leaflet 容器 + 覆盖层
+│   ├── lobby/                       # 大厅视图组件
+│   │   ├── LobbyOverlay.tsx         # 大厅主容器
+│   │   ├── PresetCards.tsx          # 城市选择卡片网格
+│   │   ├── MapSettings.tsx          # 地图源与难度设置
+│   │   ├── HistoryTable.tsx         # 游戏历史表格
+│   │   └── FavoritesList.tsx        # 收藏地图列表
+│   ├── game/                        # 游戏中组件
+│   │   ├── GameSidebar.tsx          # 游戏侧边栏容器
+│   │   ├── GameStats.tsx            # 得分与完成度显示
+│   │   ├── GuessInput.tsx           # 街道名称输入表单
+│   │   ├── HintConsole.tsx          # 提示按钮与线索显示
+│   │   ├── StreakDisplay.tsx        # 连击计数器
+│   │   ├── StreetList.tsx           # 已解锁街道列表
+│   │   └── GameActions.tsx          # 收藏/放弃/返回按钮
+│   ├── settlement/
+│   │   └── SettlementView.tsx       # 游戏结算与成就展示
+│   └── shared/
+│       ├── LanguageToggle.tsx       # 语言切换按钮
+│       └── LoadingSpinner.tsx       # 加载指示器
+└── lib/                             # 工具函数（未改动）
+    ├── constants.ts                 # 预设、成就、类型
+    ├── i18n.ts                      # 翻译文本（中/英）
+    ├── coord.ts                     # WGS-84/GCJ-02 坐标转换
+    └── db.ts                        # SQLite 单例
+```
+
+### Hook 职责划分
+
+| Hook | 职责 | 返回值 |
+|------|------|--------|
+| `useLeafletMap` | 地图初始化/销毁、图层管理、Geoman 绘图 | `mapRef`、绘图/图层操作方法 |
+| `useMapProvider` | 供应商状态、瓦片配置、坐标转换 | `mapProvider`、`toMapLatLng`、`toGameLatLng` |
+| `useStreets` | 街道 API 调用、请求取消、加载状态 | `streets`、`fetchStreets`、`loading` |
+| `useGameLogic` | 猜测匹配、连击、提示、结算、成就 | 游戏状态 + 操作方法 |
+| `useLocalStorage` | SSR 安全的 localStorage 读写 | `[value, setter]` |
+
+### 组件层级结构
+
+```
+<page.tsx>
+├── <GameMap />                     # 背景地图
+├── <LobbyOverlay />                # 大厅（游戏中淡出）
+│   ├── <PresetCards />
+│   ├── <MapSettings />
+│   ├── <HistoryTable />
+│   └── <FavoritesList />
+├── <GameSidebar />                 # 游戏侧边栏（滑入）
+│   ├── <GameStats />
+│   ├── <HintConsole />
+│   ├── <StreakDisplay />
+│   ├── <GuessInput />
+│   ├── <StreetList />
+│   └── <GameActions />
+└── <SettlementView />              # 结果覆盖层
+```
+
+---
+
+## 3. 核心数据流
 
 ### A. 街道谜题数据流 (游戏初始化)
 1. **选择/绘制**：玩家选择预设的金融街区（例如华尔街）或在自定义模式下拉框确定坐标（`south, west, north, east`）。
@@ -118,7 +197,7 @@
 
 ---
 
-## 3. 数据库设计 (SQLite)
+## 4. 数据库设计 (SQLite)
 
 采用 Node.js 22.5+ 原生提供的 `node:sqlite` （`DatabaseSync`）同步接口。为了防止 Next.js 编译/构建阶段产生文件锁冲突，数据库使用 `getDb()` 单例模式进行延迟初始化。
 
@@ -157,7 +236,7 @@
 
 ---
 
-## 4. 地图与渲染优化
+## 5. 地图与渲染优化
 
 为了提供极致的 60fps 体验，地图渲染层进行了多项性能优化：
 
@@ -179,7 +258,7 @@
 
 ---
 
-## 5. 地图源与坐标系统
+## 6. 地图源与坐标系统
 
 * **支持的地图源 (Map Providers)**:
   - **CartoDB 深色底图 (`cartodb-dark`)**：沉浸式的复古纸质暗黑风格底图，移除了街道地标文字标签，用于防作弊。使用标准 WGS-84。
@@ -194,7 +273,7 @@
 
 ---
 
-## 6. 挑战难度与智能线索提示系统
+## 7. 挑战难度与智能线索提示系统
 
 * **简单模式 (Easy)**：提供街道首字母及拼写占位线索（例如 `W___ S_____`），并在地图上以黄色虚线高亮闪烁提示街道位置，自动平移居中。
 * **中等模式 (Medium)**：仅在侧边栏显示单词首字母与长度占位符，不提供地图高亮或视口移动。
@@ -203,7 +282,7 @@
 
 ---
 
-## 7. 多语言街道别名匹配系统
+## 8. 多语言街道别名匹配系统
 
 为了支持使用不同语言的玩家在游玩本地化路名的区域（例如在东京 Preset 中匹配日语汉字/假名街道）时能够流畅猜测，系统设计了多语言别名匹配机制：
 

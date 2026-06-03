@@ -33,6 +33,32 @@
 
 ---
 
+## 🏗️ Project Structure
+
+The frontend follows a modular architecture with clear separation of concerns:
+
+```
+src/
+├── app/page.tsx              # Root orchestrator
+├── types/                    # TypeScript type definitions
+├── hooks/                    # Custom React hooks
+│   ├── useLeafletMap.ts      # Map lifecycle & layers
+│   ├── useMapProvider.ts     # Provider & coordinates
+│   ├── useStreets.ts         # Street data fetching
+│   ├── useGameLogic.ts       # Game state & actions
+│   └── useLocalStorage.ts    # Persistent storage
+├── components/
+│   ├── lobby/                # Lobby UI components
+│   ├── game/                 # Active game components
+│   ├── settlement/           # Results view
+│   └── shared/               # Reusable UI elements
+└── lib/                      # Utilities & constants
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed module documentation.
+
+---
+
 ## 🛠 Tech Stack
 
 *   **Framework**: Next.js 14 (App Router) + TypeScript (Lazy SQLite Connection Lifecycle)

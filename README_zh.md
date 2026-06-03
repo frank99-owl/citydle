@@ -31,6 +31,32 @@
 
 ---
 
+## 🏗️ 项目结构
+
+前端采用模块化架构，职责分离清晰：
+
+```
+src/
+├── app/page.tsx              # 根组件编排器
+├── types/                    # TypeScript 类型定义
+├── hooks/                    # 自定义 React Hooks
+│   ├── useLeafletMap.ts      # 地图生命周期与图层
+│   ├── useMapProvider.ts     # 地图供应商与坐标转换
+│   ├── useStreets.ts         # 街道数据获取
+│   ├── useGameLogic.ts       # 游戏状态与操作
+│   └── useLocalStorage.ts    # 持久化存储
+├── components/
+│   ├── lobby/                # 大厅 UI 组件
+│   ├── game/                 # 游戏中组件
+│   ├── settlement/           # 结算视图
+│   └── shared/               # 可复用 UI 元素
+└── lib/                      # 工具函数与常量
+```
+
+详细模块文档请参阅 [ARCHITECTURE_zh.md](ARCHITECTURE_zh.md)。
+
+---
+
 ## 🛠 技术架构与选型
 
 *   **框架**：Next.js 14 (App Router) + TypeScript (动态延迟 SQLite 连接管理)
