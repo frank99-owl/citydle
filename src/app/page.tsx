@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { PRESETS } from '@/lib/constants';
@@ -186,6 +186,9 @@ function GameApp() {
     syncTileLayer(config.url, config.options);
   }, [mapProvider, mapLoaded, getTileConfig, syncTileLayer]);
 
+  // Track previous streets length to detect new data vs individual guesses
+  const prevStreetsLenRef = useRef(0);
+
   // Redraw layers when mapProvider or difficulty changes
   useEffect(() => {
     if (!mapLoaded) return;
@@ -194,9 +197,15 @@ function GameApp() {
     shiftMapCenter(prevProviderRef.current, mapProvider, convertCoordinate);
     prevProviderRef.current = mapProvider;
 
-    // Redraw bounds and streets
+    // Redraw bounds
     drawBounds(bounds);
-    drawStreets(streets, showResult);
+
+    // Only do full street redraw when new data is loaded (length changed)
+    // Individual street reveals are handled by revealStreet in handleGuessSubmit
+    if (streets.length !== prevStreetsLenRef.current) {
+      drawStreets(streets, showResult);
+      prevStreetsLenRef.current = streets.length;
+    }
 
     // Redraw hint if active
     if (hintClue && hintClue.geom && difficulty === 'easy') {
