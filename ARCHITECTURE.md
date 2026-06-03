@@ -1,305 +1,586 @@
-# System Architecture (ARCHITECTURE.md)
+# System Architecture
 
-[中文文档 (Chinese Version)](ARCHITECTURE_zh.md)
+[中文版](ARCHITECTURE_zh.md) | English
 
-This document describes the system design, data flow, and database schema for **Financial Street Cartographer** (金融街图志).
-
----
-
-## 1. Overall Architectural Design
-
-The system is built on a Next.js 14 full-stack monolithic architecture. The application is designed as a **Single Page Application (SPA)** at the root path (`/`) to achieve zero-latency game loading. The frontend consolidates the main landing lobby and the active game console on the same page, pre-initializing the Leaflet map container in the background immediately upon landing. The `/game` route acts as a lightweight client-side redirect wrapper, passing query params to the root route.
-
-```
-+-----------------------------------------------------------------------+
-|                            Client Browser (SPA)                       |
-|  - Leaflet.js (Background Initialized, Canvas Rendering)              |
-|  - UI Views: Lobby Overlay & Game Sidebar (CSS Transition Driven)     |
-|  - URL Parameter Sync (window.history.replaceState for bookmarks)     |
-|  - State Management (Street List, Streaks, Guesses, Confetti)         |
-+-----------------------------------+-----------------------------------+
-                                    |
-                          HTTPS (API Routes)
-                                    |
-+-----------------------------------v-----------------------------------+
-|                           Next.js API Server                          |
-|  - /api/streets (Static preset router & cached Overpass mirror race)  |
-|  - /api/search (OSM Nominatim proxy for custom bounds lookup)        |
-|  - /api/favorites (SQLite favorites CRUD)                             |
-|  - /api/history (SQLite history & high score tracking)                |
-+-----------------------------------+-----------------------------------+
-                                    |
-          +--------------------------+--------------------------+
-          | (Geo Requests)           | (Search Proxy)           | (SQL Queries)
-+--------v--------+        +--------v--------+        +--------v--------+
-|  Overpass API   |        |  OSM Nominatim  |        | SQLite Database |
-| (Parallel Race) |        | (Search Server) |        | (Lazy getDb())  |
-+-----------------+        +-----------------+        +-----------------+
-```
+This document describes the technical architecture, data flows, and design decisions for **Financial Street Cartographer**.
 
 ---
 
-## 2. Frontend Module Architecture (Refactored)
+## Table of Contents
 
-The frontend has been refactored from a monolithic single-file component into a modular architecture with clear separation of concerns:
+1. [System Overview](#1-system-overview)
+2. [Frontend Architecture](#2-frontend-architecture)
+3. [Backend Architecture](#3-backend-architecture)
+4. [Data Flow](#4-data-flow)
+5. [Database Schema](#5-database-schema)
+6. [Map & Rendering](#6-map--rendering)
+7. [Multi-Language System](#7-multi-language-system)
+8. [Achievement System](#8-achievement-system)
+9. [Security & Anti-Cheat](#9-security--anti-cheat)
+10. [Performance Optimizations](#10-performance-optimizations)
+
+---
+
+## 1. System Overview
+
+### Architecture Pattern
+
+The application uses a **Next.js 14 full-stack monolithic architecture** with:
+
+- **Frontend**: React 18 SPA with custom hooks pattern
+- **Backend**: Next.js API Routes (serverless functions)
+- **Database**: SQLite via Node.js native `node:sqlite`
+- **External APIs**: Overpass API, Nominatim API
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Client Browser                          │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                    React SPA (page.tsx)                      ││
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────────────┐  ││
+│  │  │  Lobby  │ │  Game   │ │ Settle  │ │ Achievement/Share│  ││
+│  │  └────┬────┘ └────┬────┘ └────┬────┘ └────────┬────────┘  ││
+│  │       │           │           │                │            ││
+│  │  ┌────┴───────────┴───────────┴────────────────┴────────┐  ││
+│  │  │                    Custom Hooks                        │  ││
+│  │  │  useLeafletMap | useGameLogic | useAchievements | ... │  ││
+│  │  └───────────────────────┬───────────────────────────────┘  ││
+│  │                          │                                   ││
+│  │  ┌───────────────────────┴───────────────────────────────┐  ││
+│  │  │                    Leaflet.js Map                       │  ││
+│  │  │        (Canvas rendering, Geoman drawing)               │  ││
+│  │  └───────────────────────────────────────────────────────┘  ││
+│  └─────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                │ HTTPS
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Next.js API Routes                          │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │ /streets │ │ /search  │ │ /history │ │/favorites│          │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘          │
+│       │            │            │            │                  │
+│  ┌────┴─────┐ ┌────┴─────┐ ┌────┴─────┐ ┌────┴─────┐          │
+│  │/leaderbrd│ │  /daily  │ │          │ │          │          │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘          │
+└───────┼────────────┼────────────┼────────────┼──────────────────┘
+        │            │            │            │
+        ▼            ▼            ▼            ▼
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│ Overpass │ │ Nominatim│ │  SQLite  │ │  SQLite  │
+│   API    │ │   API    │ │ (cache)  │ │ (persist)│
+└──────────┘ └──────────┘ └──────────┘ └──────────┘
+```
+
+### Key Design Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| SPA at root path `/` | Zero-latency game loading, pre-initialized map |
+| SQLite over PostgreSQL | Zero-config, embedded, perfect for single-server |
+| Canvas over SVG rendering | 60fps with thousands of polylines |
+| Custom hooks over Redux | Simpler state management, co-located logic |
+| Static preset JSON | Instant loading for popular cities |
+
+---
+
+## 2. Frontend Architecture
+
+### Module Structure
 
 ```
 src/
-├── app/
-│   └── page.tsx                    # Root orchestrator (~570 lines)
-│       - Composes hooks and components
-│       - Manages top-level state transitions
-│       - Handles API calls for history/favorites
-├── types/
-│   └── index.ts                    # Centralized TypeScript types
-├── hooks/                          # Custom React hooks
-│   ├── useLeafletMap.ts            # Map lifecycle, layers, drawing
-│   ├── useMapProvider.ts           # Provider state, coordinate transforms
-│   ├── useStreets.ts               # Street data fetching & caching
-│   ├── useGameLogic.ts             # Guessing, streaks, hints, settlement
-│   └── useLocalStorage.ts          # Persistent localStorage wrapper
-├── components/
-│   ├── map/GameMap.tsx              # Leaflet container + overlay
-│   ├── lobby/                       # Lobby view components
-│   │   ├── LobbyOverlay.tsx         # Main lobby container
-│   │   ├── PresetCards.tsx          # City selection grid
-│   │   ├── MapSettings.tsx          # Provider & difficulty controls
-│   │   ├── HistoryTable.tsx         # Game history display
-│   │   └── FavoritesList.tsx        # Saved maps list
-│   ├── game/                        # Active game components
-│   │   ├── GameSidebar.tsx          # Game sidebar container
-│   │   ├── GameStats.tsx            # Score & completion display
-│   │   ├── GuessInput.tsx           # Street name input form
-│   │   ├── HintConsole.tsx          # Hint button & clue display
-│   │   ├── StreakDisplay.tsx        # Streak counter
-│   │   ├── StreetList.tsx           # Unlocked streets list
-│   │   └── GameActions.tsx          # Save/forfeit/exit buttons
-│   ├── settlement/
-│   │   └── SettlementView.tsx       # End-game results & badge
-│   └── shared/
-│       ├── LanguageToggle.tsx       # Language switch button
-│       └── LoadingSpinner.tsx       # Loading indicator
-└── lib/                             # Utilities (unchanged)
-    ├── constants.ts                 # Presets, achievements, types
-    ├── i18n.ts                      # Translations (zh/en)
-    ├── coord.ts                     # WGS-84/GCJ-02 conversions
-    └── db.ts                        # SQLite singleton
+├── app/                          # Next.js App Router
+│   ├── page.tsx                  # Root SPA orchestrator
+│   ├── layout.tsx                # Global layout & fonts
+│   ├── globals.css               # Theme & animations
+│   └── api/                      # Serverless functions
+├── types/                        # TypeScript definitions
+│   └── index.ts                  # Centralized types
+├── hooks/                        # Custom React hooks
+│   ├── useLeafletMap.ts          # Map lifecycle & layers
+│   ├── useMapProvider.ts         # Provider & coordinates
+│   ├── useStreets.ts             # Street data fetching
+│   ├── useGameLogic.ts           # Core game mechanics
+│   ├── useAchievements.ts        # Achievement tracking
+│   ├── useStats.ts               # Personal statistics
+│   ├── useTutorial.ts            # Onboarding flow
+│   ├── useShare.ts               # Share card generation
+│   └── useLocalStorage.ts        # Persistent storage
+├── components/                   # React components
+│   ├── lobby/                    # Lobby views
+│   ├── game/                     # Active game views
+│   ├── settlement/               # Results view
+│   ├── achievement/              # Achievement system
+│   ├── share/                    # Social sharing
+│   ├── leaderboard/              # Global rankings
+│   ├── stats/                    # Personal stats
+│   ├── tutorial/                 # Onboarding
+│   └── shared/                   # Reusable UI
+├── lib/                          # Utilities
+│   ├── constants.ts              # Presets & config
+│   ├── i18n.ts                   # Translations
+│   ├── coord.ts                  # Coordinate math
+│   ├── db.ts                     # SQLite singleton
+│   └── daily.ts                  # Daily challenge
+└── data/                         # Static data
+    └── presets/                   # Street geometries
 ```
 
-### Hook Responsibilities
+### Hook Architecture
 
-| Hook | Responsibility | Returns |
-|------|---------------|---------|
-| `useLeafletMap` | Map init/destroy, layer management, Geoman drawing | `mapRef`, drawing/layer operations |
-| `useMapProvider` | Provider state, tile config, coordinate transforms | `mapProvider`, `toMapLatLng`, `toGameLatLng` |
-| `useStreets` | Street API calls, fetch cancellation, loading state | `streets`, `fetchStreets`, `loading` |
-| `useGameLogic` | Guess matching, streaks, hints, settlement, badges | Game state + action handlers |
-| `useLocalStorage` | Read/write localStorage with SSR safety | `[value, setter]` |
+Each hook encapsulates a specific domain of logic:
+
+| Hook | State | Operations | Dependencies |
+|------|-------|------------|--------------|
+| `useLeafletMap` | `mapRef`, `mapLoaded` | init, destroy, layer ops, drawing | Leaflet, Geoman |
+| `useMapProvider` | `mapProvider` | switch provider, convert coords | `coord.ts` |
+| `useStreets` | `streets`, `loading` | fetch, cancel, cache | `/api/streets` |
+| `useGameLogic` | `guess`, `streak`, `score` | match, hint, settle | `i18n.ts` |
+| `useAchievements` | `unlocked`, `popup` | check, unlock, display | `localStorage` |
+| `useStats` | `stats` | update, daily challenge | `localStorage`, `/api/daily` |
+| `useTutorial` | `step`, `isActive` | start, next, skip | `localStorage` |
+| `useShare` | - | generate image, share | Canvas API |
+| `useLocalStorage` | `value` | read, write, sync | `localStorage`, `storage` event |
 
 ### Component Hierarchy
 
 ```
 <page.tsx>
-├── <GameMap />                     # Background map
-├── <LobbyOverlay />                # Lobby (fades out during game)
-│   ├── <PresetCards />
-│   ├── <MapSettings />
-│   ├── <HistoryTable />
-│   └── <FavoritesList />
-├── <GameSidebar />                 # Game sidebar (slides in)
-│   ├── <GameStats />
-│   ├── <HintConsole />
-│   ├── <StreakDisplay />
-│   ├── <GuessInput />
-│   ├── <StreetList />
-│   └── <GameActions />
-└── <SettlementView />              # Results overlay
+│
+├── <GameMap />                          # Background map
+│
+├── <LobbyOverlay />                     # Lobby (CSS transition)
+│   ├── <DailyChallengeCard />           # Daily challenge widget
+│   ├── <PresetCards />                  # City selection
+│   ├── <MapSettings />                  # Provider & difficulty
+│   └── <Tabs>
+│       ├── <HistoryTable />             # Game history
+│       ├── <FavoritesList />            # Saved maps
+│       ├── <AchievementPanel />         # Achievements
+│       ├── <StatsPanel />               # Personal stats
+│       └── <Leaderboard />              # Global rankings
+│
+├── <GameSidebar />                      # Game sidebar (slides in)
+│   ├── <GameStats />                    # Score display
+│   ├── <HintConsole />                  # Hint button
+│   ├── <StreakDisplay />                # Streak counter
+│   ├── <GuessInput />                   # Input form
+│   ├── <StreetList />                   # Street list
+│   └── <GameActions />                  # Action buttons
+│
+├── <SettlementView />                   # Results (inside sidebar)
+│
+├── <AchievementPopup />                 # Unlock notification
+│
+├── <ShareModal />                       # Share options
+│
+└── <TutorialOverlay />                  # Onboarding
+```
+
+### State Management
+
+No external state management library. State is managed through:
+
+1. **Local state** (`useState`): Component-specific UI state
+2. **Custom hooks**: Domain-specific state and logic
+3. **Props**: Parent-to-child communication
+4. **Callbacks**: Child-to-parent communication
+5. **localStorage**: Persistent user preferences and data
+6. **URL params**: Shareable game state
+
+---
+
+## 3. Backend Architecture
+
+### API Routes
+
+| Route | Method | Purpose | Data Source |
+|-------|--------|---------|-------------|
+| `/api/streets` | POST | Fetch street data | Presets, SQLite cache, Overpass |
+| `/api/search` | GET | Location search | Nominatim API |
+| `/api/favorites` | GET/POST/DELETE | Saved maps CRUD | SQLite |
+| `/api/history` | GET/POST | Game history | SQLite |
+| `/api/leaderboard` | GET/POST | Global rankings | SQLite |
+| `/api/daily` | GET | Daily challenge | Date-based hash |
+
+### Database Layer
+
+```typescript
+// lib/db.ts - Singleton pattern
+let dbInstance: DatabaseSync | null = null;
+
+export function getDb(): DatabaseSync | null {
+  if (!dbInstance) {
+    // Lazy initialization
+    // Vercel: copy to /tmp
+    // Local: use data/ directory
+    dbInstance = new DatabaseSync(DB_PATH);
+    dbInstance.exec('PRAGMA journal_mode = WAL;');
+    dbInstance.exec('PRAGMA foreign_keys = ON;');
+    // Create tables...
+  }
+  return dbInstance;
+}
+```
+
+**Vercel Workaround**: On serverless, the DB is copied from read-only project space to writable `/tmp`. Data resets on cold starts.
+
+---
+
+## 4. Data Flow
+
+### Game Initialization Flow
+
+```
+User clicks preset →
+  1. page.tsx: setBounds(preset.bounds)
+  2. useLeafletMap: fitBounds(bounds)
+  3. useStreets: fetchStreets(bounds)
+     ├── POST /api/streets { bounds }
+     │   ├── Check preset match → return local JSON (<10ms)
+     │   ├── Check SQLite cache → return cached data
+     │   └── Race 4 Overpass mirrors → process & cache
+     └── Return streets[]
+  4. useLeafletMap: drawStreets(streets)
+  5. UI transition: Lobby fades out, Sidebar slides in
+```
+
+### Guess Matching Flow
+
+```
+User submits guess →
+  1. useGameLogic: checkGuess(guess, streets, bounds, lang)
+     ├── Normalize input (lowercase, trim, strip punctuation)
+     ├── For each unguessed street:
+     │   ├── Check name match
+     │   └── Check aliases[] match
+     ├── If no exact match:
+     │   ├── Calculate Levenshtein similarity
+     │   └── If >60% similar → return hint
+     └── Return { found, matchedName, hint?, direction? }
+  2. If found:
+     ├── useLeafletMap: revealStreet(name) → green polyline
+     ├── Update streak counter
+     ├── Trigger confetti (scaled by streak)
+     └── Check achievements
+  3. If not found:
+     ├── Show error animation (1s)
+     ├── Show hint if available
+     └── Reset streak
+```
+
+### Achievement Check Flow
+
+```
+Game ends →
+  1. useAchievements: checkAchievements(gameResult)
+     ├── Load unlocked[] from localStorage
+     ├── For each achievement:
+     │   ├── Progress: completionRate >= threshold
+     │   ├── City Master: city === id && rate >= 1.0
+     │   ├── Skill: streak/time/errors check
+     │   └── Exploration: customUses/citySearches count
+     ├── Filter newly unlocked
+     ├── Save to localStorage
+     └── Return newlyUnlocked[]
+  2. For each newly unlocked:
+     ├── Show AchievementPopup (queue)
+     ├── Metal sheen animation
+     └── Auto-dismiss after 2.5s
 ```
 
 ---
 
-## 3. Core Data Flow
+## 5. Database Schema
 
-### A. Street Quiz Data Flow (Game Initialization)
-1. **Background Map Rendering & Mount**: The Leaflet map is initialized in the background behind a full-screen Lobby UI cover immediately on page load.
-2. **Selection / Drawing**: The player selects a preset (e.g. London) or a favorite, or enters Custom Drawing Mode.
-3. **Transition & Sync**:
-   * The browser URL is immediately updated with coordinate parameters using `window.history.replaceState`.
-   * The map centers/animates (`fitBounds`) to the target coordinate bounds with a padding offset (`paddingTopLeft: [400, 20]`) to ensure the bounds are centered perfectly in the open screen area next to the left sidebar console.
-   * The Lobby UI fades out and scales up, while the Game Console sidebar slides in from the left over 500-600ms.
-4. **API Request**: The frontend concurrently sends a `POST` request to `/api/streets` with the coordinates bounds.
-5. **Preset Match (Instant)**:
-   * The backend compares coordinates against known presets.
-   * If matched, it reads the pre-compiled street names and geometry coordinates directly from `/data/presets/[preset-id].json` in under 10ms.
-6. **Cache Check**:
-   * If it is a custom box, the backend queries the local SQLite `street_cache` table using a parsed coordinate string key.
-   * If a cache hit occurs, the streets geometry is parsed and returned instantly, bypassing external network queries.
-7. **Parallel Overpass Race (On Cache Miss)**:
-   * If it is a cache miss, the backend constructs an optimized regex query:
-     `way["highway"~"^(primary|secondary|tertiary|residential|unclassified|living_street|pedestrian|road)(_link)?$"]["name"](bounds);`
-   * It concurrently queries 4 public Overpass API mirrors using `Promise.any` and aborts the trailing requests as soon as the fastest mirror responds.
-   * The geometry data is processed, saved to SQLite `street_cache` for future hits, and returned.
-8. **Frontend Rendering**: The frontend parses the list of street names and coordinates, then draws invisible path vectors on the Leaflet map. Guess inputs are automatically focused.
+### Tables
 
-### B. Guess Matching and Streak Tracking (Gameplay)
-1. The player types their guess in the input field.
-2. The frontend performs fuzzy matching (ignoring case, trimming leading/trailing spaces).
-3. If the guess is correct:
-   * The opacity of the corresponding map vector path is set to `0.8`, the color turns dark green, and the map auto-pans/centers on the street.
-   * The streak counter increases by 1. If the streak is greater than 1, a `canvas-confetti` particle animation is triggered.
-   * The confetti particle count and dispersion angle scale linearly with the streak value:
-     `particleCount = Math.min(30 + streak * 15, 180)`
-4. If the guess is incorrect:
-   * The streak counter is reset to `0`.
+```sql
+-- User accounts (default: id=1, username='Player')
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-### C. Custom Mode Location Searching
-1. In Custom Mode, the user inputs a city or address name in the search bar.
-2. The frontend debounces inputs and hits the proxy `/api/search?q=...`.
-3. The server forwards the query to OSM Nominatim to fetch matching locations with their bounding boxes and details.
-4. The user selects a search result, and the map pans smoothly to the target coordinate bounds.
+-- Saved map regions
+CREATE TABLE favorite_maps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL DEFAULT 1,
+  name TEXT NOT NULL,
+  city_name TEXT,
+  bounds TEXT NOT NULL,  -- JSON: { south, west, north, east }
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
-### D. Navigation Lifecycle (Closed Loop)
-The UI forms a complete navigation loop. Every state has a clear path back to the lobby:
+-- Game history
+CREATE TABLE game_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL DEFAULT 1,
+  map_name TEXT NOT NULL,
+  score INTEGER NOT NULL DEFAULT 0,
+  total_streets INTEGER NOT NULL DEFAULT 0,
+  completion_rate REAL NOT NULL DEFAULT 0,
+  max_streak INTEGER NOT NULL DEFAULT 0,
+  played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
-```
-                  ┌──────────────────────────────────┐
-                  │            LOBBY                  │
-                  │  (Preset / Favorite / Custom)     │
-                  └──┬─────────┬──────────┬───────────┘
-                     │         │          │
-              Preset │  Favorite│   Custom │
-                     ▼         ▼          ▼
-                  ┌─────────────────────────────────┐
-                  │        LOADING STREETS           │
-                  │  (Back to Lobby button visible)  │
-                  └──────────┬──────────────────────┬┘
-                             │                      │
-                       loaded│               cancel │
-                             ▼                      │
-                  ┌──────────────────────┐          │
-                  │    ACTIVE GAME       │          │
-                  │  [Save] [Forfeit]    │          │
-                  │  [Back to Lobby]     │──────────┤
-                  └──────┬───────────────┘          │
-                         │ forfeit / complete all   │
-                         ▼                          │
-                  ┌──────────────────────┐          │
-                  │   SETTLE / RESULTS   │          │
-                  │  [Back to Lobby]     │──────────┤
-                  └──────────────────────┘          │
-                                                    │
-                             ┌──────────────────────┘
-                             ▼
-                  ┌──────────────────────┐
-                  │      LOBBY           │ (history & favorites refreshed)
-                  └──────────────────────┘
+-- Street data cache (custom areas)
+CREATE TABLE street_cache (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  bounds_key TEXT UNIQUE NOT NULL,  -- "south_west_north_east"
+  streets_json TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Global leaderboard
+CREATE TABLE leaderboard (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_name TEXT NOT NULL DEFAULT 'Anonymous',
+  city TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  total_streets INTEGER NOT NULL,
+  completion_rate REAL NOT NULL,
+  max_streak INTEGER NOT NULL,
+  time_seconds INTEGER NOT NULL,
+  played_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-**Safety mechanisms:**
-* **Fetch cancellation**: A `fetchIdRef` counter invalidates in-flight API responses when the user navigates away during loading, preventing stale state updates.
-* **Exit confirmation**: During an active (unsettled) game, clicking "Back to Lobby" triggers a `window.confirm()` dialog to prevent accidental progress loss.
-* **URL cleanup**: `returnToLobby()` clears URL search parameters, resets all game state, removes map layers, and refreshes the history/favorites lists.
+### Indexes
+
+```sql
+CREATE INDEX idx_history_user ON game_history(user_id);
+CREATE INDEX idx_history_played ON game_history(played_at);
+CREATE INDEX idx_leaderboard_city ON leaderboard(city);
+CREATE INDEX idx_leaderboard_rate ON leaderboard(completion_rate DESC);
+CREATE INDEX idx_cache_key ON street_cache(bounds_key);
+```
 
 ---
 
-## 4. Database Design (SQLite)
+## 6. Map & Rendering
 
-The project leverages Node.js 22.5+ native `node:sqlite` (`DatabaseSync`) synchronous interface. To prevent Next.js build-time static generation locks, the database is lazily initialized via a `getDb()` singleton pattern. 
+### Tile Providers
 
-**Vercel Serverless Deployment Workaround:**
-Since Vercel's serverless runtime features a read-only filesystem (with the exception of `/tmp`), the database cannot write directly to the project root. On initialization, if the app detects a Vercel serverless environment, it copies the template database from `process.cwd()/data/cartographer.db` to `/tmp/cartographer.db` and loads it from there. If SQLite fails to initialize (e.g., due to local module mismatch or permission limits), the API routes fall back gracefully by returning empty arrays or HTTP 503 instead of crashing.
+| Provider | URL | Labels | Coordinate System |
+|----------|-----|--------|-------------------|
+| CartoDB Dark | `basemaps.cartocdn.com/dark_nolabels` | No | WGS-84 |
+| CartoDB Light | `basemaps.cartocdn.com/light_nolabels` | No | WGS-84 |
+| OpenStreetMap | `tile.openstreetmap.org` | Yes | WGS-84 |
+| Amap | `webrd0{s}.is.autonavi.com` | Yes | GCJ-02 |
 
-### Table Schemas:
+### GCJ-02 Coordinate Correction
 
-#### 1. `users` (User Table)
-* `id` (INTEGER, Primary Key): User identifier.
-* `username` (TEXT, Unique): Username. Defaults to inserting a user named `Player` with `id = 1`.
-* `created_at` (DATETIME): Account creation timestamp.
+Chinese map providers use the GCJ-02 coordinate system (offset from WGS-84). The app handles this:
 
-#### 2. `favorite_maps` (Saved Maps Table)
-* `id` (INTEGER, Primary Key): Favorite ID.
-* `user_id` (INTEGER, Foreign Key): References `users.id`.
-* `name` (TEXT): A user-defined name for the saved region.
-* `city_name` (TEXT, Nullable): Optional name of the associated city.
-* `bounds` (TEXT): Serialized Bounding Box JSON string.
+```typescript
+// src/lib/coord.ts
+export function wgs84togcj02(lng: number, lat: number): [number, number]
+export function gcj02towgs84(lng: number, lat: number): [number, number]
+```
 
-#### 3. `game_history` (Game History Table)
-* `id` (INTEGER, Primary Key): Game record ID.
-* `user_id` (INTEGER, Foreign Key): References `users.id`.
-* `map_name` (TEXT): Name of the played region.
-* `score` (INTEGER): Number of streets guessed correctly in this game session.
-* `total_streets` (INTEGER): Total number of streets in the region.
-* `completion_rate` (REAL): Exploration completion rate (`score / total_streets`).
-* `max_streak` (INTEGER): Maximum streak achieved in the game session.
-* `played_at` (DATETIME): Game session timestamp.
+When Amap is active:
+- Street geometries: WGS-84 → GCJ-02
+- Bounds: WGS-84 → GCJ-02
+- User drawings: GCJ-02 → WGS-84 (for storage)
 
-#### 4. `street_cache` (Street Cache Table)
-* `id` (INTEGER, Primary Key): Cache entry ID.
-* `bounds_key` (TEXT, Unique): Formatted bounding box key, e.g., `south_west_north_east` rounded to 4 decimal places.
-* `streets_json` (TEXT): Serialized JSON array of street names and geometries.
-* `created_at` (DATETIME): Cache creation timestamp.
+### Rendering Pipeline
 
----
+```
+Street data[] →
+  1. Convert coordinates (WGS-84 → GCJ-02 if Amap)
+  2. Create Leaflet polyline for each street
+  3. Set initial opacity: 0 (invisible)
+  4. Add to canvas layer (preferCanvas: true)
+  5. On guess: update opacity to 0.8, color to green
+```
 
-## 5. Map & Rendering Optimizations
+### Performance Settings
 
-To deliver a premium, 60fps experience, the map rendering stack includes several optimization layers:
+```typescript
+L.map(container, {
+  preferCanvas: true,        // Canvas over SVG
+  zoomControl: false,        // Custom position
+  attributionControl: true,
+});
 
-1. **Hardware-Accelerated CSS Filters**:
-   * The custom vintage CSS filter (sepia, contrast, brightness tuning) is applied directly to the `.leaflet-tile-pane` container instead of individual `.leaflet-tile` images.
-   * This enables the browser to perform a single compositing pass on the GPU, avoiding heavy CPU repaints during panning and zooming.
-
-2. **Canvas-Based Vector Rendering**:
-   * Leaflet is configured with `preferCanvas: true`.
-   * Street geometries are drawn onto a single HTML5 Canvas element instead of generating thousands of heavy SVG DOM nodes, dramatically reducing memory overhead and layout recalculations.
-
-3. **Smooth Tile Panning & Zoom Tuning**:
-   * **`keepBuffer: 6`**: Retains a wider margin of off-screen tiles in memory, ensuring immediate rendering when panning.
-   * **`updateWhenIdle: true`**: Postpones new tile downloads until panning has stopped, avoiding main-thread networking congestion.
-   * **`updateWhenZooming: false`**: Disables map tile updates during zooming transitions to ensure fluid zoom animations.
-
-4. **Anti-Cheat Design**:
-   * Switched background tiles to CARTO Positron `light_nolabels` layer. This completely removes street and landmark text labels from the map tiles, ensuring that users can only identify street shapes and configurations without cheating.
+L.tileLayer(url, {
+  keepBuffer: 6,             // Extra tiles in memory
+  updateWhenIdle: true,      // Download after pan stops
+  updateWhenZooming: false,  // No downloads during zoom
+  maxZoom: 20,
+});
+```
 
 ---
 
-## 6. Map Providers & Projection Systems
+## 7. Multi-Language System
 
-* **Supported Map Providers**:
-  - **CartoDB Dark (`cartodb-dark`)**: Immersive dark paper aesthetic with labels removed for anti-cheat purposes. Uses standard WGS-84.
-  - **CartoDB Light (`cartodb`)**: Standard light paper aesthetic with labels removed for anti-cheat purposes. Uses standard WGS-84.
-  - **OpenStreetMap (`osm`)**: Standard osm tiles (including labels). Uses standard WGS-84.
-  - **Amap (`amap`)**: Domestic Gaode Map tiles. Located in China, this provider offers extremely fast map loading speeds for users based in China.
-* **Projection & GCJ-02 Coordinate Offsets**:
-  - Amap tiles use the GCJ-02 coordinate system (also known as the Mars coordinate system), which is artificially offset from the standard WGS-84 coordinates.
-  - To prevent alignment mismatch, the app implements translation functions (`wgs84togcj02` and `gcj02towgs84`) in `src/lib/coord.ts`.
-  - When Amap is active, the app automatically translates street lines, bounds, and user-drawn rect polygons from WGS-84 to GCJ-02 when rendering them onto Leaflet layers. If the user shifts providers mid-game, the center point and all layers are dynamically recalculated and redrawn.
-  - For standard providers (`osm`, `cartodb`, `cartodb-dark`), WGS-84 coords are rendered directly without offsets.
+### Translation Architecture
+
+```typescript
+// src/lib/i18n.ts
+export const TRANSLATIONS = {
+  zh: { /* 150+ keys */ },
+  en: { /* 150+ keys */ },
+};
+```
+
+### Street Name Matching
+
+```typescript
+// src/hooks/useGameLogic.ts
+function matchesAlias(guess: string, street: Street): boolean {
+  const normalized = normalizeString(guess);
+  
+  // Check primary name
+  if (normalizeString(street.name) === normalized) return true;
+  
+  // Check aliases
+  if (street.aliases?.some(a => normalizeString(a) === normalized)) return true;
+  
+  return false;
+}
+
+function normalizeString(s: string): string {
+  return s.toLowerCase()
+    .trim()
+    .replace(/[\s\-_.]/g, '')  // Strip separators
+    .replace(/[^\w一-鿿぀-ゟ゠-ヿ]/g, ''); // Keep CJK
+}
+```
+
+### Hint Pattern Generation
+
+```typescript
+function generateHintPattern(name: string, lang: Language): string {
+  // CJK: first char + underscores
+  // Latin: first letter + underscores per word
+  if (/[一-鿿぀-ゟ]/.test(name)) {
+    return name[0] + '_'.repeat(name.length - 1);
+  }
+  return name.split(' ').map(w => w[0] + '_'.repeat(w.length - 1)).join(' ');
+}
+```
 
 ---
 
-## 7. Gameplay Difficulty & Hint Systems
+## 8. Achievement System
 
-* **Easy Mode**: Offers first-letter clues (e.g. `W___ S_____`) and highlights/flashes the street geometry path in pulsing amber with a panning animation.
-* **Medium Mode**: Offers only the first-letter word pattern clue. No map highlight or viewport panning.
-* **Hard Mode**: Blind recall. No hints are available.
-* **Hint Settle Statistics**: Settle statistics dynamically display the count of hints used if the user plays in Easy or Medium mode.
+### Achievement Categories
+
+| Category | Count | Criteria |
+|----------|-------|----------|
+| Progress | 3 | Completion rate thresholds |
+| City Master | 5 | 100% per city |
+| Skill | 3 | Streak, speed, perfection |
+| Exploration | 2 | Custom areas, city searches |
+
+### Storage
+
+```typescript
+// localStorage keys
+'cartographer_achievements'  // string[] of unlocked achievement IDs
+'cartographer_stats'         // { customUses, citySearches, speedGuesses }
+```
+
+### Unlock Flow
+
+```
+Game ends →
+  checkAchievements(gameResult) →
+    newlyUnlocked[] →
+      Queue popups →
+        Show one by one →
+          Auto-dismiss after 2.5s
+```
 
 ---
 
-## 8. Multi-lingual Street Name Matching
+## 9. Security & Anti-Cheat
 
-To support international players in cities with local language street names (e.g. Japanese Kanji in Tokyo presets), a multi-lingual alias matching system is designed:
+### Map Anti-Cheat
+- Label-free tiles (CartoDB dark/light_nolabels)
+- Street names never shown until guessed
 
-1. **Multi-lingual Aliases in Preset Data**: Streets contain an `aliases` array representing standard translations and transliterations (e.g., `["新宿通り", "Shinjuku-dori", "Shinjuku Street", "新宿路"]`):
-   ```json
-   {
-     "name": "新宿通り",
-     "geometry": [...],
-     "aliases": ["新宿通り", "Shinjuku-dori", "Shinjuku Street", "新宿路"]
-   }
-   ```
-2. **Fuzzy Normalization Matching**: When a guess is submitted, the matcher normalizes both the input and the aliases (converting to lowercase, stripping punctuation/spaces, and removing generic road suffixes like `street`, `road`, `通り`, `通`, `路`). If the normalized input matches *any* alias, the guess is approved.
-3. **Contextual Clues**: Easy/Medium modes generate spelling clue patterns based on the user's active interface language (`lang = 'en' | 'zh'`) to provide accessible clues.
+### Leaderboard Validation
+```typescript
+// Server-side validation
+if (completionRate < 0 || completionRate > 1) return 400;
+if (score < 0 || score > totalStreets) return 400;
+if (maxStreak < 0 || maxStreak > totalStreets) return 400;
+if (timeSeconds < 0 || timeSeconds > 86400) return 400;
+if (playerName.length > 20) playerName = playerName.slice(0, 20);
+```
 
+### Daily Challenge Integrity
+- Deterministic hash based on date seed
+- Same challenge for all users on same day
+- Server-side generation (not client-trusted)
 
+### Known Limitations
+- No HMAC signature on leaderboard submissions
+- No rate limiting on API endpoints
+- No user authentication (anonymous play)
+
+---
+
+## 10. Performance Optimizations
+
+### Frontend
+
+| Optimization | Implementation |
+|--------------|----------------|
+| React.memo | All pure display components |
+| Canvas rendering | `preferCanvas: true` for Leaflet |
+| Incremental updates | Only redraw changed streets |
+| Lazy loading | Dynamic imports for Leaflet, Geoman |
+| CSS animations | GPU-accelerated transforms |
+| Debounced search | 300ms delay on location search |
+
+### Backend
+
+| Optimization | Implementation |
+|--------------|----------------|
+| Preset matching | Local JSON (<10ms) |
+| SQLite cache | Avoid repeated Overpass queries |
+| Parallel racing | 4 mirrors, fastest wins |
+| Lazy DB init | Avoid build-time locks |
+| WAL mode | Concurrent read/write |
+
+### Bundle Size
+
+```
+Route (app)                    Size      First Load JS
+┌ ○ /                          39 kB     126 kB
+├ ○ /_not-found                875 B     88.2 kB
+└ ƒ /api/*                     ~0 B      ~0 B (server only)
+```
+
+---
+
+## Appendix: File Reference
+
+### Core Files
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `app/page.tsx` | ~600 | Root SPA orchestrator |
+| `hooks/useGameLogic.ts` | ~300 | Core game mechanics |
+| `hooks/useLeafletMap.ts` | ~350 | Map lifecycle |
+| `lib/i18n.ts` | ~200 | Translations |
+| `lib/constants.ts` | ~100 | Presets & config |
+
+### Data Files
+
+| File | Streets | Size |
+|------|---------|------|
+| `data/presets/new-york.json` | 141 | ~150KB |
+| `data/presets/london.json` | 360 | ~300KB |
+| `data/presets/tokyo.json` | 55 | ~50KB |
+| `data/presets/hong-kong.json` | 155 | ~130KB |
+| `data/presets/singapore.json` | 174 | ~150KB |
