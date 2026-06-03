@@ -1,12 +1,14 @@
 'use client';
 
+import { memo } from 'react';
+
 interface LoadingSpinnerProps {
   message: string;
   onBack?: () => void;
   backLabel?: string;
 }
 
-export function LoadingSpinner({ message, onBack, backLabel }: LoadingSpinnerProps) {
+export const LoadingSpinner = memo(function LoadingSpinner({ message, onBack, backLabel }: LoadingSpinnerProps) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
       <div style={{
@@ -32,4 +34,4 @@ export function LoadingSpinner({ message, onBack, backLabel }: LoadingSpinnerPro
       )}
     </div>
   );
-}
+});

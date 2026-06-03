@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Favorite, Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -10,7 +11,7 @@ interface FavoritesListProps {
   onDelete: (id: number) => void;
 }
 
-export function FavoritesList({ favorites, lang, onStart, onDelete }: FavoritesListProps) {
+export const FavoritesList = memo(function FavoritesList({ favorites, lang, onStart, onDelete }: FavoritesListProps) {
   const t = TRANSLATIONS[lang];
 
   if (favorites.length === 0) {
@@ -49,4 +50,4 @@ export function FavoritesList({ favorites, lang, onStart, onDelete }: FavoritesL
       ))}
     </div>
   );
-}
+});

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Language } from '@/types';
 
 interface LanguageToggleProps {
@@ -8,7 +9,7 @@ interface LanguageToggleProps {
   variant?: 'full' | 'mini';
 }
 
-export function LanguageToggle({ lang, onToggle, variant = 'full' }: LanguageToggleProps) {
+export const LanguageToggle = memo(function LanguageToggle({ lang, onToggle, variant = 'full' }: LanguageToggleProps) {
   return (
     <button
       onClick={onToggle}
@@ -27,4 +28,4 @@ export function LanguageToggle({ lang, onToggle, variant = 'full' }: LanguageTog
       }
     </button>
   );
-}
+});

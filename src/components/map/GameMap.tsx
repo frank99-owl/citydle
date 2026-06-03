@@ -1,10 +1,12 @@
 'use client';
 
+import { memo } from 'react';
+
 interface GameMapProps {
   mapContainerId: string;
 }
 
-export function GameMap({ mapContainerId }: GameMapProps) {
+export const GameMap = memo(function GameMap({ mapContainerId }: GameMapProps) {
   return (
     <section style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
       <div id={mapContainerId} style={{ height: '100%', width: '100%' }} />
@@ -18,4 +20,4 @@ export function GameMap({ mapContainerId }: GameMapProps) {
       }} />
     </section>
   );
-}
+});

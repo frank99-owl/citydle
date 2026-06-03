@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { memo, useRef, useEffect } from 'react';
 import { Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -12,7 +12,7 @@ interface GuessInputProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export function GuessInput({ lang, guess, disabled, onGuessChange, onSubmit }: GuessInputProps) {
+export const GuessInput = memo(function GuessInput({ lang, guess, disabled, onGuessChange, onSubmit }: GuessInputProps) {
   const t = TRANSLATIONS[lang];
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -47,4 +47,4 @@ export function GuessInput({ lang, guess, disabled, onGuessChange, onSubmit }: G
       </div>
     </form>
   );
-}
+});

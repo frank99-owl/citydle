@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Street, Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -9,7 +10,7 @@ interface StreetListProps {
   guessedCount: number;
 }
 
-export function StreetList({ lang, streets, guessedCount }: StreetListProps) {
+export const StreetList = memo(function StreetList({ lang, streets, guessedCount }: StreetListProps) {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -26,4 +27,4 @@ export function StreetList({ lang, streets, guessedCount }: StreetListProps) {
       </ul>
     </div>
   );
-}
+});

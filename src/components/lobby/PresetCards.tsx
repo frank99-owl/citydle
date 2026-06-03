@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Preset, Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -10,7 +11,7 @@ interface PresetCardsProps {
   onCustom: () => void;
 }
 
-export function PresetCards({ presets, lang, onSelect, onCustom }: PresetCardsProps) {
+export const PresetCards = memo(function PresetCards({ presets, lang, onSelect, onCustom }: PresetCardsProps) {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -113,4 +114,4 @@ export function PresetCards({ presets, lang, onSelect, onCustom }: PresetCardsPr
       </div>
     </section>
   );
-}
+});

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -11,7 +12,7 @@ interface GameActionsProps {
   onExit: () => void;
 }
 
-export function GameActions({ lang, isSaved, onSave, onForfeit, onExit }: GameActionsProps) {
+export const GameActions = memo(function GameActions({ lang, isSaved, onSave, onForfeit, onExit }: GameActionsProps) {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -54,4 +55,4 @@ export function GameActions({ lang, isSaved, onSave, onForfeit, onExit }: GameAc
       </button>
     </div>
   );
-}
+});

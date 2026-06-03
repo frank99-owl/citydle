@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -8,7 +9,7 @@ interface StreakDisplayProps {
   streak: number;
 }
 
-export function StreakDisplay({ lang, streak }: StreakDisplayProps) {
+export const StreakDisplay = memo(function StreakDisplay({ lang, streak }: StreakDisplayProps) {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -25,4 +26,4 @@ export function StreakDisplay({ lang, streak }: StreakDisplayProps) {
       </span>
     </div>
   );
-}
+});

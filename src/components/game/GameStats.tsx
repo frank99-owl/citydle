@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -10,7 +11,7 @@ interface GameStatsProps {
   totalStreets: number;
 }
 
-export function GameStats({ lang, mapName, guessedCount, totalStreets }: GameStatsProps) {
+export const GameStats = memo(function GameStats({ lang, mapName, guessedCount, totalStreets }: GameStatsProps) {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -32,4 +33,4 @@ export function GameStats({ lang, mapName, guessedCount, totalStreets }: GameSta
       </div>
     </div>
   );
-}
+});

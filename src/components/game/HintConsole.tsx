@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { HintClue, Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -10,7 +11,7 @@ interface HintConsoleProps {
   onGetHint: () => void;
 }
 
-export function HintConsole({ lang, hintClue, hintsUsed, onGetHint }: HintConsoleProps) {
+export const HintConsole = memo(function HintConsole({ lang, hintClue, hintsUsed, onGetHint }: HintConsoleProps) {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -64,4 +65,4 @@ export function HintConsole({ lang, hintClue, hintsUsed, onGetHint }: HintConsol
       )}
     </div>
   );
-}
+});

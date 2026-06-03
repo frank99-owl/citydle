@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Language, MapProvider, Difficulty } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -11,7 +12,7 @@ interface MapSettingsProps {
   onDifficultyChange: (difficulty: Difficulty) => void;
 }
 
-export function MapSettings({ lang, mapProvider, difficulty, onProviderChange, onDifficultyChange }: MapSettingsProps) {
+export const MapSettings = memo(function MapSettings({ lang, mapProvider, difficulty, onProviderChange, onDifficultyChange }: MapSettingsProps) {
   const t = TRANSLATIONS[lang];
 
   const selectStyle = {
@@ -97,4 +98,4 @@ export function MapSettings({ lang, mapProvider, difficulty, onProviderChange, o
       </div>
     </section>
   );
-}
+});

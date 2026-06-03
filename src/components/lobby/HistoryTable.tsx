@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { HistoryEntry, Language } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -8,7 +9,7 @@ interface HistoryTableProps {
   lang: Language;
 }
 
-export function HistoryTable({ history, lang }: HistoryTableProps) {
+export const HistoryTable = memo(function HistoryTable({ history, lang }: HistoryTableProps) {
   const t = TRANSLATIONS[lang];
 
   if (history.length === 0) {
@@ -45,4 +46,4 @@ export function HistoryTable({ history, lang }: HistoryTableProps) {
       </tbody>
     </table>
   );
-}
+});
