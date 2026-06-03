@@ -23,6 +23,7 @@ import { GameSidebar } from '@/components/game/GameSidebar';
 import { SettlementView } from '@/components/settlement/SettlementView';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { AchievementPopup } from '@/components/achievement/AchievementPopup';
+import { ShareModal } from '@/components/share/ShareModal';
 
 function GameApp() {
   const searchParams = useSearchParams();
@@ -135,6 +136,13 @@ function GameApp() {
 
   // Daily challenge state
   const [isDailyChallenge, setIsDailyChallenge] = useState(false);
+
+  // Share modal state
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  // Game time tracking
+  const [gameTimeSeconds, setGameTimeSeconds] = useState(0);
+  const gameStartTimeRef = useRef<number>(0);
 
   const {
     guess,
@@ -380,6 +388,12 @@ function GameApp() {
     endGame();
     revealMissedStreets(streets);
 
+    // Calculate game time
+    const elapsed = gameStartTimeRef.current > 0
+      ? Math.floor((Date.now() - gameStartTimeRef.current) / 1000)
+      : 0;
+    setGameTimeSeconds(elapsed);
+
     // Check achievements
     const completionRate = streets.length > 0 ? guessedCount / streets.length : 0;
     checkAchievements({
@@ -439,9 +453,11 @@ function GameApp() {
     resetGameTracking();
     setTotalErrors(0);
     setIsDailyChallenge(false);
+    setGameTimeSeconds(0);
 
     fetchStreets(preset.bounds);
     startGameTimer();
+    gameStartTimeRef.current = Date.now();
 
     setIsTransitioning(true);
     setView('game');
@@ -546,6 +562,7 @@ function GameApp() {
     resetGameTracking();
     setTotalErrors(0);
     setIsDailyChallenge(true);
+    setGameTimeSeconds(0);
 
     // Apply difficulty
     if (diff === 'easy' || diff === 'medium' || diff === 'hard') {
@@ -554,6 +571,7 @@ function GameApp() {
 
     fetchStreets(preset.bounds);
     startGameTimer();
+    gameStartTimeRef.current = Date.now();
 
     setIsTransitioning(true);
     setView('game');
@@ -584,12 +602,42 @@ function GameApp() {
     setErrorMessage(null);
     setHintMessage(null);
     setDirectionMessage(null);
+    setGameTimeSeconds(0);
+    gameStartTimeRef.current = 0;
 
     updateURLParams(null);
     fetchHistoryAndFavorites();
 
     setTimeout(() => setIsTransitioning(false), 600);
   }, [cancelFetch, clearStreets, resetGame, clearAllLayers, updateURLParams, fetchHistoryAndFavorites]);
+
+  // Open share modal
+  const handleOpenShare = useCallback(() => {
+    setShareModalOpen(true);
+  }, []);
+
+  // Submit to leaderboard
+  const handleSubmitLeaderboard = useCallback(async (playerName: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerName,
+          city: currentMapId,
+          score: guessedCount,
+          totalStreets: streets.length,
+          completionRate: streets.length > 0 ? guessedCount / streets.length : 0,
+          maxStreak,
+          timeSeconds: gameTimeSeconds,
+        }),
+      });
+      return res.ok;
+    } catch (err) {
+      console.error('Failed to submit to leaderboard:', err);
+      return false;
+    }
+  }, [currentMapId, guessedCount, streets.length, maxStreak, gameTimeSeconds]);
 
   // Handle exit to lobby with confirmation
   const handleExitToLobby = useCallback(() => {
@@ -822,10 +870,28 @@ function GameApp() {
             hintsUsed={hintsUsed}
             difficulty={difficulty}
             badge={badge}
+            cityName={mapName}
+            timeSeconds={gameTimeSeconds}
             onBackToLobby={returnToLobby}
+            onShare={handleOpenShare}
+            onSubmitLeaderboard={handleSubmitLeaderboard}
           />
         </aside>
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        lang={lang}
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        cityName={mapName}
+        completionRate={streets.length > 0 ? guessedCount / streets.length : 0}
+        maxStreak={maxStreak}
+        guessedCount={guessedCount}
+        totalStreets={streets.length}
+        timeSeconds={gameTimeSeconds}
+        badge={badge}
+      />
 
     </div>
   );

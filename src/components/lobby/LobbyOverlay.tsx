@@ -11,6 +11,7 @@ import { FavoritesList } from './FavoritesList';
 import { AchievementPanel } from '@/components/achievement/AchievementPanel';
 import { StatsPanel } from '@/components/stats/StatsPanel';
 import { DailyChallengeCard } from './DailyChallengeCard';
+import { Leaderboard } from '@/components/leaderboard/Leaderboard';
 import { PlayerStats, DailyChallenge, DailyChallengeRecord } from '@/hooks/useStats';
 
 interface LobbyOverlayProps {
@@ -58,7 +59,7 @@ export function LobbyOverlay({
   onDifficultyChange,
   onStartDailyChallenge,
 }: LobbyOverlayProps) {
-  const [activeTab, setActiveTab] = useState<'history' | 'favorites' | 'achievements' | 'stats'>('history');
+  const [activeTab, setActiveTab] = useState<'history' | 'favorites' | 'achievements' | 'stats' | 'leaderboard'>('history');
   const t = TRANSLATIONS[lang];
 
   return (
@@ -190,7 +191,7 @@ export function LobbyOverlay({
       {/* History & Favorites Tabs */}
       <section style={{ width: '100%', maxWidth: '900px', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: '0', marginBottom: '0', borderBottom: '1px solid rgba(197,160,89,0.3)' }}>
-          {(['history', 'favorites', 'achievements', 'stats'] as const).map(tab => (
+          {(['history', 'favorites', 'achievements', 'stats', 'leaderboard'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -208,7 +209,7 @@ export function LobbyOverlay({
                 textTransform: 'uppercase',
               }}
             >
-              {tab === 'history' ? t.historyTab : tab === 'favorites' ? t.favoritesTab : tab === 'achievements' ? t.achievementsTab : t.statsTab}
+              {tab === 'history' ? t.historyTab : tab === 'favorites' ? t.favoritesTab : tab === 'achievements' ? t.achievementsTab : tab === 'leaderboard' ? t.leaderboardTab : t.statsTab}
             </button>
           ))}
         </div>
@@ -237,6 +238,9 @@ export function LobbyOverlay({
           )}
           {activeTab === 'stats' && (
             <StatsPanel lang={lang} stats={playerStats} isVisible={activeTab === 'stats'} />
+          )}
+          {activeTab === 'leaderboard' && (
+            <Leaderboard lang={lang} isVisible={activeTab === 'leaderboard'} />
           )}
         </div>
       </section>

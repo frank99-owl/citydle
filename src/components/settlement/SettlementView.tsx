@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { Street, Achievement, Language, Difficulty } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -11,7 +12,11 @@ interface SettlementViewProps {
   hintsUsed: number;
   difficulty: Difficulty;
   badge: Achievement | null;
+  cityName: string;
+  timeSeconds: number;
   onBackToLobby: () => void;
+  onShare: () => void;
+  onSubmitLeaderboard: (playerName: string) => Promise<boolean>;
 }
 
 export function SettlementView({
@@ -22,9 +27,31 @@ export function SettlementView({
   hintsUsed,
   difficulty,
   badge,
+  cityName,
+  timeSeconds,
   onBackToLobby,
+  onShare,
+  onSubmitLeaderboard,
 }: SettlementViewProps) {
   const t = TRANSLATIONS[lang];
+  const [playerName, setPlayerName] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('cartographer_player_name') || '';
+    }
+    return '';
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = useCallback(async () => {
+    if (submitting || submitted) return;
+    setSubmitting(true);
+    const name = playerName.trim() || 'Anonymous';
+    localStorage.setItem('cartographer_player_name', name);
+    const success = await onSubmitLeaderboard(name);
+    setSubmitting(false);
+    if (success) setSubmitted(true);
+  }, [playerName, submitting, submitted, onSubmitLeaderboard]);
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -104,6 +131,59 @@ export function SettlementView({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1.5rem' }}>
+        {/* Share button */}
+        <button
+          onClick={onShare}
+          className="vintage-btn"
+          style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem' }}
+        >
+          {t.shareBtn}
+        </button>
+
+        {/* Leaderboard submit section */}
+        <div style={{
+          border: '1px solid rgba(66,48,35,0.2)',
+          borderRadius: '4px',
+          padding: '0.75rem',
+          marginTop: '0.25rem',
+        }}>
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder={t.playerNamePlaceholder}
+              disabled={submitted}
+              style={{
+                flex: 1,
+                padding: '0.4rem 0.5rem',
+                border: '1px solid var(--wood-border)',
+                borderRadius: '2px',
+                background: '#fcfaf2',
+                fontSize: '0.8rem',
+                fontFamily: 'var(--font-serif)',
+                outline: 'none',
+                opacity: submitted ? 0.6 : 1,
+              }}
+            />
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || submitted}
+              className="vintage-btn"
+              style={{
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.75rem',
+                whiteSpace: 'nowrap',
+                boxShadow: 'none',
+                textShadow: 'none',
+                opacity: submitted ? 0.7 : 1,
+              }}
+            >
+              {submitted ? t.submitted : submitting ? '...' : t.submitLeaderboard}
+            </button>
+          </div>
+        </div>
+
         <button
           onClick={onBackToLobby}
           className="vintage-btn"
