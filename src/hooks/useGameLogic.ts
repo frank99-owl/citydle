@@ -177,7 +177,7 @@ export function useGameLogic() {
     onAllGuessed: () => void
   ): GuessResult => {
     const cleanGuess = guessText.toLowerCase().trim();
-    if (!cleanGuess) return { found: false };
+    if (!cleanGuess || streets.length === 0) return { found: false };
 
     let found = false;
     let newGuessedCount = guessedCount;
@@ -240,7 +240,7 @@ export function useGameLogic() {
     if (newWrong >= 3 && unguessed.length > 0) {
       // Find the closest street by fuzzy match for direction hint
       const target = closeMatches.length > 0
-        ? unguessed.find(s => s.name === closeMatches[0].name)!
+        ? unguessed.find(s => s.name === closeMatches[0].name) || unguessed[0]
         : unguessed[Math.floor(Math.random() * unguessed.length)];
       const dir = calculateDirectionHint(target, bounds, lang);
       if (dir) {

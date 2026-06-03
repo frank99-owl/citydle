@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { PRESETS } from '@/lib/constants';
+import { generateDailyChallenge, getTodayString, DailyChallenge } from '@/lib/daily';
 
 const STATS_KEY = 'cartographer_player_stats';
 
@@ -35,13 +35,7 @@ export interface DailyChallengeRecord {
   completed: boolean;
 }
 
-export interface DailyChallenge {
-  date: string;
-  presetIndex: number;
-  cityName: string;
-  cityNameEn: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
+export type { DailyChallenge };
 
 function getDefaultStats(): PlayerStats {
   return {
@@ -75,40 +69,6 @@ function saveStats(stats: PlayerStats) {
   try {
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   } catch { /* ignore quota */ }
-}
-
-function getTodayString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
-
-// Seed-based deterministic daily challenge
-function generateDailyChallenge(dateStr: string): DailyChallenge {
-  // Simple hash from date string
-  let hash = 0;
-  for (let i = 0; i < dateStr.length; i++) {
-    const char = dateStr.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  hash = Math.abs(hash);
-
-  const presetIndex = hash % PRESETS.length;
-  const preset = PRESETS[presetIndex];
-  const difficulties: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard'];
-  const diffIndex = (hash >> 3) % difficulties.length;
-
-  const nameParts = preset.name.split(' ');
-  const cityNameZh = nameParts[0];
-  const cityNameEn = nameParts.slice(1).join(' ') || preset.name;
-
-  return {
-    date: dateStr,
-    presetIndex,
-    cityName: cityNameZh,
-    cityNameEn,
-    difficulty: difficulties[diffIndex],
-  };
 }
 
 export function useStats() {
@@ -163,19 +123,19 @@ export function useStats() {
     const playTime = gameStartTime ? Math.floor((endTime - gameStartTime) / 1000) : 0;
     const newPlayTime = current.totalPlayTime + playTime;
 
-    // Daily challenge
+    // Daily challenge - dedup: skip if already completed today
     let dailyChallengeStreak = current.dailyChallengeStreak;
     let lastDailyChallenge = current.lastDailyChallenge;
     let dailyHistory = [...current.dailyHistory];
     const today = getTodayString();
 
-    if (isDailyChallenge && completionRate >= 0.5) {
-      // Completed daily challenge (>=50%)
+    if (isDailyChallenge && completionRate >= 0.5 && lastDailyChallenge !== today) {
+      // Completed daily challenge (>=50%) and not already completed today
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
 
-      if (lastDailyChallenge === yesterdayStr || lastDailyChallenge === today) {
+      if (lastDailyChallenge === yesterdayStr) {
         dailyChallengeStreak += 1;
       } else {
         dailyChallengeStreak = 1;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Language, Achievement } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 import { useShare } from '@/hooks/useShare';
@@ -39,7 +39,7 @@ export function ShareModal({
   const [shareBlob, setShareBlob] = useState<Blob | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const shareData: ShareCardData = {
+  const shareData: ShareCardData = useMemo(() => ({
     cityName,
     completionRate,
     maxStreak,
@@ -48,7 +48,7 @@ export function ShareModal({
     timeSeconds,
     badge,
     lang,
-  };
+  }), [cityName, completionRate, maxStreak, guessedCount, totalStreets, timeSeconds, badge, lang]);
 
   // Generate preview on open
   useEffect(() => {
@@ -76,7 +76,7 @@ export function ShareModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, shareData]);
 
   // Close on Escape
   useEffect(() => {
@@ -95,12 +95,19 @@ export function ShareModal({
   }, [shareBlob, downloadImage, cityName]);
 
   const handleCopyLink = useCallback(async () => {
-    const success = await copyShareLink();
+    const citySlug = cityName.replace(/\s+/g, '-').toLowerCase();
+    const success = await copyShareLink({
+      city: citySlug,
+      score: guessedCount,
+      total: totalStreets,
+      rate: Math.round(completionRate * 100),
+      streak: maxStreak,
+    });
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [copyShareLink]);
+  }, [copyShareLink, cityName, guessedCount, totalStreets, completionRate, maxStreak]);
 
   const handleTwitter = useCallback(() => {
     const pct = (completionRate * 100).toFixed(1);

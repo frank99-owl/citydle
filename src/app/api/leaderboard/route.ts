@@ -118,16 +118,35 @@ export async function POST(req: NextRequest) {
       timeSeconds,
     } = body;
 
+    // Validate and sanitize playerName
+    const safeName = typeof playerName === 'string'
+      ? playerName.trim().slice(0, 20) || 'Anonymous'
+      : 'Anonymous';
+
     // Validate required fields
     if (!city || totalStreets === undefined) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Validate numeric ranges (anti-cheat)
+    if (completionRate < 0 || completionRate > 1) {
+      return NextResponse.json({ error: 'Invalid completion rate' }, { status: 400 });
+    }
+    if (score < 0 || score > totalStreets) {
+      return NextResponse.json({ error: 'Invalid score' }, { status: 400 });
+    }
+    if (maxStreak < 0 || maxStreak > totalStreets) {
+      return NextResponse.json({ error: 'Invalid streak' }, { status: 400 });
+    }
+    if (timeSeconds < 0 || timeSeconds > 86400) {
+      return NextResponse.json({ error: 'Invalid time' }, { status: 400 });
     }
 
     const stmt = db.prepare(
       `INSERT INTO leaderboard (player_name, city, score, total_streets, completion_rate, max_streak, time_seconds)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     );
-    const result = stmt.run(playerName, city, score, totalStreets, completionRate, maxStreak, timeSeconds);
+    const result = stmt.run(safeName, city, score, totalStreets, completionRate, maxStreak, timeSeconds);
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {

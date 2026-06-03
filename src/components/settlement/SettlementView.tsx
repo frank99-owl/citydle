@@ -84,10 +84,10 @@ export function SettlementView({
               />
             </div>
             <h4 style={{ fontFamily: 'var(--font-cinzel)', fontSize: '1.1rem', margin: '0.75rem 0 0.25rem', color: '#c5a059' }}>
-              {lang === 'zh' ? t[`${badge.id}Badge` as keyof typeof t] : badge.name}
+              {lang === 'zh' ? t[`${badge.tier}Badge` as keyof typeof t] : badge.name}
             </h4>
             <p style={{ fontStyle: 'italic', fontSize: '0.8rem', color: '#4e3629', margin: 0 }}>
-              {t[`${badge.id}Desc` as keyof typeof t]}
+              {t[`${badge.tier}Desc` as keyof typeof t]}
             </p>
           </div>
         ) : (

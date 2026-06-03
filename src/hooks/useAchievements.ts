@@ -14,7 +14,7 @@ interface AchievementStats {
   speedGuessTimestamp: number;
 }
 
-function loadUnlocked(): Record<string, string> {
+export function loadUnlocked(): Record<string, string> {
   if (typeof window === 'undefined') return {};
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

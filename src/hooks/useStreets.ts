@@ -5,11 +5,13 @@ import { TRANSLATIONS, Language } from '@/lib/i18n';
 export function useStreets(lang: Language) {
   const [streets, setStreets] = useState<Street[]>([]);
   const [loading, setLoading] = useState(false);
+  const [noStreetsFound, setNoStreetsFound] = useState(false);
   const fetchIdRef = useRef(0);
   const streetsRef = useRef<Street[]>([]);
 
   const fetchStreets = useCallback(async (targetBounds: Bounds): Promise<Street[]> => {
     setLoading(true);
+    setNoStreetsFound(false);
     const currentFetchId = ++fetchIdRef.current;
 
     try {
@@ -27,12 +29,16 @@ export function useStreets(lang: Language) {
         return [];
       }
 
-      const formattedStreets: Street[] = data.streets.map((s: any) => ({
+      const formattedStreets: Street[] = (data.streets || []).map((s: any) => ({
         name: s.name,
         guessed: false,
         geometry: s.geometry,
         aliases: s.aliases,
       }));
+
+      if (formattedStreets.length === 0) {
+        setNoStreetsFound(true);
+      }
 
       setStreets(formattedStreets);
       streetsRef.current = formattedStreets;
@@ -74,6 +80,7 @@ export function useStreets(lang: Language) {
     streets,
     streetsRef,
     loading,
+    noStreetsFound,
     fetchStreets,
     updateStreetGuessed,
     clearStreets,

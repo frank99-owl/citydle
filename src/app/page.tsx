@@ -35,6 +35,7 @@ function GameApp() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [highScore, setHighScore] = useState(0);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
+  const [lobbyError, setLobbyError] = useState<string | null>(null);
 
   // Determine initial states based on query parameters
   const hasBoundsParams = searchParams.get('south') && searchParams.get('west') && searchParams.get('north') && searchParams.get('east');
@@ -107,11 +108,21 @@ function GameApp() {
     streets,
     streetsRef,
     loading,
+    noStreetsFound,
     fetchStreets,
     updateStreetGuessed,
     clearStreets,
     cancelFetch,
   } = useStreets(lang);
+
+  // Handle empty streets result
+  useEffect(() => {
+    if (noStreetsFound && !loading) {
+      alert(lang === 'zh'
+        ? '该区域未找到任何街道，请尝试缩小范围或换个区域。'
+        : 'No streets found in this area. Try a smaller region or pick a different one.');
+    }
+  }, [noStreetsFound, loading, lang]);
 
   const tutorial = useTutorial();
 
@@ -220,15 +231,22 @@ function GameApp() {
   }, []);
 
   // Fetch history & favorites list
-  const fetchHistoryAndFavorites = useCallback(() => {
-    fetch('/api/history').then(r => r.json()).then(d => {
-      setHistory(d.history || []);
-      setHighScore(d.highScore || 0);
-    }).catch(console.error);
-
-    fetch('/api/favorites').then(r => r.json()).then(d => {
-      setFavorites(d.favorites || []);
-    }).catch(console.error);
+  const fetchHistoryAndFavorites = useCallback(async () => {
+    setLobbyError(null);
+    try {
+      const [historyRes, favoritesRes] = await Promise.all([
+        fetch('/api/history'),
+        fetch('/api/favorites'),
+      ]);
+      const historyData = await historyRes.json();
+      const favoritesData = await favoritesRes.json();
+      setHistory(historyData.history || []);
+      setHighScore(historyData.highScore || 0);
+      setFavorites(favoritesData.favorites || []);
+    } catch (err) {
+      console.error('Failed to load lobby data:', err);
+      setLobbyError('Failed to load data. Tap to retry.');
+    }
   }, []);
 
   // Fetch on mount
@@ -747,6 +765,32 @@ function GameApp() {
         onDifficultyChange={updateDifficulty}
         onStartDailyChallenge={startDailyChallenge}
       />
+
+      {/* Lobby error banner */}
+      {view === 'lobby' && lobbyError && (
+        <div
+          onClick={fetchHistoryAndFavorites}
+          style={{
+            position: 'fixed',
+            top: '1rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 30,
+            fontFamily: 'var(--font-cinzel), serif',
+            fontSize: '0.75rem',
+            padding: '0.6rem 1.2rem',
+            background: 'rgba(120,30,30,0.9)',
+            border: '1px solid rgba(220,80,60,0.6)',
+            borderRadius: '4px',
+            color: '#f4ebd0',
+            cursor: 'pointer',
+            backdropFilter: 'blur(6px)',
+            textAlign: 'center',
+          }}
+        >
+          {lobbyError}
+        </div>
+      )}
 
       {/* Tutorial "View Tutorial" button in lobby */}
       {view === 'lobby' && !tutorial.isActive && (

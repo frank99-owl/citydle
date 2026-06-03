@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Achievement, Language } from '@/types';
 import { ACHIEVEMENTS } from '@/lib/constants';
-
-const STORAGE_KEY = 'cartographer_achievements';
+import { loadUnlocked } from '@/hooks/useAchievements';
 
 interface AchievementPanelProps {
   lang: Language;
@@ -22,18 +21,6 @@ const tierColors: Record<string, string> = {
   silver: '#b0b0b0',
   gold: '#d4a843',
 };
-
-function loadUnlocked(): Record<string, string> {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return typeof parsed === 'object' && parsed !== null ? parsed : {};
-  } catch {
-    return {};
-  }
-}
 
 function formatDate(iso: string, lang: Language): string {
   try {

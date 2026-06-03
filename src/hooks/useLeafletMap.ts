@@ -52,6 +52,13 @@ export function useLeafletMap({ toMapLatLng }: UseLeafletMapOptions) {
 
     return () => {
       active = false;
+      // Clean up hint pulse interval to prevent leak
+      if (hintLayerRef.current) {
+        if (hintLayerRef.current._pulseInterval) {
+          clearInterval(hintLayerRef.current._pulseInterval);
+        }
+        hintLayerRef.current = null;
+      }
       if (mapInstance) {
         mapInstance.remove();
       }

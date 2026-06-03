@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Achievement, Language } from '@/types';
 
 interface AchievementPopupProps {
@@ -39,6 +39,8 @@ const tierNames: Record<string, { zh: string; en: string }> = {
 export function AchievementPopup({ achievement, lang, onDismiss }: AchievementPopupProps) {
   const [visible, setVisible] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const onDismissRef = useRef(onDismiss);
+  onDismissRef.current = onDismiss;
 
   useEffect(() => {
     if (achievement) {
@@ -55,13 +57,13 @@ export function AchievementPopup({ achievement, lang, onDismiss }: AchievementPo
         setTimeout(() => {
           setVisible(false);
           setExiting(false);
-          onDismiss();
+          onDismissRef.current();
         }, 400);
       }, 2500);
 
       return () => clearTimeout(timer);
     }
-  }, [achievement, onDismiss]);
+  }, [achievement]);
 
   if (!achievement) return null;
 
@@ -73,7 +75,7 @@ export function AchievementPopup({ achievement, lang, onDismiss }: AchievementPo
     setTimeout(() => {
       setVisible(false);
       setExiting(false);
-      onDismiss();
+      onDismissRef.current();
     }, 400);
   };
 

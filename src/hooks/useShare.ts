@@ -25,13 +25,26 @@ export function useShare() {
   }, []);
 
   /**
-   * Copy the game share link to clipboard.
+   * Copy the game share link to clipboard with game state query params.
    * Returns true on success, false on failure.
    */
-  const copyShareLink = useCallback(async (): Promise<boolean> => {
+  const copyShareLink = useCallback(async (params?: {
+    city?: string;
+    score?: number;
+    total?: number;
+    rate?: number;
+    streak?: number;
+  }): Promise<boolean> => {
     try {
-      const url = window.location.origin;
-      await navigator.clipboard.writeText(url);
+      const url = new URL(window.location.origin);
+      if (params) {
+        if (params.city) url.searchParams.set('city', params.city);
+        if (params.score !== undefined) url.searchParams.set('score', String(params.score));
+        if (params.total !== undefined) url.searchParams.set('total', String(params.total));
+        if (params.rate !== undefined) url.searchParams.set('rate', String(params.rate));
+        if (params.streak !== undefined) url.searchParams.set('streak', String(params.streak));
+      }
+      await navigator.clipboard.writeText(url.toString());
       return true;
     } catch {
       return false;

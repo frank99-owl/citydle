@@ -75,7 +75,7 @@ export const StreetList = memo(function StreetList({ lang, streets, guessedCount
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.85rem' }}>
         {filteredStreets.map((s, idx) => (
           <li
-            key={idx}
+            key={s.name}
             style={{
               padding: '0.2rem 0.4rem',
               borderBottom: '1px dashed rgba(66,48,35,0.08)',
