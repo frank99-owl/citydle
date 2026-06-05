@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,6 +91,16 @@ export async function GET(req: NextRequest) {
  * Submit a score to the leaderboard.
  */
 export async function POST(req: NextRequest) {
+  // Rate limit: 10 submissions per minute per IP
+  const ip = getClientIp(req);
+  const { allowed, retryAfterMs } = checkRateLimit({ key: `leaderboard:${ip}`, limit: 10 });
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many submissions', retryAfterMs },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } }
+    );
+  }
+
   try {
     const db = getDb();
     if (!db) {

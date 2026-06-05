@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Bounds, PRESETS } from '@/lib/constants';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { getDb } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
@@ -91,6 +92,16 @@ async function raceOverpass(query: string): Promise<any> {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 30 requests per minute per IP
+  const ip = getClientIp(req);
+  const { allowed, retryAfterMs } = checkRateLimit({ key: `streets:${ip}`, limit: 30 });
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests', retryAfterMs },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } }
+    );
+  }
+
   try {
     const db = getDb();
     const body = await req.json() as { bounds: Bounds };

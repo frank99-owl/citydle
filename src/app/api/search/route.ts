@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  // Rate limit: 20 searches per minute per IP
+  const ip = getClientIp(req);
+  const { allowed, retryAfterMs } = checkRateLimit({ key: `search:${ip}`, limit: 20 });
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests', retryAfterMs },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } }
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
