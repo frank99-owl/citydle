@@ -1,891 +1,110 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import confetti from 'canvas-confetti';
+import { Suspense } from 'react';
+import { GameProvider, useGame } from '@/context/GameContext';
 import { PRESETS } from '@/lib/constants';
-import { TRANSLATIONS, Language } from '@/lib/i18n';
-import { Bounds, HistoryEntry, Favorite, MapProvider, Difficulty, View } from '@/types';
-
-// Hooks
-import { useMapProvider } from '@/hooks/useMapProvider';
-import { useLeafletMap } from '@/hooks/useLeafletMap';
-import { useStreets } from '@/hooks/useStreets';
-import { useGameLogic } from '@/hooks/useGameLogic';
-import { useTutorial } from '@/hooks/useTutorial';
-import { useAchievements } from '@/hooks/useAchievements';
-import { useStats } from '@/hooks/useStats';
+import { TRANSLATIONS } from '@/lib/i18n';
 
 // Components
 import { GameMap } from '@/components/map/GameMap';
 import { LobbyOverlay } from '@/components/lobby/LobbyOverlay';
+import { LobbyView } from '@/components/lobby/LobbyView';
 import { GameSidebar } from '@/components/game/GameSidebar';
 import { SettlementView } from '@/components/settlement/SettlementView';
-import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { AchievementPopup } from '@/components/achievement/AchievementPopup';
 import { ShareModal } from '@/components/share/ShareModal';
 
-function GameApp() {
-  const searchParams = useSearchParams();
-
-  // Language state
-  const [lang, setLang] = useState<Language>('en');
-
-  // Lobby records lists
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [highScore, setHighScore] = useState(0);
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [lobbyError, setLobbyError] = useState<string | null>(null);
-
-  // Determine initial states based on query parameters
-  const hasBoundsParams = searchParams.get('south') && searchParams.get('west') && searchParams.get('north') && searchParams.get('east');
-  const isCustomParam = searchParams.get('custom') === '1';
-
-  // Navigation / View State
-  const [view, setView] = useState<View>((hasBoundsParams || isCustomParam) ? 'game' : 'lobby');
-  const [customMode, setCustomMode] = useState(isCustomParam);
-  const [gameStarted, setGameStarted] = useState(!!hasBoundsParams);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  // Active game logic states
-  const [mapName, setMapName] = useState(searchParams.get('name') || 'Custom Area');
-  const [currentMapId, setCurrentMapId] = useState<string>('custom');
-  const [totalErrors, setTotalErrors] = useState(0);
-  const [bounds, setBounds] = useState<Bounds | null>(() => {
-    const s = searchParams.get('south');
-    const w = searchParams.get('west');
-    const n = searchParams.get('north');
-    const e = searchParams.get('east');
-    if (s && w && n && e) {
-      return {
-        south: parseFloat(s),
-        west: parseFloat(w),
-        north: parseFloat(n),
-        east: parseFloat(e),
-      };
-    }
-    return null;
-  });
-
-  // Custom mode location search states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchLoading, setSearchLoading] = useState(false);
-
-  // Guess feedback states
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [hintMessage, setHintMessage] = useState<string | null>(null);
-  const [directionMessage, setDirectionMessage] = useState<string | null>(null);
-
-  // Initialize hooks
-  const {
-    mapProvider,
-    updateMapProvider,
-    toMapLatLng,
-    toGameLatLng,
-    convertCoordinate,
-    getTileConfig,
-    prevProviderRef,
-  } = useMapProvider();
-
-  const {
-    mapRef,
-    mapContainerId,
-    mapLoaded,
-    drawBounds,
-    fitToBounds,
-    drawStreets,
-    revealStreet,
-    revealMissedStreets,
-    drawHint,
-    clearHint,
-    clearAllLayers,
-    setupDrawing,
-    syncTileLayer,
-    shiftMapCenter,
-  } = useLeafletMap({ toMapLatLng });
-
-  const {
-    streets,
-    streetsRef,
-    loading,
-    noStreetsFound,
-    fetchStreets,
-    updateStreetGuessed,
-    clearStreets,
-    cancelFetch,
-  } = useStreets(lang);
-
-  // Handle empty streets result
-  useEffect(() => {
-    if (noStreetsFound && !loading) {
-      alert(lang === 'zh'
-        ? '该区域未找到任何街道，请尝试缩小范围或换个区域。'
-        : 'No streets found in this area. Try a smaller region or pick a different one.');
-    }
-  }, [noStreetsFound, loading, lang]);
-
-  const tutorial = useTutorial();
-
-  const {
-    currentPopup: currentAchievementPopup,
-    dismissPopup: dismissAchievementPopup,
-    checkAchievements,
-    trackCustomUse,
-    trackCitySearch,
-    trackSpeedGuess,
-    resetGameTracking,
-  } = useAchievements();
-
-  const {
-    stats: playerStats,
-    updateStats: updatePlayerStats,
-    startGameTimer,
-    getDailyChallenge,
-    isDailyCompletedToday,
-    getTodayDailyResult,
-  } = useStats();
-
-  // Daily challenge state
-  const [isDailyChallenge, setIsDailyChallenge] = useState(false);
-
-  // Share modal state
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-
-  // Game time tracking
-  const [gameTimeSeconds, setGameTimeSeconds] = useState(0);
-  const gameStartTimeRef = useRef<number>(0);
-
-  const {
-    guess,
-    setGuess,
-    guessedCount,
-    streak,
-    maxStreak,
-    showResult,
-    setShowResult,
-    isSaved,
-    setIsSaved,
-    hintsUsed,
-    hintClue,
-    hintClueRef,
-    difficulty,
-    difficultyRef,
-    showResultRef,
-    loadDifficulty,
-    updateDifficulty,
-    getHint: getGameHint,
-    clearHint: clearGameHint,
-    checkGuess,
-    endGame,
-    resetGame,
-    calculateBadge,
-  } = useGameLogic();
-
-  // Translation accessor (needed early for feedback messages)
-  const t = TRANSLATIONS[lang];
-
-  // Sync language and settings with localStorage on load
-  useEffect(() => {
-    const savedLang = localStorage.getItem('cartographer_lang') as Language;
-    if (savedLang) {
-      setLang(savedLang);
-    } else {
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.includes('zh') || browserLang.includes('cn')) {
-        setLang('zh');
-      }
-    }
-    loadDifficulty();
-  }, [loadDifficulty]);
-
-  // Auto-start tutorial for first-time users (after language is determined)
-  useEffect(() => {
-    if (tutorial.shouldAutoStart && view === 'lobby') {
-      // Small delay so the lobby renders first
-      const timer = setTimeout(() => tutorial.startTutorial(), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [tutorial.shouldAutoStart, tutorial.startTutorial, view]);
-
-  // Toggle language
-  const toggleLanguage = useCallback(() => {
-    const newLang = lang === 'en' ? 'zh' : 'en';
-    setLang(newLang);
-    localStorage.setItem('cartographer_lang', newLang);
-  }, [lang]);
-
-  // Update URL params
-  const updateURLParams = useCallback((params: { name?: string; south?: number; west?: number; north?: number; east?: number; custom?: string } | null) => {
-    if (typeof window === 'undefined') return;
-    if (!params) {
-      window.history.replaceState({}, '', window.location.pathname);
-      return;
-    }
-    const urlParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, val]) => {
-      if (val !== undefined) {
-        urlParams.set(key, val.toString());
-      }
-    });
-    window.history.replaceState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
-  }, []);
-
-  // Fetch history & favorites list
-  const fetchHistoryAndFavorites = useCallback(async () => {
-    setLobbyError(null);
-    try {
-      const [historyRes, favoritesRes] = await Promise.all([
-        fetch('/api/history'),
-        fetch('/api/favorites'),
-      ]);
-      const historyData = await historyRes.json();
-      const favoritesData = await favoritesRes.json();
-      setHistory(historyData.history || []);
-      setHighScore(historyData.highScore || 0);
-      setFavorites(favoritesData.favorites || []);
-    } catch (err) {
-      console.error('Failed to load lobby data:', err);
-      setLobbyError('Failed to load data. Tap to retry.');
-    }
-  }, []);
-
-  // Fetch on mount
-  useEffect(() => {
-    fetchHistoryAndFavorites();
-  }, [fetchHistoryAndFavorites]);
-
-  // Refresh history/favorites after tutorial completes
-  const wasTutorialActiveRef = useRef(false);
-  useEffect(() => {
-    if (wasTutorialActiveRef.current && !tutorial.isActive) {
-      fetchHistoryAndFavorites();
-    }
-    wasTutorialActiveRef.current = tutorial.isActive;
-  }, [tutorial.isActive, fetchHistoryAndFavorites]);
-
-  // Sync tile layer when provider changes
-  useEffect(() => {
-    const config = getTileConfig();
-    syncTileLayer(config.url, config.options);
-  }, [mapProvider, mapLoaded, getTileConfig, syncTileLayer]);
-
-  // Track previous streets length to detect new data vs individual guesses
-  const prevStreetsLenRef = useRef(0);
-
-  // Redraw layers when mapProvider or difficulty changes
-  useEffect(() => {
-    if (!mapLoaded) return;
-
-    // Shift map center when provider changes
-    shiftMapCenter(prevProviderRef.current, mapProvider, convertCoordinate);
-    prevProviderRef.current = mapProvider;
-
-    // Redraw bounds
-    drawBounds(bounds);
-
-    // Only do full street redraw when new data is loaded (length changed)
-    // Individual street reveals are handled by revealStreet in handleGuessSubmit
-    if (streets.length !== prevStreetsLenRef.current) {
-      drawStreets(streets, showResult);
-      prevStreetsLenRef.current = streets.length;
-    }
-
-    // Redraw hint if active
-    if (hintClue && hintClue.geom && difficulty === 'easy') {
-      drawHint(hintClue.geom);
-    } else {
-      clearHint();
-    }
-  }, [mapProvider, mapLoaded, difficulty, bounds, streets, showResult, hintClue, drawBounds, drawStreets, drawHint, clearHint, shiftMapCenter, convertCoordinate, prevProviderRef]);
-
-  // Fit to bounds when bounds change
-  useEffect(() => {
-    if (bounds) {
-      fitToBounds(bounds);
-      drawBounds(bounds);
-    }
-  }, [bounds, fitToBounds, drawBounds]);
-
-  // Setup Geoman drawing for custom mode
-  useEffect(() => {
-    const enabled = view === 'game' && customMode && !gameStarted;
-    setupDrawing(enabled, (drawnBounds) => {
-      setBounds(drawnBounds);
-    }, mapProvider);
-  }, [view, customMode, gameStarted, mapLoaded, setupDrawing, mapProvider]);
-
-  // Handle hint with map drawing
-  const handleGetHint = useCallback(() => {
-    const hint = getGameHint(streets);
-    if (hint && hint.geom && difficulty === 'easy') {
-      drawHint(hint.geom);
-    }
-  }, [getGameHint, streets, difficulty, drawHint]);
-
-  // Handle guess submit with map reveal
-  const handleGuessSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const result = checkGuess(
-      guess,
-      streets,
-      bounds,
-      lang,
-      revealStreet,
-      (streakCount) => {
-        // Enhanced confetti based on streak level
-        if (streakCount >= 20) {
-          // Big confetti + screen shake
-          confetti({
-            particleCount: 200,
-            spread: 160,
-            startVelocity: 40,
-            origin: { y: 0.5 },
-          });
-          // Second burst from side
-          setTimeout(() => {
-            confetti({
-              particleCount: 120,
-              angle: 60,
-              spread: 80,
-              origin: { x: 0, y: 0.6 },
-            });
-            confetti({
-              particleCount: 120,
-              angle: 120,
-              spread: 80,
-              origin: { x: 1, y: 0.6 },
-            });
-          }, 200);
-          // Screen shake
-          document.body.style.animation = 'none';
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          document.body.offsetHeight; // force reflow
-          document.body.style.animation = 'screen-shake 0.5s ease';
-          setTimeout(() => { document.body.style.animation = ''; }, 500);
-        } else if (streakCount >= 10) {
-          // Medium confetti
-          confetti({
-            particleCount: 80,
-            spread: 90,
-            startVelocity: 30,
-            origin: { y: 0.6 },
-          });
-        } else {
-          // Small confetti for streak 2-9
-          confetti({
-            particleCount: Math.min(30 + streakCount * 10, 80),
-            spread: Math.min(40 + streakCount * 5, 70),
-            origin: { y: 0.6 },
-          });
-        }
-      },
-      endGame
-    );
-
-    if (!result.found && guess.trim()) {
-      setTotalErrors(prev => prev + 1);
-      setErrorMessage(t.guessWrong);
-      setHintMessage(result.hint || null);
-      setDirectionMessage(result.directionHint || null);
-      setTimeout(() => setErrorMessage(null), 1000);
-      // Clear hint/direction after 3 seconds
-      setTimeout(() => {
-        setHintMessage(null);
-        setDirectionMessage(null);
-      }, 3000);
-    } else if (result.found) {
-      setErrorMessage(null);
-      setHintMessage(null);
-      setDirectionMessage(null);
-      trackSpeedGuess();
-    }
-  }, [checkGuess, guess, streets, bounds, lang, revealStreet, endGame, t, trackSpeedGuess]);
-
-  // Handle end game
-  const handleEndGame = useCallback(async () => {
-    endGame();
-    revealMissedStreets(streets);
-
-    // Calculate game time
-    const elapsed = gameStartTimeRef.current > 0
-      ? Math.floor((Date.now() - gameStartTimeRef.current) / 1000)
-      : 0;
-    setGameTimeSeconds(elapsed);
-
-    // Check achievements
-    const completionRate = streets.length > 0 ? guessedCount / streets.length : 0;
-    checkAchievements({
-      completionRate,
-      maxStreak,
-      totalStreets: streets.length,
-      guessedCount,
-      errorsCount: totalErrors,
-      mapId: currentMapId,
-      customUsed: 0,
-      searchedCities: 0,
-      speedGuesses: 0,
-      timeMs: 0,
-    });
-
-    // Update personal stats
-    updatePlayerStats(
-      currentMapId,
-      mapName,
-      completionRate,
-      maxStreak,
-      guessedCount,
-      streets.length,
-      isDailyChallenge,
-    );
-
-    try {
-      await fetch('/api/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mapName,
-          score: guessedCount,
-          totalStreets: streets.length,
-          completionRate,
-          maxStreak,
-        }),
-      });
-    } catch (err) {
-      console.error('Failed to save score history', err);
-    }
-  }, [endGame, revealMissedStreets, streets, mapName, guessedCount, maxStreak, checkAchievements, currentMapId, totalErrors, updatePlayerStats, isDailyChallenge]);
-
-  // Start game with preset
-  const startGame = useCallback((preset: typeof PRESETS[0]) => {
-    const presetName = lang === 'zh' ? preset.name.split(' ')[0] : preset.name.split(' ').slice(1).join(' ') || preset.name;
-    setMapName(presetName);
-    setCurrentMapId(preset.id);
-    setCustomMode(false);
-    setBounds(preset.bounds);
-    setShowResult(false);
-    clearGameHint();
-    clearHint();
-    setErrorMessage(null);
-    setHintMessage(null);
-    setDirectionMessage(null);
-    resetGameTracking();
-    setTotalErrors(0);
-    setIsDailyChallenge(false);
-    setGameTimeSeconds(0);
-
-    fetchStreets(preset.bounds);
-    startGameTimer();
-    gameStartTimeRef.current = Date.now();
-
-    setIsTransitioning(true);
-    setView('game');
-    setGameStarted(true);
-
-    updateURLParams({
-      name: presetName,
-      south: preset.bounds.south,
-      west: preset.bounds.west,
-      north: preset.bounds.north,
-      east: preset.bounds.east,
-    });
-
-    setTimeout(() => setIsTransitioning(false), 600);
-  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking, startGameTimer]);
-
-  // Start from favorite
-  const startFromFavorite = useCallback((fav: Favorite) => {
-    setMapName(fav.name);
-    setCurrentMapId('custom');
-    setCustomMode(false);
-    setBounds(fav.bounds);
-    setShowResult(false);
-    clearGameHint();
-    clearHint();
-    resetGameTracking();
-    setTotalErrors(0);
-
-    fetchStreets(fav.bounds);
-
-    setIsTransitioning(true);
-    setView('game');
-    setGameStarted(true);
-
-    updateURLParams({
-      name: fav.name,
-      south: fav.bounds.south,
-      west: fav.bounds.west,
-      north: fav.bounds.north,
-      east: fav.bounds.east,
-    });
-
-    setTimeout(() => setIsTransitioning(false), 600);
-  }, [clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking]);
-
-  // Start custom area mode
-  const startCustomAreaMode = useCallback(() => {
-    setMapName(lang === 'zh' ? '自定义区域' : 'Custom Area');
-    setCurrentMapId('custom');
-    setCustomMode(true);
-    setBounds(null);
-    clearStreets();
-    setShowResult(false);
-    clearGameHint();
-    clearHint();
-    resetGameTracking();
-    trackCustomUse();
-    setTotalErrors(0);
-
-    setIsTransitioning(true);
-    setView('game');
-    setGameStarted(false);
-
-    updateURLParams({
-      custom: '1',
-      name: lang === 'zh' ? '自定义区域' : 'Custom Area',
-    });
-
-    setTimeout(() => setIsTransitioning(false), 600);
-  }, [lang, clearStreets, clearGameHint, clearHint, updateURLParams, resetGameTracking, trackCustomUse]);
-
-  // Handle start custom game
-  const handleStartCustomGame = useCallback(() => {
-    if (!bounds) {
-      alert(TRANSLATIONS[lang].alertNoBounds);
-      return;
-    }
-    if (!mapName.trim()) {
-      alert(TRANSLATIONS[lang].alertNoName);
-      return;
-    }
-    setGameStarted(true);
-    fetchStreets(bounds);
-  }, [bounds, mapName, lang, fetchStreets]);
-
-  // Start daily challenge
-  const startDailyChallenge = useCallback((presetIndex: number, diff: string) => {
-    const preset = PRESETS[presetIndex];
-    if (!preset) return;
-
-    const presetName = lang === 'zh' ? preset.name.split(' ')[0] : preset.name.split(' ').slice(1).join(' ') || preset.name;
-    setMapName(presetName);
-    setCurrentMapId(preset.id);
-    setCustomMode(false);
-    setBounds(preset.bounds);
-    setShowResult(false);
-    clearGameHint();
-    clearHint();
-    setErrorMessage(null);
-    setHintMessage(null);
-    setDirectionMessage(null);
-    resetGameTracking();
-    setTotalErrors(0);
-    setIsDailyChallenge(true);
-    setGameTimeSeconds(0);
-
-    // Apply difficulty
-    if (diff === 'easy' || diff === 'medium' || diff === 'hard') {
-      updateDifficulty(diff as Difficulty);
-    }
-
-    fetchStreets(preset.bounds);
-    startGameTimer();
-    gameStartTimeRef.current = Date.now();
-
-    setIsTransitioning(true);
-    setView('game');
-    setGameStarted(true);
-
-    updateURLParams({
-      name: presetName,
-      south: preset.bounds.south,
-      west: preset.bounds.west,
-      north: preset.bounds.north,
-      east: preset.bounds.east,
-    });
-
-    setTimeout(() => setIsTransitioning(false), 600);
-  }, [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking, startGameTimer, updateDifficulty]);
-
-  // Return to lobby
-  const returnToLobby = useCallback(() => {
-    cancelFetch();
-    setIsTransitioning(true);
-    setView('lobby');
-    setGameStarted(false);
-    setCustomMode(false);
-    clearStreets();
-    setShowResult(false);
-    resetGame();
-    clearAllLayers();
-    setErrorMessage(null);
-    setHintMessage(null);
-    setDirectionMessage(null);
-    setGameTimeSeconds(0);
-    gameStartTimeRef.current = 0;
-
-    updateURLParams(null);
-    fetchHistoryAndFavorites();
-
-    setTimeout(() => setIsTransitioning(false), 600);
-  }, [cancelFetch, clearStreets, resetGame, clearAllLayers, updateURLParams, fetchHistoryAndFavorites]);
-
-  // Open share modal
-  const handleOpenShare = useCallback(() => {
-    setShareModalOpen(true);
-  }, []);
-
-  // Submit to leaderboard
-  const handleSubmitLeaderboard = useCallback(async (playerName: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/leaderboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          playerName,
-          city: currentMapId,
-          score: guessedCount,
-          totalStreets: streets.length,
-          completionRate: streets.length > 0 ? guessedCount / streets.length : 0,
-          maxStreak,
-          timeSeconds: gameTimeSeconds,
-        }),
-      });
-      return res.ok;
-    } catch (err) {
-      console.error('Failed to submit to leaderboard:', err);
-      return false;
-    }
-  }, [currentMapId, guessedCount, streets.length, maxStreak, gameTimeSeconds]);
-
-  // Handle exit to lobby with confirmation
-  const handleExitToLobby = useCallback(() => {
-    if (window.confirm(TRANSLATIONS[lang].confirmExit)) {
-      returnToLobby();
-    }
-  }, [lang, returnToLobby]);
-
-  // Save map to favorites
-  const handleSaveMap = useCallback(async () => {
-    if (!bounds) return;
-    try {
-      const res = await fetch('/api/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: mapName, bounds }),
-      });
-      if (res.ok) {
-        setIsSaved(true);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }, [bounds, mapName, setIsSaved]);
-
-  // Delete favorite
-  const deleteFavorite = useCallback(async (id: number) => {
-    await fetch(`/api/favorites?id=${id}`, { method: 'DELETE' });
-    setFavorites(prev => prev.filter(f => f.id !== id));
-  }, []);
-
-  // Handle search submit
-  const handleSearchSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    setSearchLoading(true);
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-      if (!res.ok) throw new Error('Search failed');
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const place = data[0];
-        trackCitySearch(place.display_name || searchQuery);
-        const lat = parseFloat(place.lat);
-        const lon = parseFloat(place.lon);
-
-        if (mapRef.current) {
-          const mapCoords = toMapLatLng(lat, lon);
-          mapRef.current.setView(mapCoords, 14);
-
-          if (place.boundingbox && place.boundingbox.length === 4) {
-            const s = parseFloat(place.boundingbox[0]);
-            const n = parseFloat(place.boundingbox[1]);
-            const w = parseFloat(place.boundingbox[2]);
-            const e = parseFloat(place.boundingbox[3]);
-            import('leaflet').then((L) => {
-              const sw = toMapLatLng(s, w);
-              const ne = toMapLatLng(n, e);
-              const boundsObj = L.latLngBounds(L.latLng(sw[0], sw[1]), L.latLng(ne[0], ne[1]));
-              mapRef.current.fitBounds(boundsObj, {
-                paddingTopLeft: [400, 20],
-                paddingBottomRight: [20, 20],
-              });
-            });
-          }
-        }
-      } else {
-        alert(TRANSLATIONS[lang].customSearchNoResults);
-      }
-    } catch (err) {
-      console.error(err);
-      alert(TRANSLATIONS[lang].customSearchNoResults);
-    } finally {
-      setSearchLoading(false);
-    }
-  }, [searchQuery, lang, toMapLatLng, mapRef, trackCitySearch]);
-
-  // Calculate badge
-  const badge = calculateBadge(streets.length);
+function GameContent() {
+  const ctx = useGame();
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
 
       {/* Background Map View */}
-      <GameMap mapContainerId={mapContainerId} />
+      <GameMap mapContainerId={ctx.mapContainerId} />
 
       {/* Lobby Landing UI */}
       <LobbyOverlay
-        lang={lang}
-        view={view}
+        lang={ctx.lang}
+        view={ctx.view}
         presets={PRESETS}
-        history={history}
-        highScore={highScore}
-        favorites={favorites}
-        mapProvider={mapProvider}
-        difficulty={difficulty}
-        playerStats={playerStats}
-        dailyChallenge={getDailyChallenge()}
-        isDailyCompletedToday={isDailyCompletedToday()}
-        todayDailyResult={getTodayDailyResult()}
-        onToggleLanguage={toggleLanguage}
-        onSelectPreset={startGame}
-        onStartCustom={startCustomAreaMode}
-        onStartFavorite={startFromFavorite}
-        onDeleteFavorite={deleteFavorite}
-        onProviderChange={updateMapProvider}
-        onDifficultyChange={updateDifficulty}
-        onStartDailyChallenge={startDailyChallenge}
+        history={ctx.history}
+        highScore={ctx.highScore}
+        favorites={ctx.favorites}
+        mapProvider={ctx.mapProvider}
+        difficulty={ctx.difficulty}
+        playerStats={ctx.playerStats}
+        dailyChallenge={ctx.getDailyChallenge()}
+        isDailyCompletedToday={ctx.isDailyCompletedToday()}
+        todayDailyResult={ctx.getTodayDailyResult()}
+        onToggleLanguage={ctx.toggleLanguage}
+        onSelectPreset={ctx.startGame}
+        onStartCustom={ctx.startCustomAreaMode}
+        onStartFavorite={ctx.startFromFavorite}
+        onDeleteFavorite={ctx.deleteFavorite}
+        onProviderChange={ctx.updateMapProvider}
+        onDifficultyChange={ctx.updateDifficulty}
+        onStartDailyChallenge={ctx.startDailyChallenge}
       />
 
-      {/* Lobby error banner */}
-      {view === 'lobby' && lobbyError && (
-        <div
-          onClick={fetchHistoryAndFavorites}
-          style={{
-            position: 'fixed',
-            top: '1rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 30,
-            fontFamily: 'var(--font-cinzel), serif',
-            fontSize: '0.75rem',
-            padding: '0.6rem 1.2rem',
-            background: 'rgba(120,30,30,0.9)',
-            border: '1px solid rgba(220,80,60,0.6)',
-            borderRadius: '4px',
-            color: '#f4ebd0',
-            cursor: 'pointer',
-            backdropFilter: 'blur(6px)',
-            textAlign: 'center',
-          }}
-        >
-          {lobbyError}
-        </div>
-      )}
-
-      {/* Tutorial "View Tutorial" button in lobby */}
-      {view === 'lobby' && !tutorial.isActive && (
-        <button
-          onClick={tutorial.startTutorial}
-          style={{
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            zIndex: 20,
-            fontFamily: 'var(--font-cinzel), serif',
-            fontSize: '0.7rem',
-            letterSpacing: '0.1em',
-            padding: '0.5rem 1rem',
-            background: 'rgba(44,37,25,0.85)',
-            border: '1.5px solid rgba(197,160,89,0.4)',
-            borderRadius: '3px',
-            color: '#c5a059',
-            cursor: 'pointer',
-            backdropFilter: 'blur(6px)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(197,160,89,0.15)';
-            e.currentTarget.style.borderColor = '#c5a059';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(44,37,25,0.85)';
-            e.currentTarget.style.borderColor = 'rgba(197,160,89,0.4)';
-          }}
-        >
-          {lang === 'zh' ? '📖 查看教程' : '📖 View Tutorial'}
-        </button>
-      )}
-
-      {/* Tutorial Overlay */}
-      <TutorialOverlay
-        lang={lang}
-        isActive={tutorial.isActive}
-        currentStep={tutorial.currentStep}
-        totalSteps={tutorial.totalSteps}
-        onSkip={tutorial.skipTutorial}
-        onNext={tutorial.nextStep}
-        onPrev={tutorial.prevStep}
+      {/* Lobby overlays (tutorial button, error banner, tutorial) */}
+      <LobbyView
+        lang={ctx.lang}
+        view={ctx.view}
+        tutorial={ctx.tutorial}
+        lobbyError={ctx.lobbyError}
+        onRetryLobby={ctx.fetchHistoryAndFavorites}
       />
 
       {/* Game Sidebar */}
       <GameSidebar
-        lang={lang}
-        view={view}
-        customMode={customMode}
-        gameStarted={gameStarted}
-        loading={loading}
-        showResult={showResult}
-        mapName={mapName}
-        streets={streets}
-        guessedCount={guessedCount}
-        streak={streak}
-        guess={guess}
-        isSaved={isSaved}
-        hintsUsed={hintsUsed}
-        hintClue={hintClue}
-        difficulty={difficulty}
-        mapProvider={mapProvider}
-        bounds={bounds}
-        searchQuery={searchQuery}
-        searchLoading={searchLoading}
-        errorMessage={errorMessage}
-        hintMessage={hintMessage}
-        directionMessage={directionMessage}
-        onToggleLanguage={toggleLanguage}
-        onGuessChange={setGuess}
-        onGuessSubmit={handleGuessSubmit}
-        onGetHint={handleGetHint}
-        onSave={handleSaveMap}
-        onForfeit={handleEndGame}
-        onExit={handleExitToLobby}
-        onBackToLobby={returnToLobby}
-        onStartCustomGame={handleStartCustomGame}
-        onSearchQueryChange={setSearchQuery}
-        onSearchSubmit={handleSearchSubmit}
-        onMapNameChange={setMapName}
-        onDifficultyChange={updateDifficulty}
-        onMapProviderChange={updateMapProvider}
+        lang={ctx.lang}
+        view={ctx.view}
+        customMode={ctx.customMode}
+        gameStarted={ctx.gameStarted}
+        loading={ctx.loading}
+        showResult={ctx.showResult}
+        mapName={ctx.mapName}
+        streets={ctx.streets}
+        guessedCount={ctx.guessedCount}
+        streak={ctx.streak}
+        guess={ctx.guess}
+        isSaved={ctx.isSaved}
+        hintsUsed={ctx.hintsUsed}
+        hintClue={ctx.hintClue}
+        difficulty={ctx.difficulty}
+        mapProvider={ctx.mapProvider}
+        bounds={ctx.bounds}
+        searchQuery={ctx.searchQuery}
+        searchLoading={ctx.searchLoading}
+        errorMessage={ctx.errorMessage}
+        hintMessage={ctx.hintMessage}
+        directionMessage={ctx.directionMessage}
+        onToggleLanguage={ctx.toggleLanguage}
+        onGuessChange={ctx.setGuess}
+        onGuessSubmit={ctx.handleGuessSubmit}
+        onGetHint={ctx.handleGetHint}
+        onSave={ctx.handleSaveMap}
+        onForfeit={ctx.handleEndGame}
+        onExit={ctx.handleExitToLobby}
+        onBackToLobby={ctx.returnToLobby}
+        onStartCustomGame={ctx.handleStartCustomGame}
+        onSearchQueryChange={ctx.setSearchQuery}
+        onSearchSubmit={ctx.handleSearchSubmit}
+        onMapNameChange={ctx.setMapName}
+        onDifficultyChange={ctx.updateDifficulty}
+        onMapProviderChange={ctx.updateMapProvider}
       />
 
       {/* Achievement Unlock Popup */}
       <AchievementPopup
-        achievement={currentAchievementPopup}
-        lang={lang}
-        onDismiss={dismissAchievementPopup}
+        achievement={ctx.currentAchievementPopup}
+        lang={ctx.lang}
+        onDismiss={ctx.dismissAchievementPopup}
       />
 
       {/* Settlement View (inside sidebar when showing results) */}
-      {showResult && (
+      {ctx.showResult && (
         <aside
           className="vintage-panel"
           style={{
@@ -907,34 +126,34 @@ function GameApp() {
           }}
         >
           <SettlementView
-            lang={lang}
-            streets={streets}
-            guessedCount={guessedCount}
-            maxStreak={maxStreak}
-            hintsUsed={hintsUsed}
-            difficulty={difficulty}
-            badge={badge}
-            cityName={mapName}
-            timeSeconds={gameTimeSeconds}
-            onBackToLobby={returnToLobby}
-            onShare={handleOpenShare}
-            onSubmitLeaderboard={handleSubmitLeaderboard}
+            lang={ctx.lang}
+            streets={ctx.streets}
+            guessedCount={ctx.guessedCount}
+            maxStreak={ctx.maxStreak}
+            hintsUsed={ctx.hintsUsed}
+            difficulty={ctx.difficulty}
+            badge={ctx.badge}
+            cityName={ctx.mapName}
+            timeSeconds={ctx.gameTimeSeconds}
+            onBackToLobby={ctx.returnToLobby}
+            onShare={ctx.handleOpenShare}
+            onSubmitLeaderboard={ctx.handleSubmitLeaderboard}
           />
         </aside>
       )}
 
       {/* Share Modal */}
       <ShareModal
-        lang={lang}
-        isOpen={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
-        cityName={mapName}
-        completionRate={streets.length > 0 ? guessedCount / streets.length : 0}
-        maxStreak={maxStreak}
-        guessedCount={guessedCount}
-        totalStreets={streets.length}
-        timeSeconds={gameTimeSeconds}
-        badge={badge}
+        lang={ctx.lang}
+        isOpen={ctx.shareModalOpen}
+        onClose={() => ctx.setShareModalOpen(false)}
+        cityName={ctx.mapName}
+        completionRate={ctx.streets.length > 0 ? ctx.guessedCount / ctx.streets.length : 0}
+        maxStreak={ctx.maxStreak}
+        guessedCount={ctx.guessedCount}
+        totalStreets={ctx.streets.length}
+        timeSeconds={ctx.gameTimeSeconds}
+        badge={ctx.badge}
       />
 
     </div>
@@ -948,7 +167,9 @@ export default function HomePage() {
         Loading...
       </div>
     }>
-      <GameApp />
+      <GameProvider>
+        <GameContent />
+      </GameProvider>
     </Suspense>
   );
 }
