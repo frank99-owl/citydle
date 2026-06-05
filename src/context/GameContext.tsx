@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef, Re
 import { useSearchParams } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { PRESETS } from '@/lib/constants';
+import { signSubmission } from '@/lib/hmac';
 import { TRANSLATIONS, Language } from '@/lib/i18n';
 import {
   Bounds, HistoryEntry, Favorite, MapProvider, Difficulty, View,
@@ -743,18 +744,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Submit to leaderboard
   const handleSubmitLeaderboard = useCallback(async (playerName: string): Promise<boolean> => {
     try {
+      const payload = {
+        playerName,
+        city: currentMapId,
+        score: guessedCount,
+        totalStreets: streets.length,
+        completionRate: streets.length > 0 ? guessedCount / streets.length : 0,
+        maxStreak,
+        timeSeconds: gameTimeSeconds,
+      };
+      const signature = await signSubmission(payload);
       const res = await fetch('/api/leaderboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          playerName,
-          city: currentMapId,
-          score: guessedCount,
-          totalStreets: streets.length,
-          completionRate: streets.length > 0 ? guessedCount / streets.length : 0,
-          maxStreak,
-          timeSeconds: gameTimeSeconds,
-        }),
+        body: JSON.stringify({ ...payload, signature }),
       });
       return res.ok;
     } catch (err) {
