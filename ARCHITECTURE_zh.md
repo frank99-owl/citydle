@@ -92,10 +92,12 @@
 ```
 src/
 ├── app/                          # Next.js App Router
-│   ├── page.tsx                  # 根 SPA 编排器
+│   ├── page.tsx                  # 根 SPA 壳（~175 行）
 │   ├── layout.tsx                # 全局布局与字体
 │   ├── globals.css               # 主题与动画
 │   └── api/                      # 无服务器函数
+├── context/                      # React Context
+│   └── GameContext.tsx            # 游戏状态提供者（所有 hooks + 逻辑）
 ├── types/                        # TypeScript 定义
 │   └── index.ts                  # 集中类型
 ├── hooks/                        # 自定义 React Hooks
@@ -110,6 +112,7 @@ src/
 │   └── useLocalStorage.ts        # 持久化存储
 ├── components/                   # React 组件
 │   ├── lobby/                    # 大厅视图
+│   │   └── LobbyView.tsx         # 教程按钮、错误横幅
 │   ├── game/                     # 游戏中视图
 │   ├── settlement/               # 结果视图
 │   ├── achievement/              # 成就系统
@@ -123,7 +126,10 @@ src/
 │   ├── i18n.ts                   # 翻译文本
 │   ├── coord.ts                  # 坐标数学
 │   ├── db.ts                     # SQLite 单例
-│   └── daily.ts                  # 每日挑战
+│   ├── daily.ts                  # 每日挑战
+│   ├── matching.ts               # 核心算法（Levenshtein、匹配、提示）
+│   ├── rate-limit.ts             # 滑动窗口限流器
+│   └── hmac.ts                   # HMAC-SHA256 排行榜签名
 └── data/                         # 静态数据
     └── presets/                   # 街道几何数据
 ```
@@ -149,46 +155,49 @@ src/
 ```
 <page.tsx>
 │
-├── <GameMap />                          # 背景地图
-│
-├── <LobbyOverlay />                     # 大厅（CSS 过渡）
-│   ├── <DailyChallengeCard />           # 每日挑战卡片
-│   ├── <PresetCards />                  # 城市选择
-│   ├── <MapSettings />                  # 地图源与难度
-│   └── <Tabs>
-│       ├── <HistoryTable />             # 游戏历史
-│       ├── <FavoritesList />            # 收藏地图
-│       ├── <AchievementPanel />         # 成就展示
-│       ├── <StatsPanel />               # 个人统计
-│       └── <Leaderboard />              # 全局排行
-│
-├── <GameSidebar />                      # 游戏侧边栏（滑入）
-│   ├── <GameStats />                    # 得分显示
-│   ├── <HintConsole />                  # 提示按钮
-│   ├── <StreakDisplay />                # 连击计数器
-│   ├── <GuessInput />                   # 输入表单
-│   ├── <StreetList />                   # 街道列表
-│   └── <GameActions />                  # 操作按钮
-│
-├── <SettlementView />                   # 结果（侧边栏内）
-│
-├── <AchievementPopup />                 # 解锁通知
-│
-├── <ShareModal />                       # 分享选项
-│
-└── <TutorialOverlay />                  # 新手引导
+└── <GameProvider>                       # Context 提供者（所有状态 + hooks）
+    │
+    └── <GameContent>                    # 消费者，向子组件传递 props
+        │
+        ├── <GameMap />                  # 背景地图
+        │
+        ├── <LobbyOverlay />            # 大厅（CSS 过渡）
+        │   ├── <DailyChallengeCard />  # 每日挑战卡片
+        │   ├── <PresetCards />         # 城市选择
+        │   ├── <MapSettings />         # 地图源与难度
+        │   └── <Tabs>
+        │       ├── <HistoryTable />    # 游戏历史
+        │       ├── <FavoritesList />   # 收藏地图
+        │       ├── <AchievementPanel /># 成就展示
+        │       ├── <StatsPanel />      # 个人统计
+        │       └── <Leaderboard />     # 全局排行
+        │
+        ├── <LobbyView />               # 教程按钮、错误横幅、教程覆盖层
+        │
+        ├── <GameSidebar />             # 游戏侧边栏（滑入）
+        │   ├── <GameStats />           # 得分显示
+        │   ├── <HintConsole />         # 提示按钮
+        │   ├── <StreakDisplay />       # 连击计数器
+        │   ├── <GuessInput />          # 输入表单
+        │   ├── <StreetList />          # 街道列表
+        │   └── <GameActions />         # 操作按钮
+        │
+        ├── <SettlementView />          # 结果（侧边栏内）
+        │
+        ├── <AchievementPopup />        # 解锁通知
+        │
+        └── <ShareModal />              # 分享选项
 ```
 
 ### 状态管理
 
-无外部状态管理库。状态通过以下方式管理：
+无外部状态管理库。状态通过以下方式流转：
 
-1. **本地状态** (`useState`)：组件特定的 UI 状态
-2. **自定义 Hooks**：领域特定的状态和逻辑
-3. **Props**：父组件到子组件的通信
-4. **Callbacks**：子组件到父组件的通信
-5. **localStorage**：持久化的用户偏好和数据
-6. **URL 参数**：可分享的游戏状态
+1. **GameContext** (`context/GameContext.tsx`)：唯一数据源 — 所有游戏状态、hook 初始化和业务逻辑都在 Provider 中。组件通过 `useGame()` 消费。
+2. **自定义 Hooks**：领域特定逻辑封装在 hooks 中，在 Provider 内初始化。
+3. **Props**：父到子通信（context value → 组件 props）。
+4. **localStorage**：持久化的用户偏好和数据。
+5. **URL 参数**：可分享的游戏状态。
 
 ---
 
@@ -517,15 +526,34 @@ if (timeSeconds < 0 || timeSeconds > 86400) return 400;
 if (playerName.length > 20) playerName = playerName.slice(0, 20);
 ```
 
+### HMAC 签名（防篡改）
+
+排行榜提交包含 HMAC-SHA256 签名（`lib/hmac.ts`）：
+- 客户端在发送前对 payload 签名
+- 服务端验证签名；无效提交返回 403
+- 使用 Web Crypto API 进行签名/验证
+- 注意：密钥嵌入在客户端 JS 中，有决心的攻击者仍可伪造；此措施阻止随意篡改
+
+### 速率限制
+
+API 端点受内存滑动窗口限流器保护（`lib/rate-limit.ts`）：
+
+| 端点 | 限制 | 窗口 |
+|------|------|------|
+| `POST /api/leaderboard` | 10 次 | 60 秒 |
+| `POST /api/streets` | 30 次 | 60 秒 |
+| `GET /api/search` | 20 次 | 60 秒 |
+
+超限时返回 `429 Too Many Requests` 和 `Retry-After` 头。
+
 ### 每日挑战完整性
 - 基于日期种子的确定性哈希
 - 同一天所有用户相同挑战
 - 服务端生成（不信任客户端）
 
 ### 已知限制
-- 排行榜提交无 HMAC 签名
-- API 端点无速率限制
 - 无用户认证（匿名游戏）
+- 限流器为内存实现（无服务器冷启动时重置）
 
 ---
 
@@ -569,11 +597,16 @@ if (playerName.length > 20) playerName = playerName.slice(0, 20);
 
 | 文件 | 行数 | 用途 |
 |------|------|------|
-| `app/page.tsx` | ~600 | 根 SPA 编排器 |
-| `hooks/useGameLogic.ts` | ~300 | 核心游戏机制 |
+| `app/page.tsx` | ~175 | 根 SPA 壳（渲染 context 消费者） |
+| `context/GameContext.tsx` | ~940 | 游戏状态提供者（所有 hooks + 逻辑） |
+| `hooks/useGameLogic.ts` | ~230 | 核心游戏机制（委托给 matching.ts） |
 | `hooks/useLeafletMap.ts` | ~350 | 地图生命周期 |
+| `lib/matching.ts` | ~110 | 核心算法：Levenshtein、匹配、提示 |
 | `lib/i18n.ts` | ~200 | 翻译文本 |
 | `lib/constants.ts` | ~100 | 预设与配置 |
+| `lib/rate-limit.ts` | ~60 | 滑动窗口限流器 |
+| `lib/hmac.ts` | ~70 | HMAC-SHA256 签名 |
+| `components/lobby/LobbyView.tsx` | ~90 | 教程按钮与错误横幅 |
 
 ### 数据文件
 

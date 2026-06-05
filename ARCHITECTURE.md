@@ -92,10 +92,12 @@ The application uses a **Next.js 14 full-stack monolithic architecture** with:
 ```
 src/
 ├── app/                          # Next.js App Router
-│   ├── page.tsx                  # Root SPA orchestrator
+│   ├── page.tsx                  # Root SPA shell (~175 lines)
 │   ├── layout.tsx                # Global layout & fonts
 │   ├── globals.css               # Theme & animations
 │   └── api/                      # Serverless functions
+├── context/                      # React Context
+│   └── GameContext.tsx            # Game state provider (all hooks + logic)
 ├── types/                        # TypeScript definitions
 │   └── index.ts                  # Centralized types
 ├── hooks/                        # Custom React hooks
@@ -110,6 +112,7 @@ src/
 │   └── useLocalStorage.ts        # Persistent storage
 ├── components/                   # React components
 │   ├── lobby/                    # Lobby views
+│   │   └── LobbyView.tsx         # Tutorial button, error banner
 │   ├── game/                     # Active game views
 │   ├── settlement/               # Results view
 │   ├── achievement/              # Achievement system
@@ -123,7 +126,10 @@ src/
 │   ├── i18n.ts                   # Translations
 │   ├── coord.ts                  # Coordinate math
 │   ├── db.ts                     # SQLite singleton
-│   └── daily.ts                  # Daily challenge
+│   ├── daily.ts                  # Daily challenge
+│   ├── matching.ts               # Core algorithms (Levenshtein, matching, hints)
+│   ├── rate-limit.ts             # Sliding window rate limiter
+│   └── hmac.ts                   # HMAC-SHA256 signing for leaderboard
 └── data/                         # Static data
     └── presets/                   # Street geometries
 ```
@@ -149,46 +155,49 @@ Each hook encapsulates a specific domain of logic:
 ```
 <page.tsx>
 │
-├── <GameMap />                          # Background map
-│
-├── <LobbyOverlay />                     # Lobby (CSS transition)
-│   ├── <DailyChallengeCard />           # Daily challenge widget
-│   ├── <PresetCards />                  # City selection
-│   ├── <MapSettings />                  # Provider & difficulty
-│   └── <Tabs>
-│       ├── <HistoryTable />             # Game history
-│       ├── <FavoritesList />            # Saved maps
-│       ├── <AchievementPanel />         # Achievements
-│       ├── <StatsPanel />               # Personal stats
-│       └── <Leaderboard />              # Global rankings
-│
-├── <GameSidebar />                      # Game sidebar (slides in)
-│   ├── <GameStats />                    # Score display
-│   ├── <HintConsole />                  # Hint button
-│   ├── <StreakDisplay />                # Streak counter
-│   ├── <GuessInput />                   # Input form
-│   ├── <StreetList />                   # Street list
-│   └── <GameActions />                  # Action buttons
-│
-├── <SettlementView />                   # Results (inside sidebar)
-│
-├── <AchievementPopup />                 # Unlock notification
-│
-├── <ShareModal />                       # Share options
-│
-└── <TutorialOverlay />                  # Onboarding
+└── <GameProvider>                       # Context provider (all state + hooks)
+    │
+    └── <GameContent>                    # Consumer, wires props to children
+        │
+        ├── <GameMap />                  # Background map
+        │
+        ├── <LobbyOverlay />            # Lobby (CSS transition)
+        │   ├── <DailyChallengeCard />  # Daily challenge widget
+        │   ├── <PresetCards />         # City selection
+        │   ├── <MapSettings />         # Provider & difficulty
+        │   └── <Tabs>
+        │       ├── <HistoryTable />    # Game history
+        │       ├── <FavoritesList />   # Saved maps
+        │       ├── <AchievementPanel /># Achievements
+        │       ├── <StatsPanel />      # Personal stats
+        │       └── <Leaderboard />     # Global rankings
+        │
+        ├── <LobbyView />               # Tutorial button, error banner, tutorial overlay
+        │
+        ├── <GameSidebar />             # Game sidebar (slides in)
+        │   ├── <GameStats />           # Score display
+        │   ├── <HintConsole />         # Hint button
+        │   ├── <StreakDisplay />       # Streak counter
+        │   ├── <GuessInput />          # Input form
+        │   ├── <StreetList />          # Street list
+        │   └── <GameActions />         # Action buttons
+        │
+        ├── <SettlementView />          # Results (inside sidebar)
+        │
+        ├── <AchievementPopup />        # Unlock notification
+        │
+        └── <ShareModal />              # Share options
 ```
 
 ### State Management
 
-No external state management library. State is managed through:
+No external state management library. State flows through:
 
-1. **Local state** (`useState`): Component-specific UI state
-2. **Custom hooks**: Domain-specific state and logic
-3. **Props**: Parent-to-child communication
-4. **Callbacks**: Child-to-parent communication
-5. **localStorage**: Persistent user preferences and data
-6. **URL params**: Shareable game state
+1. **GameContext** (`context/GameContext.tsx`): Single source of truth — all game state, hook initialization, and business logic live in the Provider. Components consume via `useGame()`.
+2. **Custom hooks**: Domain-specific logic encapsulated in hooks, initialized inside the Provider.
+3. **Props**: Parent-to-child communication (context value → component props).
+4. **localStorage**: Persistent user preferences and data.
+5. **URL params**: Shareable game state.
 
 ---
 
@@ -517,15 +526,34 @@ if (timeSeconds < 0 || timeSeconds > 86400) return 400;
 if (playerName.length > 20) playerName = playerName.slice(0, 20);
 ```
 
+### HMAC Signature (Anti-Tampering)
+
+Leaderboard submissions include an HMAC-SHA256 signature (`lib/hmac.ts`):
+- Client signs the payload before sending
+- Server verifies the signature; rejects invalid submissions with 403
+- Uses Web Crypto API for signing/verification
+- Note: key is client-embedded, so determined attackers can still forge; this deters casual tampering
+
+### Rate Limiting
+
+API endpoints are protected by an in-memory sliding window rate limiter (`lib/rate-limit.ts`):
+
+| Endpoint | Limit | Window |
+|----------|-------|--------|
+| `POST /api/leaderboard` | 10 req | 60s |
+| `POST /api/streets` | 30 req | 60s |
+| `GET /api/search` | 20 req | 60s |
+
+Returns `429 Too Many Requests` with `Retry-After` header when exceeded.
+
 ### Daily Challenge Integrity
 - Deterministic hash based on date seed
 - Same challenge for all users on same day
 - Server-side generation (not client-trusted)
 
 ### Known Limitations
-- No HMAC signature on leaderboard submissions
-- No rate limiting on API endpoints
 - No user authentication (anonymous play)
+- Rate limiter is in-memory (resets on serverless cold starts)
 
 ---
 
@@ -569,11 +597,16 @@ Route (app)                    Size      First Load JS
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `app/page.tsx` | ~600 | Root SPA orchestrator |
-| `hooks/useGameLogic.ts` | ~300 | Core game mechanics |
+| `app/page.tsx` | ~175 | Root SPA shell (renders context consumer) |
+| `context/GameContext.tsx` | ~940 | Game state provider (all hooks + logic) |
+| `hooks/useGameLogic.ts` | ~230 | Core game mechanics (delegates to matching.ts) |
 | `hooks/useLeafletMap.ts` | ~350 | Map lifecycle |
+| `lib/matching.ts` | ~110 | Core algorithms: Levenshtein, matching, hints |
 | `lib/i18n.ts` | ~200 | Translations |
 | `lib/constants.ts` | ~100 | Presets & config |
+| `lib/rate-limit.ts` | ~60 | Sliding window rate limiter |
+| `lib/hmac.ts` | ~70 | HMAC-SHA256 signing |
+| `components/lobby/LobbyView.tsx` | ~90 | Tutorial button & error banner |
 
 ### Data Files
 

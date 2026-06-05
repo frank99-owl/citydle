@@ -62,7 +62,7 @@
 ```
 src/
 ├── app/
-│   ├── page.tsx                    # 根 SPA 编排器
+│   ├── page.tsx                    # 根 SPA 壳（~175 行）
 │   ├── layout.tsx                  # 全局布局与字体
 │   ├── globals.css                 # 主题变量与动画
 │   └── api/                        # 无服务器 API 路由
@@ -72,6 +72,8 @@ src/
 │       ├── history/route.ts        # 游戏历史与得分
 │       ├── leaderboard/route.ts    # 全局排行榜
 │       └── daily/route.ts          # 每日挑战生成
+├── context/
+│   └── GameContext.tsx              # 游戏状态提供者（所有 hooks + 逻辑）
 ├── types/
 │   └── index.ts                    # 集中 TypeScript 类型
 ├── hooks/
@@ -87,6 +89,7 @@ src/
 ├── components/
 │   ├── lobby/                      # 大厅视图组件
 │   │   ├── LobbyOverlay.tsx        # 大厅主容器
+│   │   ├── LobbyView.tsx           # 教程按钮与错误横幅
 │   │   ├── PresetCards.tsx         # 城市选择网格
 │   │   ├── MapSettings.tsx         # 地图源与难度设置
 │   │   ├── HistoryTable.tsx        # 游戏历史显示
@@ -123,7 +126,10 @@ src/
 │   ├── i18n.ts                     # 翻译文本（中/英）
 │   ├── coord.ts                    # WGS-84/GCJ-02 坐标转换
 │   ├── db.ts                       # SQLite 单例
-│   └── daily.ts                    # 每日挑战生成
+│   ├── daily.ts                    # 每日挑战生成
+│   ├── matching.ts                 # 核心算法（Levenshtein、匹配、提示）
+│   ├── rate-limit.ts               # 滑动窗口限流器
+│   └── hmac.ts                     # HMAC-SHA256 排行榜签名
 └── data/
     └── presets/                     # 预编译街道数据
         ├── new-york.json            # 141 条街道
@@ -277,11 +283,14 @@ PORT=3000 npm start
 ## 🧪 测试
 
 ```bash
-# 构建验证
-npm run build
+# 运行单元测试（Vitest）
+npm test
 
-# 代码检查
-npm run lint
+# 监听模式运行测试
+npm run test:watch
+
+# 构建验证（含 lint + 类型检查）
+npm run build
 ```
 
 ---

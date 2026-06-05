@@ -62,7 +62,7 @@
 ```
 src/
 ├── app/
-│   ├── page.tsx                    # Root SPA orchestrator
+│   ├── page.tsx                    # Root SPA shell (~175 lines)
 │   ├── layout.tsx                  # Global layout & fonts
 │   ├── globals.css                 # Theme variables & animations
 │   └── api/                        # Serverless API routes
@@ -72,6 +72,8 @@ src/
 │       ├── history/route.ts        # Game history & scores
 │       ├── leaderboard/route.ts    # Global rankings
 │       └── daily/route.ts          # Daily challenge generation
+├── context/
+│   └── GameContext.tsx              # Game state provider (all hooks + logic)
 ├── types/
 │   └── index.ts                    # Centralized TypeScript types
 ├── hooks/
@@ -87,6 +89,7 @@ src/
 ├── components/
 │   ├── lobby/                      # Lobby view components
 │   │   ├── LobbyOverlay.tsx        # Main lobby container
+│   │   ├── LobbyView.tsx           # Tutorial button & error banner
 │   │   ├── PresetCards.tsx         # City selection grid
 │   │   ├── MapSettings.tsx         # Provider & difficulty controls
 │   │   ├── HistoryTable.tsx        # Game history display
@@ -123,7 +126,10 @@ src/
 │   ├── i18n.ts                     # Translations (zh/en)
 │   ├── coord.ts                    # WGS-84/GCJ-02 conversions
 │   ├── db.ts                       # SQLite singleton
-│   └── daily.ts                    # Daily challenge generation
+│   ├── daily.ts                    # Daily challenge generation
+│   ├── matching.ts                 # Core algorithms (Levenshtein, matching, hints)
+│   ├── rate-limit.ts               # Sliding window rate limiter
+│   └── hmac.ts                     # HMAC-SHA256 signing for leaderboard
 └── data/
     └── presets/                     # Pre-compiled street data
         ├── new-york.json            # 141 streets
@@ -277,11 +283,14 @@ Get today's challenge parameters.
 ## 🧪 Testing
 
 ```bash
-# Build verification
-npm run build
+# Run unit tests (Vitest)
+npm test
 
-# Lint check
-npm run lint
+# Run tests in watch mode
+npm run test:watch
+
+# Build verification (includes lint + type check)
+npm run build
 ```
 
 ---
