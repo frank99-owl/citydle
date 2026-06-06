@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
-import confetti from 'canvas-confetti';
+
 import { PRESETS } from '@/lib/constants';
 import { signSubmission } from '@/lib/hmac';
 import { TRANSLATIONS, Language } from '@/lib/i18n';
@@ -450,46 +450,49 @@ export function GameProvider({ children }: { children: ReactNode }) {
       lang,
       revealStreet,
       (streakCount) => {
-        if (streakCount >= 20) {
-          confetti({
-            particleCount: 200,
-            spread: 160,
-            startVelocity: 40,
-            origin: { y: 0.5 },
-          });
-          setTimeout(() => {
+        // Dynamic import: canvas-confetti only loaded when actually needed
+        import('canvas-confetti').then(({ default: confetti }) => {
+          if (streakCount >= 20) {
             confetti({
-              particleCount: 120,
-              angle: 60,
-              spread: 80,
-              origin: { x: 0, y: 0.6 },
+              particleCount: 200,
+              spread: 160,
+              startVelocity: 40,
+              origin: { y: 0.5 },
             });
+            setTimeout(() => {
+              confetti({
+                particleCount: 120,
+                angle: 60,
+                spread: 80,
+                origin: { x: 0, y: 0.6 },
+              });
+              confetti({
+                particleCount: 120,
+                angle: 120,
+                spread: 80,
+                origin: { x: 1, y: 0.6 },
+              });
+            }, 200);
+            document.body.style.animation = 'none';
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            document.body.offsetHeight;
+            document.body.style.animation = 'screen-shake 0.5s ease';
+            setTimeout(() => { document.body.style.animation = ''; }, 500);
+          } else if (streakCount >= 10) {
             confetti({
-              particleCount: 120,
-              angle: 120,
-              spread: 80,
-              origin: { x: 1, y: 0.6 },
+              particleCount: 80,
+              spread: 90,
+              startVelocity: 30,
+              origin: { y: 0.6 },
             });
-          }, 200);
-          document.body.style.animation = 'none';
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          document.body.offsetHeight;
-          document.body.style.animation = 'screen-shake 0.5s ease';
-          setTimeout(() => { document.body.style.animation = ''; }, 500);
-        } else if (streakCount >= 10) {
-          confetti({
-            particleCount: 80,
-            spread: 90,
-            startVelocity: 30,
-            origin: { y: 0.6 },
-          });
-        } else {
-          confetti({
-            particleCount: Math.min(30 + streakCount * 10, 80),
-            spread: Math.min(40 + streakCount * 5, 70),
-            origin: { y: 0.6 },
-          });
-        }
+          } else {
+            confetti({
+              particleCount: Math.min(30 + streakCount * 10, 80),
+              spread: Math.min(40 + streakCount * 5, 70),
+              origin: { y: 0.6 },
+            });
+          }
+        });
       },
       endGame
     );
