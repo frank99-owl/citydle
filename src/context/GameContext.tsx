@@ -479,8 +479,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
               });
             }, 200);
             document.body.style.animation = 'none';
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            document.body.offsetHeight;
+            void document.body.offsetHeight; // force reflow
             document.body.style.animation = 'screen-shake 0.5s ease';
             setTimeout(() => { document.body.style.animation = ''; }, 500);
           } else if (streakCount >= 10) {

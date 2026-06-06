@@ -232,7 +232,7 @@ export function TutorialOverlay({
             }}>
               {lang === 'zh'
                 ? <>1. 选择「伦敦」城市卡片 → 2. 在输入框输入 <b>Throgmorton Street</b> → 3. 街道出现在地图上!</>
-                : <>1. Pick the "London" card → 2. Type <b>Throgmorton Street</b> → 3. Street appears on the map!</>
+                : <>1. Pick the &quot;London&quot; card → 2. Type <b>Throgmorton Street</b> → 3. Street appears on the map!</>
               }
             </div>
           </div>
