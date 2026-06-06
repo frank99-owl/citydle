@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { PRESETS } from '@/lib/constants';
@@ -20,17 +20,29 @@ import { useTutorial } from '@/hooks/useTutorial';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useStats, PlayerStats, DailyChallenge, DailyChallengeRecord } from '@/hooks/useStats';
 
-interface GameContextValue {
-  // 语言
+// Lobby context: low-frequency data (history, stats, achievements)
+interface LobbyContextValue {
   lang: Language;
-  toggleLanguage: () => void;
-
-  // 大厅数据
   history: HistoryEntry[];
   highScore: number;
   favorites: Favorite[];
   lobbyError: string | null;
   fetchHistoryAndFavorites: () => Promise<void>;
+  playerStats: PlayerStats;
+  tutorial: ReturnType<typeof useTutorial>;
+  currentAchievementPopup: Achievement | null;
+  dismissAchievementPopup: () => void;
+  getDailyChallenge: () => DailyChallenge | null;
+  isDailyCompletedToday: () => boolean;
+  getTodayDailyResult: () => DailyChallengeRecord | null;
+  deleteFavorite: (id: number) => void;
+}
+
+// Game context: high-frequency state (guess, streak, map, timers)
+interface GameContextValue {
+  // 语言
+  lang: Language;
+  toggleLanguage: () => void;
 
   // 视图状态
   view: View;
@@ -74,22 +86,12 @@ interface GameContextValue {
   setSearchQuery: (v: string) => void;
   searchLoading: boolean;
 
-  // 成就
-  currentAchievementPopup: Achievement | null;
-  dismissAchievementPopup: () => void;
-
-  // 统计
-  playerStats: PlayerStats;
-
   // 分享
   shareModalOpen: boolean;
   setShareModalOpen: (v: boolean) => void;
 
   // 徽章
   badge: Achievement | null;
-
-  // 教程
-  tutorial: ReturnType<typeof useTutorial>;
 
   // === 业务动作 ===
   startGame: (preset: Preset) => void;
@@ -103,7 +105,6 @@ interface GameContextValue {
   handleGetHint: () => void;
   handleEndGame: () => void;
   handleSaveMap: () => void;
-  deleteFavorite: (id: number) => void;
   handleSearchSubmit: (e: React.FormEvent) => void;
   handleSubmitLeaderboard: (playerName: string) => Promise<boolean>;
   handleOpenShare: () => void;
@@ -131,9 +132,6 @@ interface GameContextValue {
   updateMapProvider: (p: MapProvider) => void;
   updateDifficulty: (d: Difficulty) => void;
   prevProviderRef: React.RefObject<MapProvider>;
-  getDailyChallenge: () => DailyChallenge | null;
-  isDailyCompletedToday: () => boolean;
-  getTodayDailyResult: () => DailyChallengeRecord | null;
   startGameTimer: () => void;
   updatePlayerStats: (...args: any[]) => void;
   checkAchievements: (result: GameResult) => void;
@@ -144,7 +142,14 @@ interface GameContextValue {
   calculateBadge: (total: number) => Achievement | null;
 }
 
+const LobbyContext = createContext<LobbyContextValue | null>(null);
 const GameContext = createContext<GameContextValue | null>(null);
+
+export function useLobby() {
+  const ctx = useContext(LobbyContext);
+  if (!ctx) throw new Error('useLobby must be used within GameProvider');
+  return ctx;
+}
 
 export function useGame() {
   const ctx = useContext(GameContext);
@@ -848,14 +853,34 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Calculate badge
   const badge = calculateBadge(streets.length);
 
-  const value: GameContextValue = {
+  // Memoize lobby context (low-frequency: history, stats, achievements)
+  const lobbyValue: LobbyContextValue = useMemo(() => ({
     lang,
-    toggleLanguage,
     history,
     highScore,
     favorites,
     lobbyError,
     fetchHistoryAndFavorites,
+    playerStats,
+    tutorial,
+    currentAchievementPopup,
+    dismissAchievementPopup,
+    getDailyChallenge,
+    isDailyCompletedToday,
+    getTodayDailyResult,
+    deleteFavorite,
+  }), [
+    lang, history, highScore, favorites, lobbyError,
+    fetchHistoryAndFavorites, playerStats, tutorial,
+    currentAchievementPopup, dismissAchievementPopup,
+    getDailyChallenge, isDailyCompletedToday, getTodayDailyResult,
+    deleteFavorite,
+  ]);
+
+  // Memoize game context (high-frequency: guess, streak, map, timers)
+  const gameValue: GameContextValue = useMemo(() => ({
+    lang,
+    toggleLanguage,
     view,
     customMode,
     gameStarted,
@@ -886,13 +911,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     searchQuery,
     setSearchQuery,
     searchLoading,
-    currentAchievementPopup,
-    dismissAchievementPopup,
-    playerStats,
     shareModalOpen,
     setShareModalOpen,
     badge,
-    tutorial,
     startGame,
     startFromFavorite,
     startCustomAreaMode,
@@ -904,7 +925,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     handleGetHint,
     handleEndGame,
     handleSaveMap,
-    deleteFavorite,
     handleSearchSubmit,
     handleSubmitLeaderboard,
     handleOpenShare,
@@ -930,9 +950,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     updateMapProvider,
     updateDifficulty,
     prevProviderRef,
-    getDailyChallenge,
-    isDailyCompletedToday,
-    getTodayDailyResult,
     startGameTimer,
     updatePlayerStats,
     checkAchievements,
@@ -941,7 +958,30 @@ export function GameProvider({ children }: { children: ReactNode }) {
     trackCitySearch,
     trackSpeedGuess,
     calculateBadge,
-  };
+  }), [
+    lang, toggleLanguage, view, customMode, gameStarted, isTransitioning,
+    mapName, setMapName, streets, guessedCount, streak, maxStreak,
+    guess, setGuess, showResult, isSaved, hintsUsed, hintClue,
+    difficulty, bounds, totalErrors, errorMessage, hintMessage, directionMessage,
+    isDailyChallenge, gameTimeSeconds, mapProvider, mapContainerId, mapLoaded,
+    searchQuery, setSearchQuery, searchLoading, shareModalOpen, setShareModalOpen,
+    badge, startGame, startFromFavorite, startCustomAreaMode, startDailyChallenge,
+    handleStartCustomGame, returnToLobby, handleExitToLobby, handleGuessSubmit,
+    handleGetHint, handleEndGame, handleSaveMap, handleSearchSubmit,
+    handleSubmitLeaderboard, handleOpenShare, mapRef, toMapLatLng, drawBounds,
+    fitToBounds, drawStreets, revealStreet, revealMissedStreets, drawHint,
+    clearHint, clearAllLayers, setupDrawing, syncTileLayer, shiftMapCenter,
+    loading, noStreetsFound, fetchStreets, clearStreets, cancelFetch,
+    getTileConfig, updateMapProvider, updateDifficulty, prevProviderRef,
+    startGameTimer, updatePlayerStats, checkAchievements, resetGameTracking,
+    trackCustomUse, trackCitySearch, trackSpeedGuess, calculateBadge,
+  ]);
 
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
+  return (
+    <LobbyContext.Provider value={lobbyValue}>
+      <GameContext.Provider value={gameValue}>
+        {children}
+      </GameContext.Provider>
+    </LobbyContext.Provider>
+  );
 }

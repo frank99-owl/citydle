@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { GameProvider, useGame } from '@/context/GameContext';
+import { GameProvider, useGame, useLobby } from '@/context/GameContext';
 import { PRESETS } from '@/lib/constants';
 import { TRANSLATIONS } from '@/lib/i18n';
 
@@ -19,6 +19,7 @@ const ShareModal = dynamic(() => import('@/components/share/ShareModal').then(m 
 
 function GameContent() {
   const ctx = useGame();
+  const lobby = useLobby();
   const closeShareModal = useCallback(() => ctx.setShareModalOpen(false), [ctx.setShareModalOpen]);
 
   return (
@@ -29,23 +30,23 @@ function GameContent() {
 
       {/* Lobby Landing UI */}
       <LobbyOverlay
-        lang={ctx.lang}
+        lang={lobby.lang}
         view={ctx.view}
         presets={PRESETS}
-        history={ctx.history}
-        highScore={ctx.highScore}
-        favorites={ctx.favorites}
+        history={lobby.history}
+        highScore={lobby.highScore}
+        favorites={lobby.favorites}
         mapProvider={ctx.mapProvider}
         difficulty={ctx.difficulty}
-        playerStats={ctx.playerStats}
-        dailyChallenge={ctx.getDailyChallenge()}
-        isDailyCompletedToday={ctx.isDailyCompletedToday()}
-        todayDailyResult={ctx.getTodayDailyResult()}
+        playerStats={lobby.playerStats}
+        dailyChallenge={lobby.getDailyChallenge()}
+        isDailyCompletedToday={lobby.isDailyCompletedToday()}
+        todayDailyResult={lobby.getTodayDailyResult()}
         onToggleLanguage={ctx.toggleLanguage}
         onSelectPreset={ctx.startGame}
         onStartCustom={ctx.startCustomAreaMode}
         onStartFavorite={ctx.startFromFavorite}
-        onDeleteFavorite={ctx.deleteFavorite}
+        onDeleteFavorite={lobby.deleteFavorite}
         onProviderChange={ctx.updateMapProvider}
         onDifficultyChange={ctx.updateDifficulty}
         onStartDailyChallenge={ctx.startDailyChallenge}
@@ -53,11 +54,11 @@ function GameContent() {
 
       {/* Lobby overlays (tutorial button, error banner, tutorial) */}
       <LobbyView
-        lang={ctx.lang}
+        lang={lobby.lang}
         view={ctx.view}
-        tutorial={ctx.tutorial}
-        lobbyError={ctx.lobbyError}
-        onRetryLobby={ctx.fetchHistoryAndFavorites}
+        tutorial={lobby.tutorial}
+        lobbyError={lobby.lobbyError}
+        onRetryLobby={lobby.fetchHistoryAndFavorites}
       />
 
       {/* Game Sidebar */}
@@ -102,9 +103,9 @@ function GameContent() {
 
       {/* Achievement Unlock Popup */}
       <AchievementPopup
-        achievement={ctx.currentAchievementPopup}
-        lang={ctx.lang}
-        onDismiss={ctx.dismissAchievementPopup}
+        achievement={lobby.currentAchievementPopup}
+        lang={lobby.lang}
+        onDismiss={lobby.dismissAchievementPopup}
       />
 
       {/* Settlement View (inside sidebar when showing results) */}
