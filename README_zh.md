@@ -62,7 +62,7 @@
 ```
 src/
 ├── app/
-│   ├── page.tsx                    # 根 SPA 壳（~175 行）
+│   ├── page.tsx                    # 根 SPA 壳 — 懒加载条件组件
 │   ├── layout.tsx                  # 全局布局与字体
 │   ├── globals.css                 # 主题变量与动画
 │   └── api/                        # 无服务器 API 路由
@@ -73,7 +73,7 @@ src/
 │       ├── leaderboard/route.ts    # 全局排行榜
 │       └── daily/route.ts          # 每日挑战生成
 ├── context/
-│   └── GameContext.tsx              # 游戏状态提供者（所有 hooks + 逻辑）
+│   └── GameContext.tsx              # 双 Context：LobbyContext + GameContext（useMemo 优化）
 ├── types/
 │   └── index.ts                    # 集中 TypeScript 类型
 ├── hooks/
@@ -87,15 +87,16 @@ src/
 │   ├── useShare.ts                 # 分享卡片生成
 │   └── useLocalStorage.ts          # 持久化存储（跨标签页同步）
 ├── components/
+│   ├── map/
+│   │   └── GameMap.tsx             # 背景 Leaflet 地图（memo 优化）
 │   ├── lobby/                      # 大厅视图组件
-│   │   ├── LobbyOverlay.tsx        # 大厅主容器
+│   │   ├── LobbyOverlay.tsx        # 大厅主容器（懒加载 tab 面板）
 │   │   ├── LobbyView.tsx           # 教程按钮与错误横幅
 │   │   ├── PresetCards.tsx         # 城市选择网格
 │   │   ├── MapSettings.tsx         # 地图源与难度设置
 │   │   ├── HistoryTable.tsx        # 游戏历史显示
 │   │   ├── FavoritesList.tsx       # 收藏地图列表
-│   │   ├── DailyChallengeCard.tsx  # 每日挑战卡片
-│   │   └── AchievementPanel.tsx    # 成就展示
+│   │   └── DailyChallengeCard.tsx  # 每日挑战卡片
 │   ├── game/                       # 游戏中组件
 │   │   ├── GameSidebar.tsx         # 游戏侧边栏容器
 │   │   ├── GameStats.tsx           # 得分与进度显示
@@ -105,17 +106,17 @@ src/
 │   │   ├── StreetList.tsx          # 街道列表（带筛选）
 │   │   └── GameActions.tsx         # 收藏/放弃/返回按钮
 │   ├── settlement/
-│   │   └── SettlementView.tsx      # 游戏结算与分享
+│   │   └── SettlementView.tsx      # 游戏结算与分享（懒加载）
 │   ├── achievement/
-│   │   ├── AchievementPopup.tsx    # 成就解锁通知
-│   │   └── AchievementPanel.tsx    # 成就展示
+│   │   ├── AchievementPopup.tsx    # 成就解锁通知（懒加载）
+│   │   └── AchievementPanel.tsx    # 成就展示（懒加载）
 │   ├── share/
 │   │   ├── ShareCard.tsx           # Canvas 分享卡片生成器
-│   │   └── ShareModal.tsx          # 分享选项弹窗
+│   │   └── ShareModal.tsx          # 分享选项弹窗（懒加载）
 │   ├── leaderboard/
-│   │   └── Leaderboard.tsx         # 全局排行榜表格
+│   │   └── Leaderboard.tsx         # 全局排行榜表格（懒加载）
 │   ├── stats/
-│   │   └── StatsPanel.tsx          # 个人统计面板
+│   │   └── StatsPanel.tsx          # 个人统计面板（懒加载）
 │   ├── tutorial/
 │   │   └── TutorialOverlay.tsx     # 新手引导教程
 │   └── shared/
@@ -153,7 +154,7 @@ src/
 | **地理编码** | OpenStreetMap Nominatim |
 | **街道数据** | Overpass API（4 镜像并发竞速） |
 | **数据库** | SQLite（Node.js 原生 `node:sqlite`） |
-| **动画** | canvas-confetti |
+| **动画** | canvas-confetti（动态导入） |
 | **字体** | Cinzel（标题）、IM Fell English（正文） |
 
 ---

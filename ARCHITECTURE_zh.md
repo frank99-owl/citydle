@@ -92,12 +92,12 @@
 ```
 src/
 ├── app/                          # Next.js App Router
-│   ├── page.tsx                  # 根 SPA 壳（~175 行）
+│   ├── page.tsx                  # 根 SPA 壳 — 懒加载条件组件
 │   ├── layout.tsx                # 全局布局与字体
 │   ├── globals.css               # 主题与动画
 │   └── api/                      # 无服务器函数
 ├── context/                      # React Context
-│   └── GameContext.tsx            # 游戏状态提供者（所有 hooks + 逻辑）
+│   └── GameContext.tsx            # 双 Context：LobbyContext + GameContext（useMemo 优化）
 ├── types/                        # TypeScript 定义
 │   └── index.ts                  # 集中类型
 ├── hooks/                        # 自定义 React Hooks
@@ -111,14 +111,22 @@ src/
 │   ├── useShare.ts               # 分享卡片生成
 │   └── useLocalStorage.ts        # 持久化存储
 ├── components/                   # React 组件
+│   ├── map/                      # 背景地图
+│   │   └── GameMap.tsx           # Leaflet 地图容器（memo 优化）
 │   ├── lobby/                    # 大厅视图
-│   │   └── LobbyView.tsx         # 教程按钮、错误横幅
+│   │   ├── LobbyOverlay.tsx      # 大厅主容器（懒加载 tab 面板）
+│   │   ├── LobbyView.tsx         # 教程按钮、错误横幅
+│   │   ├── PresetCards.tsx       # 城市选择网格
+│   │   ├── MapSettings.tsx       # 地图源与难度设置
+│   │   ├── HistoryTable.tsx      # 游戏历史
+│   │   ├── FavoritesList.tsx     # 收藏地图
+│   │   └── DailyChallengeCard.tsx # 每日挑战卡片
 │   ├── game/                     # 游戏中视图
-│   ├── settlement/               # 结果视图
-│   ├── achievement/              # 成就系统
-│   ├── share/                    # 社交分享
-│   ├── leaderboard/              # 全局排行
-│   ├── stats/                    # 个人统计
+│   ├── settlement/               # 结果视图（懒加载）
+│   ├── achievement/              # 成就系统（懒加载）
+│   ├── share/                    # 社交分享（懒加载）
+│   ├── leaderboard/              # 全局排行（懒加载）
+│   ├── stats/                    # 个人统计（懒加载）
 │   ├── tutorial/                 # 新手引导
 │   └── shared/                   # 可复用 UI
 ├── lib/                          # 工具函数
@@ -143,7 +151,7 @@ src/
 | `useLeafletMap` | `mapRef`, `mapLoaded` | 初始化、销毁、图层操作、绘图 | Leaflet, Geoman |
 | `useMapProvider` | `mapProvider` | 切换地图源、坐标转换 | `coord.ts` |
 | `useStreets` | `streets`, `loading` | 获取、取消、缓存 | `/api/streets` |
-| `useGameLogic` | `guess`, `streak`, `score` | 匹配、提示、结算 | `i18n.ts` |
+| `useGameLogic` | `guess`, `streak`, `maxStreak`, `guessedCount` | 匹配、提示、结算 | `i18n.ts` |
 | `useAchievements` | `unlocked`, `popup` | 检查、解锁、显示 | `localStorage` |
 | `useStats` | `stats` | 更新、每日挑战 | `localStorage`, `/api/daily` |
 | `useTutorial` | `step`, `isActive` | 开始、下一步、跳过 | `localStorage` |
@@ -155,45 +163,44 @@ src/
 ```
 <page.tsx>
 │
-└── <GameProvider>                       # Context 提供者（所有状态 + hooks）
+└── <GameProvider>                       # 初始化所有 hooks + 状态
     │
-    └── <GameContent>                    # 消费者，向子组件传递 props
+    └── <LobbyContext.Provider>          # 低频数据：历史、统计、成就
         │
-        ├── <GameMap />                  # 背景地图
-        │
-        ├── <LobbyOverlay />            # 大厅（CSS 过渡）
-        │   ├── <DailyChallengeCard />  # 每日挑战卡片
-        │   ├── <PresetCards />         # 城市选择
-        │   ├── <MapSettings />         # 地图源与难度
-        │   └── <Tabs>
-        │       ├── <HistoryTable />    # 游戏历史
-        │       ├── <FavoritesList />   # 收藏地图
-        │       ├── <AchievementPanel /># 成就展示
-        │       ├── <StatsPanel />      # 个人统计
-        │       └── <Leaderboard />     # 全局排行
-        │
-        ├── <LobbyView />               # 教程按钮、错误横幅、教程覆盖层
-        │
-        ├── <GameSidebar />             # 游戏侧边栏（滑入）
-        │   ├── <GameStats />           # 得分显示
-        │   ├── <HintConsole />         # 提示按钮
-        │   ├── <StreakDisplay />       # 连击计数器
-        │   ├── <GuessInput />          # 输入表单
-        │   ├── <StreetList />          # 街道列表
-        │   └── <GameActions />         # 操作按钮
-        │
-        ├── <SettlementView />          # 结果（侧边栏内）
-        │
-        ├── <AchievementPopup />        # 解锁通知
-        │
-        └── <ShareModal />              # 分享选项
+        └── <GameContext.Provider>       # 高频状态：猜测、连击、地图、计时器
+            │
+            └── <GameContent>            # 消费者 — 调用 useGame() + useLobby()
+                │
+                ├── <GameMap />          # 背景地图（memo 优化，静态 prop）
+                │
+                ├── <LobbyOverlay />     # 大厅 — 通过 props 订阅 LobbyContext
+                │   ├── <DailyChallengeCard />
+                │   ├── <PresetCards />
+                │   ├── <MapSettings />
+                │   └── <Tabs>
+                │       ├── <HistoryTable />
+                │       ├── <FavoritesList />
+                │       ├── <AchievementPanel />  # 懒加载
+                │       ├── <StatsPanel />        # 懒加载
+                │       └── <Leaderboard />       # 懒加载
+                │
+                ├── <LobbyView />        # 教程、错误横幅 — 使用 LobbyContext
+                │
+                ├── <GameSidebar />      # 游戏侧边栏（滑入）
+                │
+                ├── <SettlementView />   # 结果（懒加载）
+                ├── <AchievementPopup /> # 解锁通知（懒加载）
+                └── <ShareModal />       # 分享选项（懒加载）
 ```
 
 ### 状态管理
 
 无外部状态管理库。状态通过以下方式流转：
 
-1. **GameContext** (`context/GameContext.tsx`)：唯一数据源 — 所有游戏状态、hook 初始化和业务逻辑都在 Provider 中。组件通过 `useGame()` 消费。
+1. **双 Context** (`context/GameContext.tsx`)：两个 Context + `useMemo` 优化。
+   - **LobbyContext**：低频数据（历史、收藏、playerStats、教程、成就）。通过 `useLobby()` 消费。
+   - **GameContext**：高频状态（猜测、连击、地图、计时器）。通过 `useGame()` 消费。
+   - 两个 value 均用 `useMemo()` 包裹，避免不必要的重渲染。
 2. **自定义 Hooks**：领域特定逻辑封装在 hooks 中，在 Provider 内初始化。
 3. **Props**：父到子通信（context value → 组件 props）。
 4. **localStorage**：持久化的用户偏好和数据。
@@ -493,8 +500,12 @@ function generateHintPattern(name: string, lang: Language): string {
 
 ```typescript
 // localStorage 键
-'cartographer_achievements'  // 已解锁成就 ID 的 string[]
-'cartographer_stats'         // { customUses, citySearches, speedGuesses }
+'cartographer_achievements'       // Record<string, string> — 成就 ID → ISO 日期
+'cartographer_stats'              // { customUsed, searchedCities: string[], speedGuesses, speedGuessTimestamp }
+'cartographer_player_stats'       // PlayerStats — 游戏次数、城市统计、每日历史
+'cartographer_difficulty'         // 'easy' | 'medium' | 'hard'
+'cartographer_lang'               // 'en' | 'zh'
+'cartographer_tutorial_completed' // 教程完成后为 'true'
 ```
 
 ### 解锁流程
@@ -566,7 +577,9 @@ API 端点受内存滑动窗口限流器保护（`lib/rate-limit.ts`）：
 | React.memo | 所有纯展示组件 |
 | Canvas 渲染 | Leaflet 设置 `preferCanvas: true` |
 | 增量更新 | 只重绘变化的街道 |
-| 延迟加载 | Leaflet、Geoman 动态导入 |
+| 懒加载 | `next/dynamic` 加载 SettlementView、AchievementPopup、ShareModal、AchievementPanel、StatsPanel、Leaderboard；`import()` 动态加载 Leaflet、Geoman、canvas-confetti |
+| useMemo | `lobbyValue` 和 `gameValue` 均用 `useMemo()` 包裹 |
+| 双 Context | LobbyContext（低频）+ GameContext（高频）避免级联重渲染 |
 | CSS 动画 | GPU 加速 transform |
 | 防抖搜索 | 位置搜索 300ms 延迟 |
 
@@ -584,8 +597,8 @@ API 端点受内存滑动窗口限流器保护（`lib/rate-limit.ts`）：
 
 ```
 路由 (app)                    大小      首次加载 JS
-┌ ○ /                         39 kB     126 kB
-├ ○ /_not-found               875 B     88.2 kB
+┌ ○ /                         31 kB     119 kB
+├ ○ /_not-found               875 B     88.3 kB
 └ ƒ /api/*                    ~0 B      ~0 B（仅服务端）
 ```
 
@@ -597,23 +610,23 @@ API 端点受内存滑动窗口限流器保护（`lib/rate-limit.ts`）：
 
 | 文件 | 行数 | 用途 |
 |------|------|------|
-| `app/page.tsx` | ~175 | 根 SPA 壳（渲染 context 消费者） |
-| `context/GameContext.tsx` | ~940 | 游戏状态提供者（所有 hooks + 逻辑） |
-| `hooks/useGameLogic.ts` | ~230 | 核心游戏机制（委托给 matching.ts） |
-| `hooks/useLeafletMap.ts` | ~350 | 地图生命周期 |
-| `lib/matching.ts` | ~110 | 核心算法：Levenshtein、匹配、提示 |
-| `lib/i18n.ts` | ~200 | 翻译文本 |
-| `lib/constants.ts` | ~100 | 预设与配置 |
-| `lib/rate-limit.ts` | ~60 | 滑动窗口限流器 |
-| `lib/hmac.ts` | ~70 | HMAC-SHA256 签名 |
+| `app/page.tsx` | ~180 | 根 SPA 壳 — 懒加载、双 Context 消费者 |
+| `context/GameContext.tsx` | ~990 | 双 Context：LobbyContext + GameContext（useMemo） |
+| `hooks/useGameLogic.ts` | ~214 | 核心游戏机制（委托给 matching.ts） |
+| `hooks/useLeafletMap.ts` | ~356 | 地图生命周期 |
+| `lib/matching.ts` | ~122 | 核心算法：Levenshtein、匹配、提示 |
+| `lib/i18n.ts` | ~294 | 翻译文本 |
+| `lib/constants.ts` | ~177 | 预设与配置 |
+| `lib/rate-limit.ts` | ~73 | 滑动窗口限流器 |
+| `lib/hmac.ts` | ~85 | HMAC-SHA256 签名 |
 | `components/lobby/LobbyView.tsx` | ~90 | 教程按钮与错误横幅 |
 
 ### 数据文件
 
 | 文件 | 街道数 | 大小 |
 |------|--------|------|
-| `data/presets/new-york.json` | 141 | ~150KB |
-| `data/presets/london.json` | 360 | ~300KB |
+| `data/presets/new-york.json` | 141 | ~133KB |
+| `data/presets/london.json` | 360 | ~189KB |
 | `data/presets/tokyo.json` | 55 | ~50KB |
-| `data/presets/hong-kong.json` | 155 | ~130KB |
-| `data/presets/singapore.json` | 174 | ~150KB |
+| `data/presets/hong-kong.json` | 155 | ~169KB |
+| `data/presets/singapore.json` | 174 | ~130KB |

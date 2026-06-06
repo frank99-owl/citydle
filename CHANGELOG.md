@@ -7,8 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
-- **GameContext**: Extracted all game state and logic from page.tsx into `context/GameContext.tsx` (955→175 lines)
+- **GameContext**: Extracted all game state and logic from page.tsx into `context/GameContext.tsx` (page.tsx 955→180 lines, GameContext.tsx ~990 lines)
 - **LobbyView**: Extracted tutorial button and error banner into `components/lobby/LobbyView.tsx`
+- **GameMap**: Extracted background map into `components/map/GameMap.tsx` (memo'd)
 - **Core Algorithm Tests**: 44 unit tests for matching functions using Vitest
 - **Matching Module**: Extracted pure functions (Levenshtein, similarity, normalization, hints) into `lib/matching.ts`
 - **Rate Limiting**: In-memory sliding window rate limiter for API endpoints (`lib/rate-limit.ts`)
@@ -17,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Comprehensive documentation (README, ARCHITECTURE, CHANGELOG)
 
 ### Changed
+- **Dual Context Architecture**: Split monolithic GameContext into LobbyContext (low-frequency: history, stats, achievements) + GameContext (high-frequency: guess, streak, map). Both wrapped with `useMemo()`.
+- **Lazy Loading**: `next/dynamic` for SettlementView, AchievementPopup, ShareModal, AchievementPanel, StatsPanel, Leaderboard. Dynamic `import('canvas-confetti')` for on-demand loading.
 - `useGameLogic.ts` now imports algorithms from `lib/matching.ts` instead of inline functions
 - All 4 documentation files (README, ARCHITECTURE, both zh/en) synchronized with code changes
 

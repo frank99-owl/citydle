@@ -62,7 +62,7 @@
 ```
 src/
 ├── app/
-│   ├── page.tsx                    # Root SPA shell (~175 lines)
+│   ├── page.tsx                    # Root SPA shell — lazy loads conditional components
 │   ├── layout.tsx                  # Global layout & fonts
 │   ├── globals.css                 # Theme variables & animations
 │   └── api/                        # Serverless API routes
@@ -73,7 +73,7 @@ src/
 │       ├── leaderboard/route.ts    # Global rankings
 │       └── daily/route.ts          # Daily challenge generation
 ├── context/
-│   └── GameContext.tsx              # Game state provider (all hooks + logic)
+│   └── GameContext.tsx              # Dual-context: LobbyContext + GameContext with useMemo
 ├── types/
 │   └── index.ts                    # Centralized TypeScript types
 ├── hooks/
@@ -87,15 +87,16 @@ src/
 │   ├── useShare.ts                 # Share card generation
 │   └── useLocalStorage.ts          # Persistent storage with cross-tab sync
 ├── components/
+│   ├── map/
+│   │   └── GameMap.tsx             # Background Leaflet map (memo'd)
 │   ├── lobby/                      # Lobby view components
-│   │   ├── LobbyOverlay.tsx        # Main lobby container
+│   │   ├── LobbyOverlay.tsx        # Main lobby container (lazy-loads tab panels)
 │   │   ├── LobbyView.tsx           # Tutorial button & error banner
 │   │   ├── PresetCards.tsx         # City selection grid
 │   │   ├── MapSettings.tsx         # Provider & difficulty controls
 │   │   ├── HistoryTable.tsx        # Game history display
 │   │   ├── FavoritesList.tsx       # Saved maps list
-│   │   ├── DailyChallengeCard.tsx  # Daily challenge widget
-│   │   └── AchievementPanel.tsx    # Achievement gallery
+│   │   └── DailyChallengeCard.tsx  # Daily challenge widget
 │   ├── game/                       # Active game components
 │   │   ├── GameSidebar.tsx         # Game sidebar container
 │   │   ├── GameStats.tsx           # Score & progress display
@@ -105,17 +106,17 @@ src/
 │   │   ├── StreetList.tsx          # Street list with filters
 │   │   └── GameActions.tsx         # Save/forfeit/exit buttons
 │   ├── settlement/
-│   │   └── SettlementView.tsx      # End-game results & sharing
+│   │   └── SettlementView.tsx      # End-game results & sharing (lazy loaded)
 │   ├── achievement/
-│   │   ├── AchievementPopup.tsx    # Unlock notification
-│   │   └── AchievementPanel.tsx    # Achievement gallery
+│   │   ├── AchievementPopup.tsx    # Unlock notification (lazy loaded)
+│   │   └── AchievementPanel.tsx    # Achievement gallery (lazy loaded)
 │   ├── share/
 │   │   ├── ShareCard.tsx           # Canvas share card generator
-│   │   └── ShareModal.tsx          # Share options modal
+│   │   └── ShareModal.tsx          # Share options modal (lazy loaded)
 │   ├── leaderboard/
-│   │   └── Leaderboard.tsx         # Global rankings table
+│   │   └── Leaderboard.tsx         # Global rankings table (lazy loaded)
 │   ├── stats/
-│   │   └── StatsPanel.tsx          # Personal statistics
+│   │   └── StatsPanel.tsx          # Personal statistics (lazy loaded)
 │   ├── tutorial/
 │   │   └── TutorialOverlay.tsx     # Onboarding tutorial
 │   └── shared/
@@ -153,7 +154,7 @@ src/
 | **Geocoding** | OpenStreetMap Nominatim |
 | **Street Data** | Overpass API (4 mirrors, parallel racing) |
 | **Database** | SQLite (Node.js native `node:sqlite`) |
-| **Animations** | canvas-confetti |
+| **Animations** | canvas-confetti (dynamic import) |
 | **Fonts** | Cinzel (display), IM Fell English (body) |
 
 ---

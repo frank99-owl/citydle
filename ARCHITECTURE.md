@@ -92,12 +92,12 @@ The application uses a **Next.js 14 full-stack monolithic architecture** with:
 ```
 src/
 ├── app/                          # Next.js App Router
-│   ├── page.tsx                  # Root SPA shell (~175 lines)
+│   ├── page.tsx                  # Root SPA shell — lazy loads conditional components
 │   ├── layout.tsx                # Global layout & fonts
 │   ├── globals.css               # Theme & animations
 │   └── api/                      # Serverless functions
 ├── context/                      # React Context
-│   └── GameContext.tsx            # Game state provider (all hooks + logic)
+│   └── GameContext.tsx            # Dual-context: LobbyContext + GameContext with useMemo
 ├── types/                        # TypeScript definitions
 │   └── index.ts                  # Centralized types
 ├── hooks/                        # Custom React hooks
@@ -111,14 +111,22 @@ src/
 │   ├── useShare.ts               # Share card generation
 │   └── useLocalStorage.ts        # Persistent storage
 ├── components/                   # React components
+│   ├── map/                      # Background map
+│   │   └── GameMap.tsx           # Leaflet map container (memo'd)
 │   ├── lobby/                    # Lobby views
-│   │   └── LobbyView.tsx         # Tutorial button, error banner
+│   │   ├── LobbyOverlay.tsx      # Main lobby (lazy-loads tab panels)
+│   │   ├── LobbyView.tsx         # Tutorial button, error banner
+│   │   ├── PresetCards.tsx       # City selection grid
+│   │   ├── MapSettings.tsx       # Provider & difficulty controls
+│   │   ├── HistoryTable.tsx      # Game history
+│   │   ├── FavoritesList.tsx     # Saved maps
+│   │   └── DailyChallengeCard.tsx # Daily challenge widget
 │   ├── game/                     # Active game views
-│   ├── settlement/               # Results view
-│   ├── achievement/              # Achievement system
-│   ├── share/                    # Social sharing
-│   ├── leaderboard/              # Global rankings
-│   ├── stats/                    # Personal stats
+│   ├── settlement/               # Results view (lazy loaded)
+│   ├── achievement/              # Achievement system (lazy loaded)
+│   ├── share/                    # Social sharing (lazy loaded)
+│   ├── leaderboard/              # Global rankings (lazy loaded)
+│   ├── stats/                    # Personal stats (lazy loaded)
 │   ├── tutorial/                 # Onboarding
 │   └── shared/                   # Reusable UI
 ├── lib/                          # Utilities
@@ -143,7 +151,7 @@ Each hook encapsulates a specific domain of logic:
 | `useLeafletMap` | `mapRef`, `mapLoaded` | init, destroy, layer ops, drawing | Leaflet, Geoman |
 | `useMapProvider` | `mapProvider` | switch provider, convert coords | `coord.ts` |
 | `useStreets` | `streets`, `loading` | fetch, cancel, cache | `/api/streets` |
-| `useGameLogic` | `guess`, `streak`, `score` | match, hint, settle | `i18n.ts` |
+| `useGameLogic` | `guess`, `streak`, `maxStreak`, `guessedCount` | match, hint, settle | `i18n.ts` |
 | `useAchievements` | `unlocked`, `popup` | check, unlock, display | `localStorage` |
 | `useStats` | `stats` | update, daily challenge | `localStorage`, `/api/daily` |
 | `useTutorial` | `step`, `isActive` | start, next, skip | `localStorage` |
@@ -155,45 +163,44 @@ Each hook encapsulates a specific domain of logic:
 ```
 <page.tsx>
 │
-└── <GameProvider>                       # Context provider (all state + hooks)
+└── <GameProvider>                       # Initializes all hooks + state
     │
-    └── <GameContent>                    # Consumer, wires props to children
+    └── <LobbyContext.Provider>          # Low-frequency: history, stats, achievements
         │
-        ├── <GameMap />                  # Background map
-        │
-        ├── <LobbyOverlay />            # Lobby (CSS transition)
-        │   ├── <DailyChallengeCard />  # Daily challenge widget
-        │   ├── <PresetCards />         # City selection
-        │   ├── <MapSettings />         # Provider & difficulty
-        │   └── <Tabs>
-        │       ├── <HistoryTable />    # Game history
-        │       ├── <FavoritesList />   # Saved maps
-        │       ├── <AchievementPanel /># Achievements
-        │       ├── <StatsPanel />      # Personal stats
-        │       └── <Leaderboard />     # Global rankings
-        │
-        ├── <LobbyView />               # Tutorial button, error banner, tutorial overlay
-        │
-        ├── <GameSidebar />             # Game sidebar (slides in)
-        │   ├── <GameStats />           # Score display
-        │   ├── <HintConsole />         # Hint button
-        │   ├── <StreakDisplay />       # Streak counter
-        │   ├── <GuessInput />          # Input form
-        │   ├── <StreetList />          # Street list
-        │   └── <GameActions />         # Action buttons
-        │
-        ├── <SettlementView />          # Results (inside sidebar)
-        │
-        ├── <AchievementPopup />        # Unlock notification
-        │
-        └── <ShareModal />              # Share options
+        └── <GameContext.Provider>       # High-frequency: guess, streak, map, timers
+            │
+            └── <GameContent>            # Consumer — calls useGame() + useLobby()
+                │
+                ├── <GameMap />          # Background map (memo'd, static prop)
+                │
+                ├── <LobbyOverlay />     # Lobby — subscribes to LobbyContext via props
+                │   ├── <DailyChallengeCard />
+                │   ├── <PresetCards />
+                │   ├── <MapSettings />
+                │   └── <Tabs>
+                │       ├── <HistoryTable />
+                │       ├── <FavoritesList />
+                │       ├── <AchievementPanel />  # lazy loaded
+                │       ├── <StatsPanel />        # lazy loaded
+                │       └── <Leaderboard />       # lazy loaded
+                │
+                ├── <LobbyView />        # Tutorial, error banner — uses LobbyContext
+                │
+                ├── <GameSidebar />      # Game sidebar (slides in)
+                │
+                ├── <SettlementView />   # Results (lazy loaded)
+                ├── <AchievementPopup /> # Unlock notification (lazy loaded)
+                └── <ShareModal />       # Share options (lazy loaded)
 ```
 
 ### State Management
 
 No external state management library. State flows through:
 
-1. **GameContext** (`context/GameContext.tsx`): Single source of truth — all game state, hook initialization, and business logic live in the Provider. Components consume via `useGame()`.
+1. **Dual Context** (`context/GameContext.tsx`): Two contexts with `useMemo` optimization.
+   - **LobbyContext**: Low-frequency data (history, favorites, playerStats, tutorial, achievements). Consumed via `useLobby()`.
+   - **GameContext**: High-frequency state (guess, streak, map, timers). Consumed via `useGame()`.
+   - Both values wrapped in `useMemo()` to prevent unnecessary re-renders.
 2. **Custom hooks**: Domain-specific logic encapsulated in hooks, initialized inside the Provider.
 3. **Props**: Parent-to-child communication (context value → component props).
 4. **localStorage**: Persistent user preferences and data.
@@ -493,8 +500,12 @@ function generateHintPattern(name: string, lang: Language): string {
 
 ```typescript
 // localStorage keys
-'cartographer_achievements'  // string[] of unlocked achievement IDs
-'cartographer_stats'         // { customUses, citySearches, speedGuesses }
+'cartographer_achievements'       // Record<string, string> — achievement ID → ISO date
+'cartographer_stats'              // { customUsed, searchedCities: string[], speedGuesses, speedGuessTimestamp }
+'cartographer_player_stats'       // PlayerStats — game counts, city stats, daily history
+'cartographer_difficulty'         // 'easy' | 'medium' | 'hard'
+'cartographer_lang'               // 'en' | 'zh'
+'cartographer_tutorial_completed' // 'true' when tutorial finished
 ```
 
 ### Unlock Flow
@@ -566,7 +577,9 @@ Returns `429 Too Many Requests` with `Retry-After` header when exceeded.
 | React.memo | All pure display components |
 | Canvas rendering | `preferCanvas: true` for Leaflet |
 | Incremental updates | Only redraw changed streets |
-| Lazy loading | Dynamic imports for Leaflet, Geoman |
+| Lazy loading | `next/dynamic` for SettlementView, AchievementPopup, ShareModal, AchievementPanel, StatsPanel, Leaderboard; dynamic `import()` for Leaflet, Geoman, canvas-confetti |
+| useMemo | Both `lobbyValue` and `gameValue` wrapped in `useMemo()` |
+| Dual context | LobbyContext (low-freq) + GameContext (high-freq) prevents cascade re-renders |
 | CSS animations | GPU-accelerated transforms |
 | Debounced search | 300ms delay on location search |
 
@@ -584,8 +597,8 @@ Returns `429 Too Many Requests` with `Retry-After` header when exceeded.
 
 ```
 Route (app)                    Size      First Load JS
-┌ ○ /                          39 kB     126 kB
-├ ○ /_not-found                875 B     88.2 kB
+┌ ○ /                          31 kB     119 kB
+├ ○ /_not-found                875 B     88.3 kB
 └ ƒ /api/*                     ~0 B      ~0 B (server only)
 ```
 
@@ -597,23 +610,23 @@ Route (app)                    Size      First Load JS
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `app/page.tsx` | ~175 | Root SPA shell (renders context consumer) |
-| `context/GameContext.tsx` | ~940 | Game state provider (all hooks + logic) |
-| `hooks/useGameLogic.ts` | ~230 | Core game mechanics (delegates to matching.ts) |
-| `hooks/useLeafletMap.ts` | ~350 | Map lifecycle |
-| `lib/matching.ts` | ~110 | Core algorithms: Levenshtein, matching, hints |
-| `lib/i18n.ts` | ~200 | Translations |
-| `lib/constants.ts` | ~100 | Presets & config |
-| `lib/rate-limit.ts` | ~60 | Sliding window rate limiter |
-| `lib/hmac.ts` | ~70 | HMAC-SHA256 signing |
+| `app/page.tsx` | ~180 | Root SPA shell — lazy loads, dual context consumer |
+| `context/GameContext.tsx` | ~990 | Dual-context: LobbyContext + GameContext with useMemo |
+| `hooks/useGameLogic.ts` | ~214 | Core game mechanics (delegates to matching.ts) |
+| `hooks/useLeafletMap.ts` | ~356 | Map lifecycle |
+| `lib/matching.ts` | ~122 | Core algorithms: Levenshtein, matching, hints |
+| `lib/i18n.ts` | ~294 | Translations |
+| `lib/constants.ts` | ~177 | Presets & config |
+| `lib/rate-limit.ts` | ~73 | Sliding window rate limiter |
+| `lib/hmac.ts` | ~85 | HMAC-SHA256 signing |
 | `components/lobby/LobbyView.tsx` | ~90 | Tutorial button & error banner |
 
 ### Data Files
 
 | File | Streets | Size |
 |------|---------|------|
-| `data/presets/new-york.json` | 141 | ~150KB |
-| `data/presets/london.json` | 360 | ~300KB |
+| `data/presets/new-york.json` | 141 | ~133KB |
+| `data/presets/london.json` | 360 | ~189KB |
 | `data/presets/tokyo.json` | 55 | ~50KB |
-| `data/presets/hong-kong.json` | 155 | ~130KB |
-| `data/presets/singapore.json` | 174 | ~150KB |
+| `data/presets/hong-kong.json` | 155 | ~169KB |
+| `data/presets/singapore.json` | 174 | ~130KB |
