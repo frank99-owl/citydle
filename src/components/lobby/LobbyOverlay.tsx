@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Language, Preset, HistoryEntry, Favorite, MapProvider, Difficulty } from '@/types';
 import { TRANSLATIONS } from '@/lib/i18n';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
@@ -8,11 +9,13 @@ import { PresetCards } from './PresetCards';
 import { MapSettings } from './MapSettings';
 import { HistoryTable } from './HistoryTable';
 import { FavoritesList } from './FavoritesList';
-import { AchievementPanel } from '@/components/achievement/AchievementPanel';
-import { StatsPanel } from '@/components/stats/StatsPanel';
 import { DailyChallengeCard } from './DailyChallengeCard';
-import { Leaderboard } from '@/components/leaderboard/Leaderboard';
 import { PlayerStats, DailyChallenge, DailyChallengeRecord } from '@/hooks/useStats';
+
+// Lazy-loaded tab panels (only needed when their tab is active)
+const AchievementPanel = dynamic(() => import('@/components/achievement/AchievementPanel').then(m => ({ default: m.AchievementPanel })), { ssr: false });
+const StatsPanel = dynamic(() => import('@/components/stats/StatsPanel').then(m => ({ default: m.StatsPanel })), { ssr: false });
+const Leaderboard = dynamic(() => import('@/components/leaderboard/Leaderboard').then(m => ({ default: m.Leaderboard })), { ssr: false });
 
 interface LobbyOverlayProps {
   lang: Language;

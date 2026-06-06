@@ -1,21 +1,25 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { GameProvider, useGame } from '@/context/GameContext';
 import { PRESETS } from '@/lib/constants';
 import { TRANSLATIONS } from '@/lib/i18n';
 
-// Components
+// Components - eagerly loaded (always visible)
 import { GameMap } from '@/components/map/GameMap';
 import { LobbyOverlay } from '@/components/lobby/LobbyOverlay';
 import { LobbyView } from '@/components/lobby/LobbyView';
 import { GameSidebar } from '@/components/game/GameSidebar';
-import { SettlementView } from '@/components/settlement/SettlementView';
-import { AchievementPopup } from '@/components/achievement/AchievementPopup';
-import { ShareModal } from '@/components/share/ShareModal';
+
+// Components - lazy loaded (conditional / rare)
+const SettlementView = dynamic(() => import('@/components/settlement/SettlementView').then(m => ({ default: m.SettlementView })), { ssr: false });
+const AchievementPopup = dynamic(() => import('@/components/achievement/AchievementPopup').then(m => ({ default: m.AchievementPopup })), { ssr: false });
+const ShareModal = dynamic(() => import('@/components/share/ShareModal').then(m => ({ default: m.ShareModal })), { ssr: false });
 
 function GameContent() {
   const ctx = useGame();
+  const closeShareModal = useCallback(() => ctx.setShareModalOpen(false), [ctx.setShareModalOpen]);
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
@@ -146,7 +150,7 @@ function GameContent() {
       <ShareModal
         lang={ctx.lang}
         isOpen={ctx.shareModalOpen}
-        onClose={() => ctx.setShareModalOpen(false)}
+        onClose={closeShareModal}
         cityName={ctx.mapName}
         completionRate={ctx.streets.length > 0 ? ctx.guessedCount / ctx.streets.length : 0}
         maxStreak={ctx.maxStreak}
