@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Language } from '@/types';
-import { TRANSLATIONS } from '@/lib/i18n';
+import { useState, useEffect, useCallback } from "react";
+import { Language } from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 interface LeaderboardEntry {
   id: number;
@@ -21,29 +21,29 @@ interface LeaderboardProps {
   isVisible: boolean;
 }
 
-type TimePeriod = 'daily' | 'weekly' | 'all';
+type TimePeriod = "daily" | "weekly" | "all";
 
 export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
   const t = TRANSLATIONS[lang];
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [cities, setCities] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState('all');
-  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('all');
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("all");
   const [loading, setLoading] = useState(false);
 
   const fetchLeaderboard = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (selectedCity !== 'all') params.set('city', selectedCity);
-      params.set('period', selectedPeriod);
+      if (selectedCity !== "all") params.set("city", selectedCity);
+      params.set("period", selectedPeriod);
 
       const res = await fetch(`/api/leaderboard?${params.toString()}`);
       const data = await res.json();
       setEntries(data.entries || []);
       if (data.cities) setCities(data.cities);
     } catch (err) {
-      console.error('Failed to fetch leaderboard:', err);
+      console.error("Failed to fetch leaderboard:", err);
     } finally {
       setLoading(false);
     }
@@ -58,75 +58,84 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   const periodLabels: Record<TimePeriod, string> = {
-    daily: isZh(lang) ? '今日' : 'Today',
-    weekly: isZh(lang) ? '本周' : 'This Week',
-    all: isZh(lang) ? '全部' : 'All Time',
+    daily: isZh(lang) ? "今日" : "Today",
+    weekly: isZh(lang) ? "本周" : "This Week",
+    all: isZh(lang) ? "全部" : "All Time",
   };
 
   const cityLabels: Record<string, string> = {
-    'new-york': isZh(lang) ? '纽约' : 'New York',
-    'london': isZh(lang) ? '伦敦' : 'London',
-    'tokyo': isZh(lang) ? '东京' : 'Tokyo',
-    'hong-kong': isZh(lang) ? '香港' : 'Hong Kong',
-    'singapore': isZh(lang) ? '新加坡' : 'Singapore',
+    "new-york": isZh(lang) ? "纽约" : "New York",
+    london: isZh(lang) ? "伦敦" : "London",
+    tokyo: isZh(lang) ? "东京" : "Tokyo",
+    "hong-kong": isZh(lang) ? "香港" : "Hong Kong",
+    singapore: isZh(lang) ? "新加坡" : "Singapore",
   };
 
   const getRankDecoration = (index: number): string => {
-    if (index === 0) return '🥇';
-    if (index === 1) return '🥈';
-    if (index === 2) return '🥉';
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
     return `${index + 1}`;
   };
 
   return (
     <div>
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "0.5rem",
+          marginBottom: "0.75rem",
+          flexWrap: "wrap",
+        }}
+      >
         <select
           value={selectedCity}
           onChange={(e) => setSelectedCity(e.target.value)}
           style={{
-            padding: '0.3rem 0.5rem',
-            background: '#fcfaf2',
-            color: 'var(--ink-dark)',
-            border: '1px solid var(--wood-border)',
-            borderRadius: '2px',
-            fontFamily: 'var(--font-serif), serif',
-            fontSize: '0.75rem',
-            outline: 'none',
-            cursor: 'pointer',
+            padding: "0.3rem 0.5rem",
+            background: "#fcfaf2",
+            color: "var(--ink-dark)",
+            border: "1px solid var(--wood-border)",
+            borderRadius: "2px",
+            fontFamily: "var(--font-serif), serif",
+            fontSize: "0.75rem",
+            outline: "none",
+            cursor: "pointer",
             flex: 1,
-            minWidth: '80px',
+            minWidth: "80px",
           }}
         >
-          <option value="all">{isZh(lang) ? '全部城市' : 'All Cities'}</option>
-          {cities.map(city => (
+          <option value="all">{isZh(lang) ? "全部城市" : "All Cities"}</option>
+          {cities.map((city) => (
             <option key={city} value={city}>
               {cityLabels[city] || city}
             </option>
           ))}
         </select>
 
-        <div style={{ display: 'flex', gap: 0 }}>
-          {(['daily', 'weekly', 'all'] as TimePeriod[]).map(period => (
+        <div style={{ display: "flex", gap: 0 }}>
+          {(["daily", "weekly", "all"] as TimePeriod[]).map((period) => (
             <button
               key={period}
               onClick={() => setSelectedPeriod(period)}
               style={{
-                padding: '0.3rem 0.6rem',
-                background: selectedPeriod === period ? '#4e3629' : 'transparent',
-                color: selectedPeriod === period ? '#f4ebd0' : 'rgba(66,48,35,0.6)',
-                border: '1px solid var(--wood-border)',
-                borderRadius: '2px',
-                fontFamily: 'var(--font-cinzel), serif',
-                fontSize: '0.65rem',
-                letterSpacing: '0.05em',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
+                padding: "0.3rem 0.6rem",
+                background:
+                  selectedPeriod === period ? "#4e3629" : "transparent",
+                color:
+                  selectedPeriod === period ? "#f4ebd0" : "rgba(66,48,35,0.6)",
+                border: "1px solid var(--wood-border)",
+                borderRadius: "2px",
+                fontFamily: "var(--font-cinzel), serif",
+                fontSize: "0.65rem",
+                letterSpacing: "0.05em",
+                cursor: "pointer",
+                transition: "all 0.2s",
               }}
             >
               {periodLabels[period]}
@@ -137,23 +146,47 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
 
       {/* Table */}
       {loading ? (
-        <div style={{ padding: '1.5rem', textAlign: 'center', color: 'rgba(78,54,41,0.4)', fontStyle: 'italic', fontSize: '0.8rem' }}>
-          {isZh(lang) ? '加载中...' : 'Loading...'}
+        <div
+          style={{
+            padding: "1.5rem",
+            textAlign: "center",
+            color: "rgba(78,54,41,0.4)",
+            fontStyle: "italic",
+            fontSize: "0.8rem",
+          }}
+        >
+          {isZh(lang) ? "加载中..." : "Loading..."}
         </div>
       ) : entries.length === 0 ? (
-        <div style={{ padding: '1.5rem', textAlign: 'center', color: 'rgba(78,54,41,0.4)', fontStyle: 'italic', fontSize: '0.8rem' }}>
-          {isZh(lang) ? '暂无排行榜数据' : 'No leaderboard data yet'}
+        <div
+          style={{
+            padding: "1.5rem",
+            textAlign: "center",
+            color: "rgba(78,54,41,0.4)",
+            fontStyle: "italic",
+            fontSize: "0.8rem",
+          }}
+        >
+          {isZh(lang) ? "暂无排行榜数据" : "No leaderboard data yet"}
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              fontSize: "0.75rem",
+              borderCollapse: "collapse",
+            }}
+          >
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(66,48,35,0.2)' }}>
-                <th style={thStyle}>{isZh(lang) ? '排名' : 'Rank'}</th>
-                <th style={{ ...thStyle, textAlign: 'left' }}>{isZh(lang) ? '玩家' : 'Player'}</th>
-                <th style={thStyle}>{isZh(lang) ? '完成率' : 'Rate'}</th>
-                <th style={thStyle}>{isZh(lang) ? '连击' : 'Streak'}</th>
-                <th style={thStyle}>{isZh(lang) ? '用时' : 'Time'}</th>
+              <tr style={{ borderBottom: "1px solid rgba(66,48,35,0.2)" }}>
+                <th style={thStyle}>{isZh(lang) ? "排名" : "Rank"}</th>
+                <th style={{ ...thStyle, textAlign: "left" }}>
+                  {isZh(lang) ? "玩家" : "Player"}
+                </th>
+                <th style={thStyle}>{isZh(lang) ? "完成率" : "Rate"}</th>
+                <th style={thStyle}>{isZh(lang) ? "连击" : "Streak"}</th>
+                <th style={thStyle}>{isZh(lang) ? "用时" : "Time"}</th>
               </tr>
             </thead>
             <tbody>
@@ -161,25 +194,30 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
                 <tr
                   key={entry.id}
                   style={{
-                    borderBottom: '1px solid rgba(66,48,35,0.08)',
-                    background: i < 3 ? 'rgba(197,160,89,0.08)' : 'transparent',
+                    borderBottom: "1px solid rgba(66,48,35,0.08)",
+                    background: i < 3 ? "rgba(197,160,89,0.08)" : "transparent",
                   }}
                 >
-                  <td style={{ ...tdStyle, fontWeight: i < 3 ? 'bold' : 'normal' }}>
+                  <td
+                    style={{
+                      ...tdStyle,
+                      fontWeight: i < 3 ? "bold" : "normal",
+                    }}
+                  >
                     {getRankDecoration(i)}
                   </td>
-                  <td style={{ ...tdStyle, textAlign: 'left' }}>
+                  <td style={{ ...tdStyle, textAlign: "left" }}>
                     {entry.player_name}
                   </td>
-                  <td style={{ ...tdStyle, fontWeight: 'bold', color: '#8a3324' }}>
+                  <td
+                    style={{ ...tdStyle, fontWeight: "bold", color: "#8a3324" }}
+                  >
                     {(entry.completion_rate * 100).toFixed(1)}%
                   </td>
-                  <td style={{ ...tdStyle, color: '#c5a059' }}>
+                  <td style={{ ...tdStyle, color: "#c5a059" }}>
                     {entry.max_streak}
                   </td>
-                  <td style={tdStyle}>
-                    {formatTime(entry.time_seconds)}
-                  </td>
+                  <td style={tdStyle}>{formatTime(entry.time_seconds)}</td>
                 </tr>
               ))}
             </tbody>
@@ -191,23 +229,23 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
 }
 
 const thStyle: React.CSSProperties = {
-  padding: '0.4rem 0.3rem',
-  textAlign: 'center',
-  fontFamily: 'var(--font-cinzel), serif',
-  fontSize: '0.65rem',
-  letterSpacing: '0.1em',
-  color: 'rgba(66,48,35,0.5)',
+  padding: "0.4rem 0.3rem",
+  textAlign: "center",
+  fontFamily: "var(--font-cinzel), serif",
+  fontSize: "0.65rem",
+  letterSpacing: "0.1em",
+  color: "rgba(66,48,35,0.5)",
   fontWeight: 600,
-  textTransform: 'uppercase',
+  textTransform: "uppercase",
 };
 
 const tdStyle: React.CSSProperties = {
-  padding: '0.4rem 0.3rem',
-  textAlign: 'center',
-  fontFamily: 'var(--font-serif), serif',
-  color: '#2c2519',
+  padding: "0.4rem 0.3rem",
+  textAlign: "center",
+  fontFamily: "var(--font-serif), serif",
+  color: "#2c2519",
 };
 
 function isZh(lang: Language): boolean {
-  return lang === 'zh';
+  return lang === "zh";
 }

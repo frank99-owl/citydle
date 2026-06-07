@@ -1,30 +1,58 @@
-'use client';
+"use client";
 
-import { Suspense, useCallback } from 'react';
-import dynamic from 'next/dynamic';
-import { GameProvider, useGame, useLobby } from '@/context/GameContext';
-import { PRESETS } from '@/lib/constants';
-import { TRANSLATIONS } from '@/lib/i18n';
+import { Suspense, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { GameProvider, useGame, useLobby } from "@/context/GameContext";
+import { PRESETS } from "@/lib/constants";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 // Components - eagerly loaded (always visible)
-import { GameMap } from '@/components/map/GameMap';
-import { LobbyOverlay } from '@/components/lobby/LobbyOverlay';
-import { LobbyView } from '@/components/lobby/LobbyView';
-import { GameSidebar } from '@/components/game/GameSidebar';
+import { GameMap } from "@/components/map/GameMap";
+import { LobbyOverlay } from "@/components/lobby/LobbyOverlay";
+import { LobbyView } from "@/components/lobby/LobbyView";
+import { GameSidebar } from "@/components/game/GameSidebar";
 
 // Components - lazy loaded (conditional / rare)
-const SettlementView = dynamic(() => import('@/components/settlement/SettlementView').then(m => ({ default: m.SettlementView })), { ssr: false });
-const AchievementPopup = dynamic(() => import('@/components/achievement/AchievementPopup').then(m => ({ default: m.AchievementPopup })), { ssr: false });
-const ShareModal = dynamic(() => import('@/components/share/ShareModal').then(m => ({ default: m.ShareModal })), { ssr: false });
+const SettlementView = dynamic(
+  () =>
+    import("@/components/settlement/SettlementView").then((m) => ({
+      default: m.SettlementView,
+    })),
+  { ssr: false },
+);
+const AchievementPopup = dynamic(
+  () =>
+    import("@/components/achievement/AchievementPopup").then((m) => ({
+      default: m.AchievementPopup,
+    })),
+  { ssr: false },
+);
+const ShareModal = dynamic(
+  () =>
+    import("@/components/share/ShareModal").then((m) => ({
+      default: m.ShareModal,
+    })),
+  { ssr: false },
+);
 
 function GameContent() {
   const ctx = useGame();
   const lobby = useLobby();
-  const closeShareModal = useCallback(() => ctx.setShareModalOpen(false), [ctx.setShareModalOpen]);
+  const closeShareModal = useCallback(
+    () => ctx.setShareModalOpen(false),
+    [ctx.setShareModalOpen],
+  );
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', position: 'relative' }}>
-
+    <main
+      style={{
+        display: "flex",
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
       {/* Background Map View */}
       <GameMap mapContainerId={ctx.mapContainerId} />
 
@@ -113,21 +141,21 @@ function GameContent() {
         <aside
           className="vintage-panel"
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
-            width: '380px',
-            height: '100%',
+            width: "380px",
+            height: "100%",
             zIndex: 10,
-            display: 'flex',
-            flexDirection: 'column',
-            boxSizing: 'border-box',
-            padding: '1.5rem',
-            borderLeft: 'none',
-            borderTop: 'none',
-            borderBottom: 'none',
+            display: "flex",
+            flexDirection: "column",
+            boxSizing: "border-box",
+            padding: "1.5rem",
+            borderLeft: "none",
+            borderTop: "none",
+            borderBottom: "none",
             borderRadius: 0,
-            boxShadow: '4px 0 15px rgba(0,0,0,0.3)',
+            boxShadow: "4px 0 15px rgba(0,0,0,0.3)",
           }}
         >
           <SettlementView
@@ -153,25 +181,38 @@ function GameContent() {
         isOpen={ctx.shareModalOpen}
         onClose={closeShareModal}
         cityName={ctx.mapName}
-        completionRate={ctx.streets.length > 0 ? ctx.guessedCount / ctx.streets.length : 0}
+        completionRate={
+          ctx.streets.length > 0 ? ctx.guessedCount / ctx.streets.length : 0
+        }
         maxStreak={ctx.maxStreak}
         guessedCount={ctx.guessedCount}
         totalStreets={ctx.streets.length}
         timeSeconds={ctx.gameTimeSeconds}
         badge={ctx.badge}
       />
-
-    </div>
+    </main>
   );
 }
 
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', background: '#2c2519', color: '#f4ebd0' }}>
-        Loading...
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            display: "flex",
+            height: "100vh",
+            width: "100vw",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#2c2519",
+            color: "#f4ebd0",
+          }}
+        >
+          Loading...
+        </div>
+      }
+    >
       <GameProvider>
         <GameContent />
       </GameProvider>

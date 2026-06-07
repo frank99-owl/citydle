@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Language, Achievement } from '@/types';
-import { TRANSLATIONS } from '@/lib/i18n';
+import { Language, Achievement } from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 export interface ShareCardData {
   cityName: string;
@@ -20,34 +20,34 @@ export interface ShareCardData {
 export async function generateShareImage(data: ShareCardData): Promise<Blob> {
   const W = 600;
   const H = 400;
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
-  const ctx = canvas.getContext('2d')!;
+  const ctx = canvas.getContext("2d")!;
 
   const t = TRANSLATIONS[data.lang];
-  const isZh = data.lang === 'zh';
+  const isZh = data.lang === "zh";
 
   // --- Background ---
   // Parchment base
-  ctx.fillStyle = '#f4ebd0';
+  ctx.fillStyle = "#f4ebd0";
   ctx.fillRect(0, 0, W, H);
 
   // Subtle paper grain texture
   const grain = ctx.createLinearGradient(0, 0, W, H);
-  grain.addColorStop(0, 'rgba(230,223,199,0.6)');
-  grain.addColorStop(0.5, 'rgba(216,206,176,0.4)');
-  grain.addColorStop(1, 'rgba(230,223,199,0.6)');
+  grain.addColorStop(0, "rgba(230,223,199,0.6)");
+  grain.addColorStop(0.5, "rgba(216,206,176,0.4)");
+  grain.addColorStop(1, "rgba(230,223,199,0.6)");
   ctx.fillStyle = grain;
   ctx.fillRect(0, 0, W, H);
 
   // --- Border decoration ---
-  ctx.strokeStyle = '#423023';
+  ctx.strokeStyle = "#423023";
   ctx.lineWidth = 3;
   ctx.strokeRect(12, 12, W - 24, H - 24);
 
   // Inner border (thinner)
-  ctx.strokeStyle = 'rgba(197,160,89,0.6)';
+  ctx.strokeStyle = "rgba(197,160,89,0.6)";
   ctx.lineWidth = 1;
   ctx.strokeRect(18, 18, W - 36, H - 36);
 
@@ -59,7 +59,7 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     [22, H - 22 - cornerSize],
     [W - 22 - cornerSize, H - 22 - cornerSize],
   ];
-  ctx.fillStyle = '#c5a059';
+  ctx.fillStyle = "#c5a059";
   corners.forEach(([x, y], i) => {
     ctx.beginPath();
     if (i === 0) {
@@ -69,25 +69,31 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     } else if (i === 2) {
       ctx.arc(x, y + cornerSize, cornerSize / 3, Math.PI * 1.5, Math.PI * 3.5);
     } else {
-      ctx.arc(x + cornerSize, y + cornerSize, cornerSize / 3, Math.PI, Math.PI * 3);
+      ctx.arc(
+        x + cornerSize,
+        y + cornerSize,
+        cornerSize / 3,
+        Math.PI,
+        Math.PI * 3,
+      );
     }
     ctx.fill();
   });
 
   // --- Title ---
-  ctx.fillStyle = '#8a3324';
-  ctx.font = 'bold 22px Cinzel, Georgia, serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Financial Street Cartographer', W / 2, 58);
+  ctx.fillStyle = "#8a3324";
+  ctx.font = "bold 22px Cinzel, Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Financial Street Cartographer", W / 2, 58);
 
   // City name
-  ctx.fillStyle = '#2c2519';
+  ctx.fillStyle = "#2c2519";
   ctx.font = 'italic 16px "IM Fell English", Georgia, serif';
   const cityLabel = data.cityName;
   ctx.fillText(cityLabel, W / 2, 82);
 
   // --- Divider ---
-  ctx.strokeStyle = '#c5a059';
+  ctx.strokeStyle = "#c5a059";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(60, 96);
@@ -95,7 +101,7 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
   ctx.stroke();
 
   // Decorative diamond in divider center
-  ctx.fillStyle = '#c5a059';
+  ctx.fillStyle = "#c5a059";
   ctx.save();
   ctx.translate(W / 2, 96);
   ctx.rotate(Math.PI / 4);
@@ -115,12 +121,12 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     {
       label: t.maxStreakLabel,
       value: `${data.maxStreak}`,
-      sublabel: isZh ? '连续猜中' : 'consecutive',
+      sublabel: isZh ? "连续猜中" : "consecutive",
     },
     {
-      label: isZh ? '用时' : 'Time',
+      label: isZh ? "用时" : "Time",
       value: formatTime(data.timeSeconds),
-      sublabel: isZh ? '完成时间' : 'elapsed',
+      sublabel: isZh ? "完成时间" : "elapsed",
     },
   ];
 
@@ -128,24 +134,24 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     const cx = 40 + colW * i + colW / 2;
 
     // Value (large)
-    ctx.fillStyle = '#c5a059';
-    ctx.font = 'bold 28px Cinzel, Georgia, serif';
-    ctx.textAlign = 'center';
+    ctx.fillStyle = "#c5a059";
+    ctx.font = "bold 28px Cinzel, Georgia, serif";
+    ctx.textAlign = "center";
     ctx.fillText(stat.value, cx, statsY + 30);
 
     // Label
-    ctx.fillStyle = '#4e3629';
-    ctx.font = '11px Cinzel, Georgia, serif';
+    ctx.fillStyle = "#4e3629";
+    ctx.font = "11px Cinzel, Georgia, serif";
     ctx.fillText(stat.label, cx, statsY + 50);
 
     // Sub label
-    ctx.fillStyle = 'rgba(78,54,41,0.5)';
+    ctx.fillStyle = "rgba(78,54,41,0.5)";
     ctx.font = 'italic 10px "IM Fell English", Georgia, serif';
     ctx.fillText(stat.sublabel, cx, statsY + 64);
   });
 
   // Vertical dividers between stats
-  ctx.strokeStyle = 'rgba(66,48,35,0.15)';
+  ctx.strokeStyle = "rgba(66,48,35,0.15)";
   ctx.lineWidth = 1;
   for (let i = 1; i < 3; i++) {
     const x = 40 + colW * i;
@@ -163,9 +169,12 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     const badgeCy = badgeY + 30;
 
     // Shield background
-    const tierColor = data.badge.tier === 'gold' ? '#c5a059'
-      : data.badge.tier === 'silver' ? '#b0b0b0'
-      : '#a0724e';
+    const tierColor =
+      data.badge.tier === "gold"
+        ? "#c5a059"
+        : data.badge.tier === "silver"
+          ? "#b0b0b0"
+          : "#a0724e";
 
     ctx.fillStyle = tierColor;
     ctx.beginPath();
@@ -179,7 +188,7 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     ctx.fill();
 
     // Shield inner
-    ctx.fillStyle = '#f4ebd0';
+    ctx.fillStyle = "#f4ebd0";
     ctx.beginPath();
     ctx.moveTo(badgeCx, badgeCy - 16);
     ctx.lineTo(badgeCx + 12, badgeCy - 10);
@@ -192,40 +201,51 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
 
     // Badge text
     ctx.fillStyle = tierColor;
-    ctx.font = 'bold 10px Cinzel, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(data.badge.tier === 'gold' ? '★' : data.badge.tier === 'silver' ? '☆' : '•', badgeCx, badgeCy + 6);
+    ctx.font = "bold 10px Cinzel, serif";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      data.badge.tier === "gold"
+        ? "★"
+        : data.badge.tier === "silver"
+          ? "☆"
+          : "•",
+      badgeCx,
+      badgeCy + 6,
+    );
 
     // Badge name
-    ctx.fillStyle = '#8a3324';
-    ctx.font = 'bold 14px Cinzel, Georgia, serif';
+    ctx.fillStyle = "#8a3324";
+    ctx.font = "bold 14px Cinzel, Georgia, serif";
     ctx.fillText(
       isZh ? data.badge.nameCn : data.badge.name,
-      badgeCx, badgeCy + 48
+      badgeCx,
+      badgeCy + 48,
     );
 
     // Badge description
-    ctx.fillStyle = 'rgba(78,54,41,0.6)';
+    ctx.fillStyle = "rgba(78,54,41,0.6)";
     ctx.font = 'italic 10px "IM Fell English", Georgia, serif';
     ctx.fillText(data.badge.description, badgeCx, badgeCy + 64);
   } else {
-    ctx.fillStyle = 'rgba(78,54,41,0.4)';
+    ctx.fillStyle = "rgba(78,54,41,0.4)";
     ctx.font = 'italic 12px "IM Fell English", Georgia, serif';
-    ctx.textAlign = 'center';
+    ctx.textAlign = "center";
     ctx.fillText(t.badgeNotEarned, W / 2, badgeY + 35);
   }
 
   // --- Bottom watermark ---
-  ctx.fillStyle = 'rgba(66,48,35,0.25)';
-  ctx.font = '10px Cinzel, Georgia, serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Financial Street Cartographer', W / 2, H - 30);
+  ctx.fillStyle = "rgba(66,48,35,0.25)";
+  ctx.font = "10px Cinzel, Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Financial Street Cartographer", W / 2, H - 30);
 
   // Date
-  ctx.fillStyle = 'rgba(66,48,35,0.2)';
+  ctx.fillStyle = "rgba(66,48,35,0.2)";
   ctx.font = 'italic 9px "IM Fell English", Georgia, serif';
-  const dateStr = new Date().toLocaleDateString(isZh ? 'zh-CN' : 'en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
+  const dateStr = new Date().toLocaleDateString(isZh ? "zh-CN" : "en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
   ctx.fillText(dateStr, W / 2, H - 16);
 
@@ -233,13 +253,13 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (blob) resolve(blob);
-      else reject(new Error('Failed to generate share image'));
-    }, 'image/png');
+      else reject(new Error("Failed to generate share image"));
+    }, "image/png");
   });
 }
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  return `${m}:${s.toString().padStart(2, "0")}`;
 }

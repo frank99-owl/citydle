@@ -1,19 +1,26 @@
-'use client';
+"use client";
 
-import { Language, MapProvider, Difficulty, Street, HintClue, Bounds } from '@/types';
-import { TRANSLATIONS } from '@/lib/i18n';
-import { LanguageToggle } from '@/components/shared/LanguageToggle';
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
-import { GameStats } from './GameStats';
-import { GuessInput } from './GuessInput';
-import { HintConsole } from './HintConsole';
-import { StreakDisplay } from './StreakDisplay';
-import { StreetList } from './StreetList';
-import { GameActions } from './GameActions';
+import {
+  Language,
+  MapProvider,
+  Difficulty,
+  Street,
+  HintClue,
+  Bounds,
+} from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { GameStats } from "./GameStats";
+import { GuessInput } from "./GuessInput";
+import { HintConsole } from "./HintConsole";
+import { StreakDisplay } from "./StreakDisplay";
+import { StreetList } from "./StreetList";
+import { GameActions } from "./GameActions";
 
 interface GameSidebarProps {
   lang: Language;
-  view: 'lobby' | 'game';
+  view: "lobby" | "game";
   customMode: boolean;
   gameStarted: boolean;
   loading: boolean;
@@ -91,74 +98,121 @@ export function GameSidebar({
   const t = TRANSLATIONS[lang];
 
   const selectStyle = {
-    padding: '0.4rem 0.5rem',
-    background: '#fcfaf2',
-    color: 'var(--ink-dark)',
-    border: '1px solid var(--wood-border)',
-    borderRadius: '2px',
-    fontFamily: 'var(--font-serif), serif',
-    fontSize: '0.8rem',
-    outline: 'none',
-    cursor: 'pointer',
-    width: '100%',
+    padding: "0.4rem 0.5rem",
+    background: "#fcfaf2",
+    color: "var(--ink-dark)",
+    border: "1px solid var(--wood-border)",
+    borderRadius: "2px",
+    fontFamily: "var(--font-serif), serif",
+    fontSize: "0.8rem",
+    outline: "none",
+    cursor: "pointer",
+    width: "100%",
   };
 
   return (
     <aside
       className="vintage-panel"
+      aria-label={lang === "zh" ? "游戏控制面板" : "Game controls"}
       style={{
-        position: 'absolute',
+        position: "absolute",
         top: 0,
         left: 0,
-        width: '380px',
-        height: '100%',
+        width: "380px",
+        height: "100%",
         zIndex: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        boxSizing: 'border-box',
-        padding: '1.5rem',
-        borderLeft: 'none',
-        borderTop: 'none',
-        borderBottom: 'none',
+        display: "flex",
+        flexDirection: "column",
+        boxSizing: "border-box",
+        padding: "1.5rem",
+        borderLeft: "none",
+        borderTop: "none",
+        borderBottom: "none",
         borderRadius: 0,
-        transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: view === 'game' ? 'translateX(0)' : 'translateX(-100%)',
-        boxShadow: '4px 0 15px rgba(0,0,0,0.3)',
+        transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        transform: view === "game" ? "translateX(0)" : "translateX(-100%)",
+        boxShadow: "4px 0 15px rgba(0,0,0,0.3)",
       }}
     >
       {/* Banner header */}
-      <div style={{ borderBottom: '1px solid rgba(66,48,35,0.3)', paddingBottom: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div
+        style={{
+          borderBottom: "1px solid rgba(66,48,35,0.3)",
+          paddingBottom: "1rem",
+          marginBottom: "1rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
         <div>
-          <h2 className="vintage-title" style={{ fontSize: '1.25rem', color: '#2c2519', margin: '0 0 0.25rem' }}>{t.title}</h2>
-          <div className="vintage-subtitle" style={{ fontSize: '0.85rem' }}>{lang === 'zh' ? 'Financial Street Cartographer' : '世界金融中心 Street Guesser'}</div>
+          <h2
+            className="vintage-title"
+            style={{
+              fontSize: "1.25rem",
+              color: "#2c2519",
+              margin: "0 0 0.25rem",
+            }}
+          >
+            {t.title}
+          </h2>
+          <div className="vintage-subtitle" style={{ fontSize: "0.85rem" }}>
+            {lang === "zh"
+              ? "Financial Street Cartographer"
+              : "世界金融中心 Street Guesser"}
+          </div>
         </div>
-        <LanguageToggle lang={lang} onToggle={onToggleLanguage} variant="mini" />
+        <LanguageToggle
+          lang={lang}
+          onToggle={onToggleLanguage}
+          variant="mini"
+        />
       </div>
 
       {/* Custom Mode Setup */}
       {customMode && !gameStarted && (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <h3 className="vintage-title" style={{ fontSize: '1rem', margin: 0 }}>{t.customSetupTitle}</h3>
-          <p style={{ fontSize: '0.85rem', lineHeight: 1.5, color: '#4e3629' }}>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.25rem",
+          }}
+        >
+          <h3 className="vintage-title" style={{ fontSize: "1rem", margin: 0 }}>
+            {t.customSetupTitle}
+          </h3>
+          <p style={{ fontSize: "0.85rem", lineHeight: 1.5, color: "#4e3629" }}>
             {t.customSetupDesc}
           </p>
 
           {/* City Search Bar */}
-          <form onSubmit={onSearchSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            <label style={{ fontSize: '0.75rem', fontFamily: 'var(--font-cinzel)', display: 'block' }}>{t.customSearchLabel}</label>
-            <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <form
+            onSubmit={onSearchSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
+          >
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-cinzel)",
+                display: "block",
+              }}
+            >
+              {t.customSearchLabel}
+            </label>
+            <div style={{ display: "flex", gap: "0.4rem" }}>
               <input
                 type="text"
                 value={searchQuery}
-                onChange={e => onSearchQueryChange(e.target.value)}
+                onChange={(e) => onSearchQueryChange(e.target.value)}
                 placeholder={t.customSearchPlaceholder}
                 disabled={searchLoading}
                 style={{
                   flex: 1,
-                  padding: '0.4rem 0.5rem',
-                  border: '1px solid var(--wood-border)',
-                  background: '#fcfaf2',
-                  fontSize: '0.85rem',
+                  padding: "0.4rem 0.5rem",
+                  border: "1px solid var(--wood-border)",
+                  background: "#fcfaf2",
+                  fontSize: "0.85rem",
                 }}
               />
               <button
@@ -166,10 +220,10 @@ export function GameSidebar({
                 className="vintage-btn"
                 disabled={searchLoading}
                 style={{
-                  padding: '0.4rem 0.8rem',
-                  fontSize: '0.8rem',
-                  boxShadow: 'none',
-                  textShadow: 'none',
+                  padding: "0.4rem 0.8rem",
+                  fontSize: "0.8rem",
+                  boxShadow: "none",
+                  textShadow: "none",
                 }}
               >
                 {searchLoading ? t.customSearchLoading : t.customSearchBtn}
@@ -178,34 +232,47 @@ export function GameSidebar({
           </form>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontFamily: 'var(--font-cinzel)', display: 'block', marginBottom: '0.4rem' }}>{t.customNameLabel}</label>
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontFamily: "var(--font-cinzel)",
+                display: "block",
+                marginBottom: "0.4rem",
+              }}
+            >
+              {t.customNameLabel}
+            </label>
             <input
               type="text"
               value={mapName}
-              onChange={e => onMapNameChange(e.target.value)}
+              onChange={(e) => onMapNameChange(e.target.value)}
               placeholder={t.customNamePlaceholder}
               style={{
-                width: '100%',
-                padding: '0.5rem',
-                border: '1px solid var(--wood-border)',
-                background: '#fcfaf2',
-                fontSize: '0.9rem',
+                width: "100%",
+                padding: "0.5rem",
+                border: "1px solid var(--wood-border)",
+                background: "#fcfaf2",
+                fontSize: "0.9rem",
               }}
             />
           </div>
           <button
             onClick={onStartCustomGame}
             className="vintage-btn"
-            style={{ width: '100%', padding: '0.75rem', marginTop: '1rem' }}
+            style={{ width: "100%", padding: "0.75rem", marginTop: "1rem" }}
           >
             {t.customInitBtn}
           </button>
           <button
             onClick={onBackToLobby}
             style={{
-              background: 'none', border: '1px solid #8a3324', color: '#8a3324',
-              padding: '0.5rem', cursor: 'pointer', fontFamily: 'var(--font-cinzel)',
-              fontSize: '0.8rem',
+              background: "none",
+              border: "1px solid #8a3324",
+              color: "#8a3324",
+              padding: "0.5rem",
+              cursor: "pointer",
+              fontFamily: "var(--font-cinzel)",
+              fontSize: "0.8rem",
             }}
           >
             {t.backHome}
@@ -224,7 +291,7 @@ export function GameSidebar({
 
       {/* Active Game Console */}
       {gameStarted && !loading && !showResult && (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <GameStats
             lang={lang}
             mapName={mapName}
@@ -233,35 +300,53 @@ export function GameSidebar({
           />
 
           {/* Mini Settings Selection in game */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '0.5rem',
-            marginBottom: '1rem',
-          }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0.5rem",
+              marginBottom: "1rem",
+            }}
+          >
             <select
               value={difficulty}
               onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
               style={selectStyle}
             >
-              <option value="easy">{lang === 'zh' ? '简单难度 (提示)' : 'Easy (Hints)'}</option>
-              <option value="medium">{lang === 'zh' ? '中等难度 (首字母)' : 'Medium (Letters)'}</option>
-              <option value="hard">{lang === 'zh' ? '困难难度 (无提示)' : 'Hard (Blind)'}</option>
+              <option value="easy">
+                {lang === "zh" ? "简单难度 (提示)" : "Easy (Hints)"}
+              </option>
+              <option value="medium">
+                {lang === "zh" ? "中等难度 (首字母)" : "Medium (Letters)"}
+              </option>
+              <option value="hard">
+                {lang === "zh" ? "困难难度 (无提示)" : "Hard (Blind)"}
+              </option>
             </select>
             <select
               value={mapProvider}
-              onChange={(e) => onMapProviderChange(e.target.value as MapProvider)}
+              onChange={(e) =>
+                onMapProviderChange(e.target.value as MapProvider)
+              }
               style={selectStyle}
             >
-              <option value="cartodb-dark">{lang === 'zh' ? '深色纸质' : 'Dark Paper'}</option>
-              <option value="cartodb">{lang === 'zh' ? '浅色纸质' : 'Light Paper'}</option>
-              <option value="osm">{lang === 'zh' ? 'OpenStreetMap' : 'OpenStreetMap'}</option>
-              <option value="amap">{lang === 'zh' ? '高德地图' : 'Amap'}</option>
+              <option value="cartodb-dark">
+                {lang === "zh" ? "深色纸质" : "Dark Paper"}
+              </option>
+              <option value="cartodb">
+                {lang === "zh" ? "浅色纸质" : "Light Paper"}
+              </option>
+              <option value="osm">
+                {lang === "zh" ? "OpenStreetMap" : "OpenStreetMap"}
+              </option>
+              <option value="amap">
+                {lang === "zh" ? "高德地图" : "Amap"}
+              </option>
             </select>
           </div>
 
           {/* Hint Clue Console Widget */}
-          {difficulty !== 'hard' && (
+          {difficulty !== "hard" && (
             <HintConsole
               lang={lang}
               hintClue={hintClue}

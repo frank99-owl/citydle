@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { generateDailyChallenge, getTodayString } from '@/lib/daily';
+import { NextResponse } from "next/server";
+import { generateDailyChallenge, getTodayString } from "@/lib/daily";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const today = getTodayString();

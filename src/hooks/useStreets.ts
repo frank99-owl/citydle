@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
-import { Street, Bounds } from '@/types';
-import { TRANSLATIONS, Language } from '@/lib/i18n';
+import { useState, useCallback, useRef } from "react";
+import { Street, Bounds } from "@/types";
+import { TRANSLATIONS, Language } from "@/lib/i18n";
 
 export function useStreets(lang: Language) {
   const [streets, setStreets] = useState<Street[]>([]);
@@ -9,58 +9,63 @@ export function useStreets(lang: Language) {
   const fetchIdRef = useRef(0);
   const streetsRef = useRef<Street[]>([]);
 
-  const fetchStreets = useCallback(async (targetBounds: Bounds): Promise<Street[]> => {
-    setLoading(true);
-    setNoStreetsFound(false);
-    const currentFetchId = ++fetchIdRef.current;
+  const fetchStreets = useCallback(
+    async (targetBounds: Bounds): Promise<Street[]> => {
+      setLoading(true);
+      setNoStreetsFound(false);
+      const currentFetchId = ++fetchIdRef.current;
 
-    try {
-      const res = await fetch('/api/streets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bounds: targetBounds }),
-      });
-      const data = await res.json();
+      try {
+        const res = await fetch("/api/streets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bounds: targetBounds }),
+        });
+        const data = await res.json();
 
-      if (currentFetchId !== fetchIdRef.current) return [];
+        if (currentFetchId !== fetchIdRef.current) return [];
 
-      if (data.error) {
+        if (data.error) {
+          alert(TRANSLATIONS[lang].alertFetchFail);
+          return [];
+        }
+
+        const formattedStreets: Street[] = (data.streets || []).map(
+          (s: any) => ({
+            name: s.name,
+            guessed: false,
+            geometry: s.geometry,
+            aliases: s.aliases,
+          }),
+        );
+
+        if (formattedStreets.length === 0) {
+          setNoStreetsFound(true);
+        }
+
+        setStreets(formattedStreets);
+        streetsRef.current = formattedStreets;
+        return formattedStreets;
+      } catch (err) {
+        if (currentFetchId !== fetchIdRef.current) return [];
+        console.error(err);
         alert(TRANSLATIONS[lang].alertFetchFail);
         return [];
+      } finally {
+        if (currentFetchId === fetchIdRef.current) {
+          setLoading(false);
+        }
       }
-
-      const formattedStreets: Street[] = (data.streets || []).map((s: any) => ({
-        name: s.name,
-        guessed: false,
-        geometry: s.geometry,
-        aliases: s.aliases,
-      }));
-
-      if (formattedStreets.length === 0) {
-        setNoStreetsFound(true);
-      }
-
-      setStreets(formattedStreets);
-      streetsRef.current = formattedStreets;
-      return formattedStreets;
-    } catch (err) {
-      if (currentFetchId !== fetchIdRef.current) return [];
-      console.error(err);
-      alert(TRANSLATIONS[lang].alertFetchFail);
-      return [];
-    } finally {
-      if (currentFetchId === fetchIdRef.current) {
-        setLoading(false);
-      }
-    }
-  }, [lang]);
+    },
+    [lang],
+  );
 
   const updateStreetGuessed = useCallback((name: string) => {
-    setStreets(prev => {
-      const updated = prev.map(s =>
+    setStreets((prev) => {
+      const updated = prev.map((s) =>
         s.name.toLowerCase().trim() === name.toLowerCase().trim()
           ? { ...s, guessed: true }
-          : s
+          : s,
       );
       streetsRef.current = updated;
       return updated;

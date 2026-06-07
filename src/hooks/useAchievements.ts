@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { Achievement, GameResult } from '@/types';
-import { ACHIEVEMENTS } from '@/lib/constants';
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Achievement, GameResult } from "@/types";
+import { ACHIEVEMENTS } from "@/lib/constants";
 
-const STORAGE_KEY = 'cartographer_achievements';
-const STATS_KEY = 'cartographer_stats';
+const STORAGE_KEY = "cartographer_achievements";
+const STATS_KEY = "cartographer_stats";
 
 interface AchievementStats {
   customUsed: number;
@@ -15,13 +15,13 @@ interface AchievementStats {
 }
 
 export function loadUnlocked(): Record<string, string> {
-  if (typeof window === 'undefined') return {};
+  if (typeof window === "undefined") return {};
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     // { achievementId: ISO date string }
-    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
   } catch {
     return {};
   }
@@ -30,27 +30,53 @@ export function loadUnlocked(): Record<string, string> {
 function saveUnlocked(data: Record<string, string>) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch { /* ignore quota */ }
+  } catch {
+    /* ignore quota */
+  }
 }
 
 function loadStats(): AchievementStats {
-  if (typeof window === 'undefined') {
-    return { customUsed: 0, searchedCities: [], speedGuesses: 0, speedGuessTimestamp: 0 };
+  if (typeof window === "undefined") {
+    return {
+      customUsed: 0,
+      searchedCities: [],
+      speedGuesses: 0,
+      speedGuessTimestamp: 0,
+    };
   }
   try {
     const raw = localStorage.getItem(STATS_KEY);
-    if (!raw) return { customUsed: 0, searchedCities: [], speedGuesses: 0, speedGuessTimestamp: 0 };
+    if (!raw)
+      return {
+        customUsed: 0,
+        searchedCities: [],
+        speedGuesses: 0,
+        speedGuessTimestamp: 0,
+      };
     const parsed = JSON.parse(raw);
-    return { customUsed: 0, searchedCities: [], speedGuesses: 0, speedGuessTimestamp: 0, ...parsed };
+    return {
+      customUsed: 0,
+      searchedCities: [],
+      speedGuesses: 0,
+      speedGuessTimestamp: 0,
+      ...parsed,
+    };
   } catch {
-    return { customUsed: 0, searchedCities: [], speedGuesses: 0, speedGuessTimestamp: 0 };
+    return {
+      customUsed: 0,
+      searchedCities: [],
+      speedGuesses: 0,
+      speedGuessTimestamp: 0,
+    };
   }
 }
 
 function saveStats(stats: AchievementStats) {
   try {
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function useAchievements() {
@@ -124,28 +150,31 @@ export function useAchievements() {
 
       if (ach.city) {
         // City master: completion 100% on specific city
-        if (result.mapId === ach.city && result.completionRate >= ach.threshold) {
+        if (
+          result.mapId === ach.city &&
+          result.completionRate >= ach.threshold
+        ) {
           earned = true;
         }
-      } else if (ach.type === 'streak') {
+      } else if (ach.type === "streak") {
         if (result.maxStreak >= ach.threshold) {
           earned = true;
         }
-      } else if (ach.type === 'speed') {
+      } else if (ach.type === "speed") {
         // Speed: guessed >= threshold within 30s window
         if (stats.speedGuesses >= ach.threshold) {
           earned = true;
         }
-      } else if (ach.type === 'perfect') {
+      } else if (ach.type === "perfect") {
         // Perfect: zero errors and completed
         if (result.errorsCount === 0 && result.completionRate >= 1.0) {
           earned = true;
         }
-      } else if (ach.type === 'custom') {
+      } else if (ach.type === "custom") {
         if (stats.customUsed >= ach.threshold) {
           earned = true;
         }
-      } else if (ach.type === 'search') {
+      } else if (ach.type === "search") {
         if (stats.searchedCities.length >= ach.threshold) {
           earned = true;
         }
@@ -168,10 +197,10 @@ export function useAchievements() {
       setNewlyUnlocked(newly);
 
       // Queue popups - filter out already shown in this game
-      const toShow = newly.filter(a => !shownIdsRef.current.has(a.id));
-      toShow.forEach(a => shownIdsRef.current.add(a.id));
+      const toShow = newly.filter((a) => !shownIdsRef.current.has(a.id));
+      toShow.forEach((a) => shownIdsRef.current.add(a.id));
 
-      setPopupQueue(prev => [...prev, ...toShow]);
+      setPopupQueue((prev) => [...prev, ...toShow]);
     }
 
     return newly;
@@ -185,9 +214,11 @@ export function useAchievements() {
   }, []);
 
   // Get all achievements with unlock status
-  const getAllAchievements = useCallback((): Array<Achievement & { unlocked: boolean; unlockedAt?: string }> => {
+  const getAllAchievements = useCallback((): Array<
+    Achievement & { unlocked: boolean; unlockedAt?: string }
+  > => {
     const unlocked = loadUnlocked();
-    return ACHIEVEMENTS.map(ach => ({
+    return ACHIEVEMENTS.map((ach) => ({
       ...ach,
       unlocked: !!unlocked[ach.id],
       unlockedAt: unlocked[ach.id],

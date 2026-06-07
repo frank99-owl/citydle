@@ -1,8 +1,8 @@
 // Core game types
-export type Language = 'zh' | 'en';
-export type MapProvider = 'cartodb' | 'cartodb-dark' | 'osm' | 'amap';
-export type Difficulty = 'easy' | 'medium' | 'hard';
-export type View = 'lobby' | 'game';
+export type Language = "zh" | "en";
+export type MapProvider = "cartodb" | "cartodb-dark" | "osm" | "amap";
+export type Difficulty = "easy" | "medium" | "hard";
+export type View = "lobby" | "game";
 
 export interface Bounds {
   south: number;
@@ -47,9 +47,9 @@ export interface Achievement {
   nameCn: string;
   description: string;
   threshold: number;
-  tier: 'bronze' | 'silver' | 'gold';
-  city?: string;        // 城市系列成就
-  type?: string;        // 技能/探索系列
+  tier: "bronze" | "silver" | "gold";
+  city?: string; // 城市系列成就
+  type?: string; // 技能/探索系列
 }
 
 export interface GameResult {
@@ -59,10 +59,10 @@ export interface GameResult {
   guessedCount: number;
   errorsCount: number;
   mapId: string;
-  customUsed: number;     // cumulative custom area uses
+  customUsed: number; // cumulative custom area uses
   searchedCities: number; // cumulative unique city searches
-  speedGuesses?: number;  // guesses in last 30s window
-  timeMs?: number;        // game duration in ms
+  speedGuesses?: number; // guesses in last 30s window
+  timeMs?: number; // game duration in ms
 }
 
 export interface Preset {
@@ -81,4 +81,4 @@ export interface GuessResult {
   directionHint?: string;
 }
 
-export type StreetFilter = 'all' | 'guessed' | 'unguessed';
+export type StreetFilter = "all" | "guessed" | "unguessed";

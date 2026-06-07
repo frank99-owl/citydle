@@ -1,9 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useEffect } from 'react';
-import { generateDailyChallenge, getTodayString, DailyChallenge } from '@/lib/daily';
+import { useState, useCallback, useEffect } from "react";
+import {
+  generateDailyChallenge,
+  getTodayString,
+  DailyChallenge,
+} from "@/lib/daily";
 
-const STATS_KEY = 'cartographer_player_stats';
+const STATS_KEY = "cartographer_player_stats";
 
 export interface CityStat {
   played: number;
@@ -44,17 +48,17 @@ function getDefaultStats(): PlayerStats {
     totalStreetsAttempted: 0,
     bestStreak: 0,
     averageCompletionRate: 0,
-    favoriteCity: '',
+    favoriteCity: "",
     totalPlayTime: 0,
     cityStats: {},
     dailyChallengeStreak: 0,
-    lastDailyChallenge: '',
+    lastDailyChallenge: "",
     dailyHistory: [],
   };
 }
 
 function loadStats(): PlayerStats {
-  if (typeof window === 'undefined') return getDefaultStats();
+  if (typeof window === "undefined") return getDefaultStats();
   try {
     const raw = localStorage.getItem(STATS_KEY);
     if (!raw) return getDefaultStats();
@@ -68,7 +72,9 @@ function loadStats(): PlayerStats {
 function saveStats(stats: PlayerStats) {
   try {
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-  } catch { /* ignore quota */ }
+  } catch {
+    /* ignore quota */
+  }
 }
 
 export function useStats() {
@@ -83,98 +89,111 @@ export function useStats() {
     setCurrentDaily(generateDailyChallenge(today));
   }, []);
 
-  const updateStats = useCallback((
-    mapId: string,
-    mapName: string,
-    completionRate: number,
-    maxStreak: number,
-    streetsGuessed: number,
-    totalStreets: number,
-    isDailyChallenge?: boolean
-  ) => {
-    const current = loadStats();
-    const newGamesPlayed = current.totalGamesPlayed + 1;
-    const newStreetsGuessed = current.totalStreetsGuessed + streetsGuessed;
-    const newStreetsAttempted = current.totalStreetsAttempted + totalStreets;
-    const newBestStreak = Math.max(current.bestStreak, maxStreak);
-    const newAvgCompletion = newStreetsAttempted > 0 ? newStreetsGuessed / newStreetsAttempted : 0;
+  const updateStats = useCallback(
+    (
+      mapId: string,
+      mapName: string,
+      completionRate: number,
+      maxStreak: number,
+      streetsGuessed: number,
+      totalStreets: number,
+      isDailyChallenge?: boolean,
+    ) => {
+      const current = loadStats();
+      const newGamesPlayed = current.totalGamesPlayed + 1;
+      const newStreetsGuessed = current.totalStreetsGuessed + streetsGuessed;
+      const newStreetsAttempted = current.totalStreetsAttempted + totalStreets;
+      const newBestStreak = Math.max(current.bestStreak, maxStreak);
+      const newAvgCompletion =
+        newStreetsAttempted > 0 ? newStreetsGuessed / newStreetsAttempted : 0;
 
-    // Update city stats
-    const cityStats = { ...current.cityStats };
-    if (!cityStats[mapId]) {
-      cityStats[mapId] = { played: 0, completed: 0, bestRate: 0 };
-    }
-    cityStats[mapId].played += 1;
-    if (completionRate >= 1.0) cityStats[mapId].completed += 1;
-    cityStats[mapId].bestRate = Math.max(cityStats[mapId].bestRate, completionRate);
-
-    // Find favorite city (most played)
-    let favoriteCity = current.favoriteCity;
-    let maxPlayed = 0;
-    for (const [id, cs] of Object.entries(cityStats)) {
-      if (cs.played > maxPlayed) {
-        maxPlayed = cs.played;
-        favoriteCity = id;
+      // Update city stats
+      const cityStats = { ...current.cityStats };
+      if (!cityStats[mapId]) {
+        cityStats[mapId] = { played: 0, completed: 0, bestRate: 0 };
       }
-    }
-
-    // Play time
-    const endTime = Date.now();
-    const playTime = gameStartTime ? Math.floor((endTime - gameStartTime) / 1000) : 0;
-    const newPlayTime = current.totalPlayTime + playTime;
-
-    // Daily challenge - dedup: skip if already completed today
-    let dailyChallengeStreak = current.dailyChallengeStreak;
-    let lastDailyChallenge = current.lastDailyChallenge;
-    let dailyHistory = [...current.dailyHistory];
-    const today = getTodayString();
-
-    if (isDailyChallenge && completionRate >= 0.5 && lastDailyChallenge !== today) {
-      // Completed daily challenge (>=50%) and not already completed today
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-
-      if (lastDailyChallenge === yesterdayStr) {
-        dailyChallengeStreak += 1;
-      } else {
-        dailyChallengeStreak = 1;
-      }
-      lastDailyChallenge = today;
-
-      dailyHistory.push({
-        date: today,
-        cityName: mapName,
+      cityStats[mapId].played += 1;
+      if (completionRate >= 1.0) cityStats[mapId].completed += 1;
+      cityStats[mapId].bestRate = Math.max(
+        cityStats[mapId].bestRate,
         completionRate,
-        score: streetsGuessed,
-        totalStreets,
-        maxStreak,
-        completed: completionRate >= 1.0,
-      });
+      );
 
-      // Keep only last 30 days
-      if (dailyHistory.length > 30) {
-        dailyHistory = dailyHistory.slice(-30);
+      // Find favorite city (most played)
+      let favoriteCity = current.favoriteCity;
+      let maxPlayed = 0;
+      for (const [id, cs] of Object.entries(cityStats)) {
+        if (cs.played > maxPlayed) {
+          maxPlayed = cs.played;
+          favoriteCity = id;
+        }
       }
-    }
 
-    const newStats: PlayerStats = {
-      totalGamesPlayed: newGamesPlayed,
-      totalStreetsGuessed: newStreetsGuessed,
-      totalStreetsAttempted: newStreetsAttempted,
-      bestStreak: newBestStreak,
-      averageCompletionRate: newAvgCompletion,
-      favoriteCity,
-      totalPlayTime: newPlayTime,
-      cityStats,
-      dailyChallengeStreak,
-      lastDailyChallenge,
-      dailyHistory,
-    };
+      // Play time
+      const endTime = Date.now();
+      const playTime = gameStartTime
+        ? Math.floor((endTime - gameStartTime) / 1000)
+        : 0;
+      const newPlayTime = current.totalPlayTime + playTime;
 
-    saveStats(newStats);
-    setStats(newStats);
-  }, [gameStartTime]);
+      // Daily challenge - dedup: skip if already completed today
+      let dailyChallengeStreak = current.dailyChallengeStreak;
+      let lastDailyChallenge = current.lastDailyChallenge;
+      let dailyHistory = [...current.dailyHistory];
+      const today = getTodayString();
+
+      if (
+        isDailyChallenge &&
+        completionRate >= 0.5 &&
+        lastDailyChallenge !== today
+      ) {
+        // Completed daily challenge (>=50%) and not already completed today
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+
+        if (lastDailyChallenge === yesterdayStr) {
+          dailyChallengeStreak += 1;
+        } else {
+          dailyChallengeStreak = 1;
+        }
+        lastDailyChallenge = today;
+
+        dailyHistory.push({
+          date: today,
+          cityName: mapName,
+          completionRate,
+          score: streetsGuessed,
+          totalStreets,
+          maxStreak,
+          completed: completionRate >= 1.0,
+        });
+
+        // Keep only last 30 days
+        if (dailyHistory.length > 30) {
+          dailyHistory = dailyHistory.slice(-30);
+        }
+      }
+
+      const newStats: PlayerStats = {
+        totalGamesPlayed: newGamesPlayed,
+        totalStreetsGuessed: newStreetsGuessed,
+        totalStreetsAttempted: newStreetsAttempted,
+        bestStreak: newBestStreak,
+        averageCompletionRate: newAvgCompletion,
+        favoriteCity,
+        totalPlayTime: newPlayTime,
+        cityStats,
+        dailyChallengeStreak,
+        lastDailyChallenge,
+        dailyHistory,
+      };
+
+      saveStats(newStats);
+      setStats(newStats);
+    },
+    [gameStartTime],
+  );
 
   const startGameTimer = useCallback(() => {
     setGameStartTime(Date.now());
@@ -191,7 +210,7 @@ export function useStats() {
 
   const getTodayDailyResult = useCallback((): DailyChallengeRecord | null => {
     const today = getTodayString();
-    return stats.dailyHistory.find(h => h.date === today) || null;
+    return stats.dailyHistory.find((h) => h.date === today) || null;
   }, [stats.dailyHistory]);
 
   const loadStats_ = useCallback(() => {

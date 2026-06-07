@@ -16,12 +16,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **HMAC Signature**: Leaderboard submissions signed with HMAC-SHA256 to deter tampering (`lib/hmac.ts`)
 - **CI Pipeline**: GitHub Actions workflow (lint → test → build)
 - Comprehensive documentation (README, ARCHITECTURE, CHANGELOG)
+- **SEO**: OpenGraph/Twitter card metadata, canonical URL, JSON-LD WebApplication structured data
+- **SEO**: `robots.txt` and dynamic `sitemap.xml`
+- **Accessibility**: Semantic HTML (`<main>`, `<aside>`, `role="tablist"`, `role="tabpanel"`, `role="alert"`)
+- **Accessibility**: ARIA labels on map, sidebar, lobby dialog, filter buttons, input field
+- **Accessibility**: `prefers-reduced-motion` media query disables animations for users who prefer reduced motion
+- **Performance**: `next.config.js` — gzip compression, AVIF/WebP image formats, `optimizePackageImports` for Leaflet
 
 ### Changed
 - **Dual Context Architecture**: Split monolithic GameContext into LobbyContext (low-frequency: history, stats, achievements) + GameContext (high-frequency: guess, streak, map). Both wrapped with `useMemo()`.
 - **Lazy Loading**: `next/dynamic` for SettlementView, AchievementPopup, ShareModal, AchievementPanel, StatsPanel, Leaderboard. Dynamic `import('canvas-confetti')` for on-demand loading.
 - `useGameLogic.ts` now imports algorithms from `lib/matching.ts` instead of inline functions
 - All 4 documentation files (README, ARCHITECTURE, both zh/en) synchronized with code changes
+- **Performance**: Levenshtein algorithm optimized from O(m×n) to O(min(m,n)) space
+- **Performance**: StreetList items use `content-visibility: auto` for off-screen rendering skip
+- **Performance**: `drawStreets` incremental update — reuses existing layers when street set unchanged
+- **Performance**: API preset JSON files lazy-loaded on first request with in-memory cache (was static import)
 
 ## [2.0.0] - 2026-06-04
 

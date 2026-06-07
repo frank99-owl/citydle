@@ -1,7 +1,7 @@
 // @ts-ignore
-import { DatabaseSync } from 'node:sqlite';
-import path from 'path';
-import fs from 'fs';
+import { DatabaseSync } from "node:sqlite";
+import path from "path";
+import fs from "fs";
 
 let dbInstance: any = null;
 let isDbUnavailable = false;
@@ -11,17 +11,17 @@ export function getDb() {
   if (!dbInstance) {
     try {
       const isVercel = !!process.env.VERCEL;
-      const DB_DIR = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
-      const DB_PATH = path.join(DB_DIR, 'cartographer.db');
+      const DB_DIR = isVercel ? "/tmp" : path.join(process.cwd(), "data");
+      const DB_PATH = path.join(DB_DIR, "cartographer.db");
 
       if (isVercel) {
         // Copy starter DB template from read-only project workspace to writable /tmp
-        const srcDb = path.join(process.cwd(), 'data', 'cartographer.db');
+        const srcDb = path.join(process.cwd(), "data", "cartographer.db");
         if (fs.existsSync(srcDb) && !fs.existsSync(DB_PATH)) {
           try {
             fs.copyFileSync(srcDb, DB_PATH);
           } catch (err) {
-            console.error('Failed to copy starter DB to /tmp:', err);
+            console.error("Failed to copy starter DB to /tmp:", err);
           }
         }
       } else {
@@ -34,8 +34,8 @@ export function getDb() {
       dbInstance = new DatabaseSync(DB_PATH);
 
       // Enable WAL mode and foreign keys via SQL PRAGMAs
-      dbInstance.exec('PRAGMA journal_mode = WAL;');
-      dbInstance.exec('PRAGMA foreign_keys = ON;');
+      dbInstance.exec("PRAGMA journal_mode = WAL;");
+      dbInstance.exec("PRAGMA foreign_keys = ON;");
 
       // Initialize tables
       dbInstance.exec(`
@@ -76,7 +76,7 @@ export function getDb() {
         INSERT OR IGNORE INTO users (id, username) VALUES (1, 'Player');
       `);
     } catch (err) {
-      console.error('SQLite database initialization failed:', err);
+      console.error("SQLite database initialization failed:", err);
       isDbUnavailable = true;
       return null;
     }

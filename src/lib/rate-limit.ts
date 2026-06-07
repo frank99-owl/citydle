@@ -13,7 +13,7 @@ const store = new Map<string, RateLimitEntry>();
 setInterval(() => {
   const now = Date.now();
   store.forEach((entry, key) => {
-    entry.timestamps = entry.timestamps.filter(t => now - t < 60_000);
+    entry.timestamps = entry.timestamps.filter((t) => now - t < 60_000);
     if (entry.timestamps.length === 0) store.delete(key);
   });
 }, 300_000);
@@ -37,7 +37,11 @@ export interface RateLimitResult {
  * Check if a request is allowed under the rate limit.
  * Returns { allowed, remaining, retryAfterMs }.
  */
-export function checkRateLimit({ key, limit, windowMs = 60_000 }: RateLimitOptions): RateLimitResult {
+export function checkRateLimit({
+  key,
+  limit,
+  windowMs = 60_000,
+}: RateLimitOptions): RateLimitResult {
   const now = Date.now();
   const entry = store.get(key);
 
@@ -47,7 +51,7 @@ export function checkRateLimit({ key, limit, windowMs = 60_000 }: RateLimitOptio
   }
 
   // Remove timestamps outside the window
-  entry.timestamps = entry.timestamps.filter(t => now - t < windowMs);
+  entry.timestamps = entry.timestamps.filter((t) => now - t < windowMs);
 
   if (entry.timestamps.length >= limit) {
     const oldest = entry.timestamps[0];
@@ -56,7 +60,11 @@ export function checkRateLimit({ key, limit, windowMs = 60_000 }: RateLimitOptio
   }
 
   entry.timestamps.push(now);
-  return { allowed: true, remaining: limit - entry.timestamps.length, retryAfterMs: 0 };
+  return {
+    allowed: true,
+    remaining: limit - entry.timestamps.length,
+    retryAfterMs: 0,
+  };
 }
 
 /**
@@ -65,9 +73,9 @@ export function checkRateLimit({ key, limit, windowMs = 60_000 }: RateLimitOptio
  */
 export function getClientIp(request: Request): string {
   return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    request.headers.get('cf-connecting-ip') ||
-    'unknown'
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "unknown"
   );
 }

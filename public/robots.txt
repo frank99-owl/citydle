@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://street-guesser.vercel.app/sitemap.xml

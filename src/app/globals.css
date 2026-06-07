@@ -159,3 +159,21 @@ body {
   0% { transform: translateX(-30%); }
   100% { transform: translateX(30%); }
 }
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .streak-active {
+    animation: none;
+  }
+  .vintage-btn {
+    transition: none;
+  }
+  .leaflet-tile-pane {
+    filter: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
