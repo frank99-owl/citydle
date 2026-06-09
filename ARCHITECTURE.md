@@ -103,7 +103,7 @@ src/
 ├── hooks/                        # Custom React hooks
 │   ├── useLeafletMap.ts          # Map lifecycle & layers
 │   ├── useMapProvider.ts         # Provider & coordinates
-│   ├── useStreets.ts             # Street data fetching
+│   ├── useStreets.ts             # Street data fetching with error callback
 │   ├── useGameLogic.ts           # Core game mechanics
 │   ├── useAchievements.ts        # Achievement tracking
 │   ├── useStats.ts               # Personal statistics
@@ -136,8 +136,7 @@ src/
 │   ├── db.ts                     # SQLite singleton
 │   ├── daily.ts                  # Daily challenge
 │   ├── matching.ts               # Core algorithms (Levenshtein, matching, hints)
-│   ├── rate-limit.ts             # Sliding window rate limiter
-│   └── hmac.ts                   # HMAC-SHA256 signing for leaderboard
+│   └── rate-limit.ts             # Sliding window rate limiter
 └── data/                         # Static data
     └── presets/                   # Street geometries
 ```
@@ -150,7 +149,7 @@ Each hook encapsulates a specific domain of logic:
 |------|-------|------------|--------------|
 | `useLeafletMap` | `mapRef`, `mapLoaded` | init, destroy, layer ops, drawing | Leaflet, Geoman |
 | `useMapProvider` | `mapProvider` | switch provider, convert coords | `coord.ts` |
-| `useStreets` | `streets`, `loading` | fetch, cancel, cache | `/api/streets` |
+| `useStreets` | `streets`, `loading` | fetch, cancel, cache, error callback | `/api/streets` |
 | `useGameLogic` | `guess`, `streak`, `maxStreak`, `guessedCount` | match, hint, settle | `i18n.ts` |
 | `useAchievements` | `unlocked`, `popup` | check, unlock, display | `localStorage` |
 | `useStats` | `stats` | update, daily challenge | `localStorage`, `/api/daily` |
@@ -537,13 +536,15 @@ if (timeSeconds < 0 || timeSeconds > 86400) return 400;
 if (playerName.length > 20) playerName = playerName.slice(0, 20);
 ```
 
-### HMAC Signature (Anti-Tampering)
+### Leaderboard Anti-Tampering
 
-Leaderboard submissions include an HMAC-SHA256 signature (`lib/hmac.ts`):
-- Client signs the payload before sending
-- Server verifies the signature; rejects invalid submissions with 403
-- Uses Web Crypto API for signing/verification
-- Note: key is client-embedded, so determined attackers can still forge; this deters casual tampering
+Leaderboard submissions are validated server-side with range checks:
+- `completionRate` must be between 0-1
+- `score` cannot exceed `totalStreets`
+- `maxStreak` cannot exceed `totalStreets`
+- `timeSeconds` cannot exceed 86400 (24 hours)
+- `playerName` limited to 20 characters
+- Rate limited: 10 submissions per minute per IP
 
 ### Rate Limiting
 
@@ -618,7 +619,6 @@ Route (app)                    Size      First Load JS
 | `lib/i18n.ts` | ~294 | Translations |
 | `lib/constants.ts` | ~177 | Presets & config |
 | `lib/rate-limit.ts` | ~73 | Sliding window rate limiter |
-| `lib/hmac.ts` | ~85 | HMAC-SHA256 signing |
 | `components/lobby/LobbyView.tsx` | ~90 | Tutorial button & error banner |
 
 ### Data Files

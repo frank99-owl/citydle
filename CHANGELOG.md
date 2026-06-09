@@ -13,7 +13,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Core Algorithm Tests**: 44 unit tests for matching functions using Vitest
 - **Matching Module**: Extracted pure functions (Levenshtein, similarity, normalization, hints) into `lib/matching.ts`
 - **Rate Limiting**: In-memory sliding window rate limiter for API endpoints (`lib/rate-limit.ts`)
-- **HMAC Signature**: Leaderboard submissions signed with HMAC-SHA256 to deter tampering (`lib/hmac.ts`)
 - **CI Pipeline**: GitHub Actions workflow (lint → test → build)
 - Comprehensive documentation (README, ARCHITECTURE, CHANGELOG)
 - **SEO**: OpenGraph/Twitter card metadata, canonical URL, JSON-LD WebApplication structured data
@@ -22,6 +21,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Accessibility**: ARIA labels on map, sidebar, lobby dialog, filter buttons, input field
 - **Accessibility**: `prefers-reduced-motion` media query disables animations for users who prefer reduced motion
 - **Performance**: `next.config.js` — gzip compression, AVIF/WebP image formats, `optimizePackageImports` for Leaflet
+- **Exit Confirmation**: Custom styled confirmation dialog replaces `window.confirm()` for game exit
+- **Accessibility**: ShareModal focus trap, `role="dialog"`, `aria-modal`, close button `aria-label`
+- **Accessibility**: AchievementPopup `role="alert"`, `aria-live="assertive"`, Escape key dismiss
+
+### Fixed
+- **Street guessed state**: `updateStreetGuessed` now wired up in `handleGuessSubmit` — StreetList filter (guessed/unguessed) works correctly during gameplay
+- **Game time tracking**: `timeMs` in `GameResult` now passes actual elapsed milliseconds instead of 0
+- **useStats stale closure**: Changed `gameStartTime` from `useState` to `useRef` to prevent stale closure in `updateStats`
+- **useGameLogic dependency**: Added missing `clearHint` dependency to `updateDifficulty` callback, reordered declarations
 
 ### Changed
 - **Dual Context Architecture**: Split monolithic GameContext into LobbyContext (low-frequency: history, stats, achievements) + GameContext (high-frequency: guess, streak, map). Both wrapped with `useMemo()`.
@@ -31,7 +39,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Performance**: Levenshtein algorithm optimized from O(m×n) to O(min(m,n)) space
 - **Performance**: StreetList items use `content-visibility: auto` for off-screen rendering skip
 - **Performance**: `drawStreets` incremental update — reuses existing layers when street set unchanged
-- **Performance**: API preset JSON files lazy-loaded on first request with in-memory cache (was static import)
+- **Performance**: API preset JSON files loaded with `fs.promises.readFile` instead of `fs.readFileSync`
+- **Performance**: Achievement badge image converted from PNG to WebP (1,034KB → 214KB, -79%)
+- **Performance**: All `alert()` calls replaced with state-driven inline error messages
+- **Accessibility**: `<html lang>` now dynamically synced with language toggle (was hardcoded `zh`)
+- **Accessibility**: LobbyOverlay `aria-modal` corrected from `false` to `true`
+- **Security**: Removed client-side HMAC signing (secret was exposed in JS bundle); server-side range validation remains as anti-cheat
+- **Security**: Leaderboard POST no longer accepts optional signature field
+- **Security**: Favorites `name` field sanitized (trim, strip HTML, limit 100 chars)
+- **Security**: Favorites DELETE validates `id` as positive integer
+- **Security**: Search API filters Nominatim response to only return needed fields
+- **Types**: Removed unused `customUsed`, `searchedCities`, `speedGuesses` fields from `GameResult`
 
 ## [2.0.0] - 2026-06-04
 

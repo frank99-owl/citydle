@@ -129,8 +129,7 @@ src/
 │   ├── db.ts                       # SQLite singleton
 │   ├── daily.ts                    # Daily challenge generation
 │   ├── matching.ts                 # Core algorithms (Levenshtein, matching, hints)
-│   ├── rate-limit.ts               # Sliding window rate limiter
-│   └── hmac.ts                     # HMAC-SHA256 signing for leaderboard
+│   └── rate-limit.ts               # Sliding window rate limiter
 └── data/
     └── presets/                     # Pre-compiled street data
         ├── new-york.json            # 141 streets

@@ -129,8 +129,7 @@ src/
 │   ├── db.ts                       # SQLite 单例
 │   ├── daily.ts                    # 每日挑战生成
 │   ├── matching.ts                 # 核心算法（Levenshtein、匹配、提示）
-│   ├── rate-limit.ts               # 滑动窗口限流器
-│   └── hmac.ts                     # HMAC-SHA256 排行榜签名
+│   └── rate-limit.ts               # 滑动窗口限流器
 └── data/
     └── presets/                     # 预编译街道数据
         ├── new-york.json            # 141 条街道

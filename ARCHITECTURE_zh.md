@@ -103,7 +103,7 @@ src/
 ├── hooks/                        # 自定义 React Hooks
 │   ├── useLeafletMap.ts          # 地图生命周期与图层
 │   ├── useMapProvider.ts         # 地图源与坐标转换
-│   ├── useStreets.ts             # 街道数据获取
+│   ├── useStreets.ts             # 街道数据获取与错误回调
 │   ├── useGameLogic.ts           # 核心游戏机制
 │   ├── useAchievements.ts        # 成就追踪
 │   ├── useStats.ts               # 个人统计
@@ -136,8 +136,7 @@ src/
 │   ├── db.ts                     # SQLite 单例
 │   ├── daily.ts                  # 每日挑战
 │   ├── matching.ts               # 核心算法（Levenshtein、匹配、提示）
-│   ├── rate-limit.ts             # 滑动窗口限流器
-│   └── hmac.ts                   # HMAC-SHA256 排行榜签名
+│   └── rate-limit.ts             # 滑动窗口限流器
 └── data/                         # 静态数据
     └── presets/                   # 街道几何数据
 ```
@@ -150,7 +149,7 @@ src/
 |------|------|------|------|
 | `useLeafletMap` | `mapRef`, `mapLoaded` | 初始化、销毁、图层操作、绘图 | Leaflet, Geoman |
 | `useMapProvider` | `mapProvider` | 切换地图源、坐标转换 | `coord.ts` |
-| `useStreets` | `streets`, `loading` | 获取、取消、缓存 | `/api/streets` |
+| `useStreets` | `streets`, `loading` | 获取、取消、缓存、错误回调 | `/api/streets` |
 | `useGameLogic` | `guess`, `streak`, `maxStreak`, `guessedCount` | 匹配、提示、结算 | `i18n.ts` |
 | `useAchievements` | `unlocked`, `popup` | 检查、解锁、显示 | `localStorage` |
 | `useStats` | `stats` | 更新、每日挑战 | `localStorage`, `/api/daily` |
@@ -537,13 +536,15 @@ if (timeSeconds < 0 || timeSeconds > 86400) return 400;
 if (playerName.length > 20) playerName = playerName.slice(0, 20);
 ```
 
-### HMAC 签名（防篡改）
+### 排行榜防篡改
 
-排行榜提交包含 HMAC-SHA256 签名（`lib/hmac.ts`）：
-- 客户端在发送前对 payload 签名
-- 服务端验证签名；无效提交返回 403
-- 使用 Web Crypto API 进行签名/验证
-- 注意：密钥嵌入在客户端 JS 中，有决心的攻击者仍可伪造；此措施阻止随意篡改
+排行榜提交通过服务端数值范围验证防篡改：
+- `completionRate` 必须在 0-1 之间
+- `score` 不能超过 `totalStreets`
+- `maxStreak` 不能超过 `totalStreets`
+- `timeSeconds` 不能超过 86400（24小时）
+- `playerName` 限制 20 字符
+- 速率限制：每 IP 每分钟 10 次提交
 
 ### 速率限制
 
@@ -618,7 +619,6 @@ API 端点受内存滑动窗口限流器保护（`lib/rate-limit.ts`）：
 | `lib/i18n.ts` | ~294 | 翻译文本 |
 | `lib/constants.ts` | ~177 | 预设与配置 |
 | `lib/rate-limit.ts` | ~73 | 滑动窗口限流器 |
-| `lib/hmac.ts` | ~85 | HMAC-SHA256 签名 |
 | `components/lobby/LobbyView.tsx` | ~90 | 教程按钮与错误横幅 |
 
 ### 数据文件
