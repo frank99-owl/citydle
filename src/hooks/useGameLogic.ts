@@ -40,6 +40,11 @@ export function useGameLogic() {
     }
   }, []);
 
+  const clearHint = useCallback(() => {
+    setHintClue(null);
+    hintClueRef.current = null;
+  }, []);
+
   const updateDifficulty = useCallback((diff: Difficulty) => {
     setDifficulty(diff);
     difficultyRef.current = diff;
@@ -47,12 +52,7 @@ export function useGameLogic() {
     if (diff === "hard") {
       clearHint();
     }
-  }, []);
-
-  const clearHint = useCallback(() => {
-    setHintClue(null);
-    hintClueRef.current = null;
-  }, []);
+  }, [clearHint]);
 
   const getHint = useCallback(
     (streets: Street[]): HintClue | null => {
@@ -128,7 +128,7 @@ export function useGameLogic() {
         if (newGuessedCount === streets.length) {
           onAllGuessed();
         }
-        return { found: true };
+        return { found: true, matchedName: matchedStreetName };
       }
 
       // Wrong guess — fuzzy matching

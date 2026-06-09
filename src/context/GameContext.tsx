@@ -285,6 +285,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     loading,
     noStreetsFound,
     fetchStreets,
+    updateStreetGuessed,
     clearStreets,
     cancelFetch,
   } = useStreets(lang);
@@ -601,6 +602,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setHintMessage(null);
         setDirectionMessage(null);
         trackSpeedGuess();
+        if (result.matchedName) {
+          updateStreetGuessed(result.matchedName);
+        }
       }
     },
     [
@@ -613,6 +617,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       endGame,
       t,
       trackSpeedGuess,
+      updateStreetGuessed,
     ],
   );
 
@@ -636,10 +641,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       guessedCount,
       errorsCount: totalErrors,
       mapId: currentMapId,
-      customUsed: 0,
-      searchedCities: 0,
-      speedGuesses: 0,
-      timeMs: 0,
+      timeMs: elapsed * 1000,
     });
 
     updatePlayerStats(

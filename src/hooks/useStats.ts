@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   generateDailyChallenge,
   getTodayString,
@@ -79,7 +79,7 @@ function saveStats(stats: PlayerStats) {
 
 export function useStats() {
   const [stats, setStats] = useState<PlayerStats>(getDefaultStats());
-  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
+  const gameStartTimeRef = useRef<number | null>(null);
   const [currentDaily, setCurrentDaily] = useState<DailyChallenge | null>(null);
 
   // Load stats on mount
@@ -131,8 +131,8 @@ export function useStats() {
 
       // Play time
       const endTime = Date.now();
-      const playTime = gameStartTime
-        ? Math.floor((endTime - gameStartTime) / 1000)
+      const playTime = gameStartTimeRef.current
+        ? Math.floor((endTime - gameStartTimeRef.current) / 1000)
         : 0;
       const newPlayTime = current.totalPlayTime + playTime;
 
@@ -192,11 +192,11 @@ export function useStats() {
       saveStats(newStats);
       setStats(newStats);
     },
-    [gameStartTime],
+    [],
   );
 
   const startGameTimer = useCallback(() => {
-    setGameStartTime(Date.now());
+    gameStartTimeRef.current = Date.now();
   }, []);
 
   const getDailyChallenge = useCallback((): DailyChallenge | null => {

@@ -59,9 +59,6 @@ export interface GameResult {
   guessedCount: number;
   errorsCount: number;
   mapId: string;
-  customUsed: number; // cumulative custom area uses
-  searchedCities: number; // cumulative unique city searches
-  speedGuesses?: number; // guesses in last 30s window
   timeMs?: number; // game duration in ms
 }
 
@@ -77,6 +74,7 @@ export interface Preset {
 
 export interface GuessResult {
   found: boolean;
+  matchedName?: string;
   hint?: string;
   directionHint?: string;
 }
