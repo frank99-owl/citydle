@@ -50,6 +50,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Security**: Favorites DELETE validates `id` as positive integer
 - **Security**: Search API filters Nominatim response to only return needed fields
 - **Types**: Removed unused `customUsed`, `searchedCities`, `speedGuesses` fields from `GameResult`
+- **i18n**: Unified all ~65 inline translation strings across 16 component files into `i18n.ts` (added ~35 new keys)
+- **i18n**: Removed duplicated `isZh()` helper from ShareModal.tsx and Leaderboard.tsx
+- **i18n**: Refactored `getDirectionLabel` in matching.ts to accept `DirectionLabels` object instead of raw language string
+- **Bug fix**: GameSidebar subtitle was showing English when `lang=zh` and vice versa (reversed ternary)
 
 ## [2.0.0] - 2026-06-04
 
