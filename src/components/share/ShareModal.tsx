@@ -93,9 +93,11 @@ export function ShareModal({
     };
   }, [isOpen, shareData]);
 
-  // Close on Escape
+  // Close on Escape and manage focus
   useEffect(() => {
     if (!isOpen) return;
+    // Focus the modal for keyboard users
+    modalRef.current?.focus();
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -158,6 +160,9 @@ export function ShareModal({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={isZh(lang) ? "分享成就" : "Share Achievement"}
       style={{
         position: "fixed",
         top: 0,
@@ -177,6 +182,7 @@ export function ShareModal({
     >
       <div
         ref={modalRef}
+        tabIndex={-1}
         className="vintage-panel"
         style={{
           width: "90%",
@@ -190,6 +196,7 @@ export function ShareModal({
         {/* Close button */}
         <button
           onClick={onClose}
+          aria-label={isZh(lang) ? "关闭" : "Close"}
           style={{
             position: "absolute",
             top: "0.75rem",

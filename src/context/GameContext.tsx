@@ -113,6 +113,11 @@ interface GameContextValue {
   shareModalOpen: boolean;
   setShareModalOpen: (v: boolean) => void;
 
+  // 退出确认
+  exitConfirmOpen: boolean;
+  confirmExitToLobby: () => void;
+  cancelExitToLobby: () => void;
+
   // 徽章
   badge: Achievement | null;
 
@@ -331,6 +336,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Share modal state
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
+  // Exit confirmation state
+  const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+
   // Game time tracking
   const [gameTimeSeconds, setGameTimeSeconds] = useState(0);
   const gameStartTimeRef = useRef<number>(0);
@@ -369,10 +377,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const savedLang = localStorage.getItem("cartographer_lang") as Language;
     if (savedLang) {
       setLang(savedLang);
+      document.documentElement.lang = savedLang;
     } else {
       const browserLang = navigator.language.toLowerCase();
       if (browserLang.includes("zh") || browserLang.includes("cn")) {
         setLang("zh");
+        document.documentElement.lang = "zh";
       }
     }
     loadDifficulty();
@@ -391,6 +401,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const newLang = lang === "en" ? "zh" : "en";
     setLang(newLang);
     localStorage.setItem("cartographer_lang", newLang);
+    document.documentElement.lang = newLang;
   }, [lang]);
 
   // Update URL params
@@ -949,10 +960,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   // Handle exit to lobby with confirmation
   const handleExitToLobby = useCallback(() => {
-    if (window.confirm(TRANSLATIONS[lang].confirmExit)) {
-      returnToLobby();
-    }
-  }, [lang, returnToLobby]);
+    setExitConfirmOpen(true);
+  }, []);
+
+  const confirmExitToLobby = useCallback(() => {
+    setExitConfirmOpen(false);
+    returnToLobby();
+  }, [returnToLobby]);
+
+  const cancelExitToLobby = useCallback(() => {
+    setExitConfirmOpen(false);
+  }, []);
 
   // Save map to favorites
   const handleSaveMap = useCallback(async () => {
@@ -1109,6 +1127,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       searchLoading,
       shareModalOpen,
       setShareModalOpen,
+      exitConfirmOpen,
+      confirmExitToLobby,
+      cancelExitToLobby,
       badge,
       startGame,
       startFromFavorite,
@@ -1190,6 +1211,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       searchLoading,
       shareModalOpen,
       setShareModalOpen,
+      exitConfirmOpen,
+      confirmExitToLobby,
+      cancelExitToLobby,
       badge,
       startGame,
       startFromFavorite,

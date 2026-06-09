@@ -190,6 +190,73 @@ function GameContent() {
         timeSeconds={ctx.gameTimeSeconds}
         badge={ctx.badge}
       />
+
+      {/* Exit Confirmation Dialog */}
+      {ctx.exitConfirmOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={ctx.lang === "zh" ? "确认退出" : "Confirm Exit"}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(26,22,16,0.85)",
+            backdropFilter: "blur(6px)",
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) ctx.cancelExitToLobby();
+          }}
+        >
+          <div
+            className="vintage-panel"
+            style={{
+              padding: "2rem",
+              maxWidth: "360px",
+              width: "90%",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--font-im-fell), Georgia, serif",
+                fontSize: "1rem",
+                color: "#f4ebd0",
+                marginBottom: "1.5rem",
+                lineHeight: 1.5,
+              }}
+            >
+              {ctx.lang === "zh"
+                ? "确定要退出当前游戏吗？进度将不会保存。"
+                : "Are you sure you want to exit? Progress will not be saved."}
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
+              <button
+                onClick={ctx.cancelExitToLobby}
+                className="vintage-btn"
+                style={{ padding: "0.5rem 1.5rem", fontSize: "0.85rem" }}
+              >
+                {ctx.lang === "zh" ? "取消" : "Cancel"}
+              </button>
+              <button
+                onClick={ctx.confirmExitToLobby}
+                className="vintage-btn"
+                style={{
+                  padding: "0.5rem 1.5rem",
+                  fontSize: "0.85rem",
+                  background: "#8a3324",
+                  borderColor: "#8a3324",
+                }}
+              >
+                {ctx.lang === "zh" ? "退出" : "Exit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

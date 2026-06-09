@@ -88,7 +88,13 @@ export function AchievementPopup({
 
   return (
     <div
+      role="alert"
+      aria-live="assertive"
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") handleClick();
+      }}
+      tabIndex={-1}
       style={{
         position: "fixed",
         top: 0,

@@ -101,7 +101,7 @@ export function LobbyOverlay({
       className="lobby-overlay"
       role="dialog"
       aria-label={lang === "zh" ? "游戏大厅" : "Game lobby"}
-      aria-modal="false"
+      aria-modal="true"
       style={{
         position: "fixed",
         top: 0,
