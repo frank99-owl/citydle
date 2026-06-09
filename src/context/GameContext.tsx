@@ -287,16 +287,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
     updateStreetGuessed,
     clearStreets,
     cancelFetch,
-  } = useStreets(lang);
+  } = useStreets(lang, (msg) => {
+    setErrorMessage(msg);
+    setTimeout(() => setErrorMessage(null), 3000);
+  });
 
   // Handle empty streets result
   useEffect(() => {
     if (noStreetsFound && !loading) {
-      alert(
+      setErrorMessage(
         lang === "zh"
           ? "该区域未找到任何街道，请尝试缩小范围或换个区域。"
           : "No streets found in this area. Try a smaller region or pick a different one.",
       );
+      setTimeout(() => setErrorMessage(null), 3000);
     }
   }, [noStreetsFound, loading, lang]);
 
@@ -808,11 +812,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Handle start custom game
   const handleStartCustomGame = useCallback(() => {
     if (!bounds) {
-      alert(TRANSLATIONS[lang].alertNoBounds);
+      setErrorMessage(TRANSLATIONS[lang].alertNoBounds);
+      setTimeout(() => setErrorMessage(null), 3000);
       return;
     }
     if (!mapName.trim()) {
-      alert(TRANSLATIONS[lang].alertNoName);
+      setErrorMessage(TRANSLATIONS[lang].alertNoName);
+      setTimeout(() => setErrorMessage(null), 3000);
       return;
     }
     setGameStarted(true);
@@ -1013,11 +1019,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
             }
           }
         } else {
-          alert(TRANSLATIONS[lang].customSearchNoResults);
+          setErrorMessage(TRANSLATIONS[lang].customSearchNoResults);
+          setTimeout(() => setErrorMessage(null), 3000);
         }
       } catch (err) {
         console.error(err);
-        alert(TRANSLATIONS[lang].customSearchNoResults);
+        setErrorMessage(TRANSLATIONS[lang].customSearchNoResults);
+        setTimeout(() => setErrorMessage(null), 3000);
       } finally {
         setSearchLoading(false);
       }

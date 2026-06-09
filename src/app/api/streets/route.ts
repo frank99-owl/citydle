@@ -8,11 +8,11 @@ import path from "path";
 // Lazy-loaded preset cache: loaded on first request, then cached in memory
 const presetCache = new Map<string, any>();
 
-function loadPreset(id: string): any {
+async function loadPreset(id: string): Promise<any> {
   if (presetCache.has(id)) return presetCache.get(id);
   try {
     const filePath = path.join(process.cwd(), "data", "presets", `${id}.json`);
-    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const data = JSON.parse(await fs.promises.readFile(filePath, "utf-8"));
     presetCache.set(id, data);
     return data;
   } catch {
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
     // Check if it matches a preset city (lazy-loaded on first request)
     const presetId = getPresetIdForBounds(bounds);
     if (presetId) {
-      const data = loadPreset(presetId);
+      const data = await loadPreset(presetId);
       if (data) {
         return NextResponse.json({
           streets: data.streets,

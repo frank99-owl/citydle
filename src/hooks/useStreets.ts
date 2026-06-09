@@ -2,7 +2,10 @@ import { useState, useCallback, useRef } from "react";
 import { Street, Bounds } from "@/types";
 import { TRANSLATIONS, Language } from "@/lib/i18n";
 
-export function useStreets(lang: Language) {
+export function useStreets(
+  lang: Language,
+  onError?: (message: string) => void,
+) {
   const [streets, setStreets] = useState<Street[]>([]);
   const [loading, setLoading] = useState(false);
   const [noStreetsFound, setNoStreetsFound] = useState(false);
@@ -26,7 +29,7 @@ export function useStreets(lang: Language) {
         if (currentFetchId !== fetchIdRef.current) return [];
 
         if (data.error) {
-          alert(TRANSLATIONS[lang].alertFetchFail);
+          onError?.(TRANSLATIONS[lang].alertFetchFail);
           return [];
         }
 
@@ -49,7 +52,7 @@ export function useStreets(lang: Language) {
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return [];
         console.error(err);
-        alert(TRANSLATIONS[lang].alertFetchFail);
+        onError?.(TRANSLATIONS[lang].alertFetchFail);
         return [];
       } finally {
         if (currentFetchId === fetchIdRef.current) {
@@ -57,7 +60,7 @@ export function useStreets(lang: Language) {
         }
       }
     },
-    [lang],
+    [lang, onError],
   );
 
   const updateStreetGuessed = useCallback((name: string) => {

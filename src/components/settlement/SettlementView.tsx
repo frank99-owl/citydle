@@ -90,8 +90,12 @@ export function SettlementView({
               }}
             >
               <img
-                src="/achievement_badges_1779288909438.png"
+                src="/achievement_badges.webp"
                 alt={badge.name}
+                loading="lazy"
+                decoding="async"
+                width={1024}
+                height={1024}
                 style={{
                   width: "300%",
                   height: "100%",
