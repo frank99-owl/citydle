@@ -43,6 +43,17 @@ import {
   DailyChallengeRecord,
 } from "@/hooks/useStats";
 
+// Action helpers
+import {
+  getPresetDisplayName,
+  resetForNewGame,
+  transitionToGame,
+  startTimer,
+  triggerStreakConfetti,
+  searchLocation,
+  type GameStartDeps,
+} from "./useGameActions";
+
 // Lobby context: low-frequency data (history, stats, achievements)
 interface LobbyContextValue {
   lang: Language;
@@ -201,16 +212,20 @@ export function useGame() {
 export function GameProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
 
-  // Language state
+  // ============================================================
+  // SECTION 1: State declarations
+  // ============================================================
+
+  // Language
   const [lang, setLang] = useState<Language>("en");
 
-  // Lobby records lists
+  // Lobby records
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [highScore, setHighScore] = useState(0);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [lobbyError, setLobbyError] = useState<string | null>(null);
 
-  // Determine initial states based on query parameters
+  // URL params → initial state
   const hasBoundsParams =
     searchParams.get("south") &&
     searchParams.get("west") &&
@@ -218,7 +233,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     searchParams.get("east");
   const isCustomParam = searchParams.get("custom") === "1";
 
-  // Navigation / View State
+  // View / navigation
   const [view, setView] = useState<View>(
     hasBoundsParams || isCustomParam ? "game" : "lobby",
   );
@@ -226,7 +241,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [gameStarted, setGameStarted] = useState(!!hasBoundsParams);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Active game logic states
+  // Game state
   const [mapName, setMapName] = useState(
     searchParams.get("name") || "Custom Area",
   );
@@ -248,16 +263,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return null;
   });
 
-  // Custom mode location search states
+  // Search
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
-  // Guess feedback states
+  // Feedback
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
   const [directionMessage, setDirectionMessage] = useState<string | null>(null);
 
-  // Initialize hooks
+  // ============================================================
+  // SECTION 2: Hook initialization
+  // ============================================================
   const {
     mapProvider,
     updateMapProvider,
@@ -299,6 +316,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   // Translation accessor (needed early for useEffect)
   const t = TRANSLATIONS[lang];
+
+  // ============================================================
+  // SECTION 3: Effects
+  // ============================================================
 
   // Handle empty streets result
   useEffect(() => {
@@ -548,52 +569,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         bounds,
         lang,
         revealStreet,
-        (streakCount) => {
-          // Dynamic import: canvas-confetti only loaded when actually needed
-          import("canvas-confetti").then(({ default: confetti }) => {
-            if (streakCount >= 20) {
-              confetti({
-                particleCount: 200,
-                spread: 160,
-                startVelocity: 40,
-                origin: { y: 0.5 },
-              });
-              setTimeout(() => {
-                confetti({
-                  particleCount: 120,
-                  angle: 60,
-                  spread: 80,
-                  origin: { x: 0, y: 0.6 },
-                });
-                confetti({
-                  particleCount: 120,
-                  angle: 120,
-                  spread: 80,
-                  origin: { x: 1, y: 0.6 },
-                });
-              }, 200);
-              document.body.style.animation = "none";
-              void document.body.offsetHeight; // force reflow
-              document.body.style.animation = "screen-shake 0.5s ease";
-              setTimeout(() => {
-                document.body.style.animation = "";
-              }, 500);
-            } else if (streakCount >= 10) {
-              confetti({
-                particleCount: 80,
-                spread: 90,
-                startVelocity: 30,
-                origin: { y: 0.6 },
-              });
-            } else {
-              confetti({
-                particleCount: Math.min(30 + streakCount * 10, 80),
-                spread: Math.min(40 + streakCount * 5, 70),
-                origin: { y: 0.6 },
-              });
-            }
-          });
-        },
+        triggerStreakConfetti,
         endGame,
       );
 
@@ -693,127 +669,82 @@ export function GameProvider({ children }: { children: ReactNode }) {
     isDailyChallenge,
   ]);
 
+  // ============================================================
+  // SECTION 4: Action callbacks
+  // ============================================================
+
+  // Shared deps for game start functions
+  const gameStartDeps: GameStartDeps = {
+    lang,
+    setMapName,
+    setCurrentMapId,
+    setCustomMode,
+    setBounds,
+    setShowResult,
+    clearGameHint,
+    clearHint,
+    setErrorMessage,
+    setHintMessage,
+    setDirectionMessage,
+    resetGameTracking,
+    setTotalErrors,
+    setIsDailyChallenge,
+    setGameTimeSeconds,
+    fetchStreets,
+    startGameTimer,
+    gameStartTimeRef,
+    setIsTransitioning,
+    setView,
+    setGameStarted,
+    updateURLParams,
+  };
+
   // Start game with preset
   const startGame = useCallback(
     (preset: (typeof PRESETS)[0]) => {
-      const presetName =
-        lang === "zh"
-          ? preset.name.split(" ")[0]
-          : preset.name.split(" ").slice(1).join(" ") || preset.name;
-      setMapName(presetName);
+      const presetName = getPresetDisplayName(preset, lang);
       setCurrentMapId(preset.id);
       setCustomMode(false);
       setBounds(preset.bounds);
-      setShowResult(false);
-      clearGameHint();
-      clearHint();
-      setErrorMessage(null);
-      setHintMessage(null);
-      setDirectionMessage(null);
-      resetGameTracking();
-      setTotalErrors(0);
       setIsDailyChallenge(false);
-      setGameTimeSeconds(0);
-
-      fetchStreets(preset.bounds);
-      startGameTimer();
-      gameStartTimeRef.current = Date.now();
-
-      setIsTransitioning(true);
-      setView("game");
-      setGameStarted(true);
-
-      updateURLParams({
-        name: presetName,
-        south: preset.bounds.south,
-        west: preset.bounds.west,
-        north: preset.bounds.north,
-        east: preset.bounds.east,
-      });
-
-      setTimeout(() => setIsTransitioning(false), 600);
+      resetForNewGame(gameStartDeps);
+      startTimer(gameStartDeps);
+      transitionToGame(gameStartDeps, presetName, preset.bounds);
     },
-    [
-      lang,
-      clearGameHint,
-      clearHint,
-      fetchStreets,
-      updateURLParams,
-      resetGameTracking,
-      startGameTimer,
-    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking, startGameTimer],
   );
 
   // Start from favorite
   const startFromFavorite = useCallback(
     (fav: Favorite) => {
-      setMapName(fav.name);
       setCurrentMapId("custom");
       setCustomMode(false);
       setBounds(fav.bounds);
-      setShowResult(false);
-      clearGameHint();
-      clearHint();
-      resetGameTracking();
-      setTotalErrors(0);
-
-      fetchStreets(fav.bounds);
-
-      setIsTransitioning(true);
-      setView("game");
-      setGameStarted(true);
-
-      updateURLParams({
-        name: fav.name,
-        south: fav.bounds.south,
-        west: fav.bounds.west,
-        north: fav.bounds.north,
-        east: fav.bounds.east,
-      });
-
-      setTimeout(() => setIsTransitioning(false), 600);
+      resetForNewGame(gameStartDeps);
+      transitionToGame(gameStartDeps, fav.name, fav.bounds);
     },
-    [
-      clearGameHint,
-      clearHint,
-      fetchStreets,
-      updateURLParams,
-      resetGameTracking,
-    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking],
   );
 
   // Start custom area mode
   const startCustomAreaMode = useCallback(() => {
-    setMapName(t.customAreaName);
     setCurrentMapId("custom");
     setCustomMode(true);
     setBounds(null);
     clearStreets();
-    setShowResult(false);
-    clearGameHint();
-    clearHint();
-    resetGameTracking();
+    setGameStarted(false);
+    resetForNewGame(gameStartDeps);
     trackCustomUse();
-    setTotalErrors(0);
-
+    setMapName(t.customAreaName);
     setIsTransitioning(true);
     setView("game");
-    setGameStarted(false);
-
-    updateURLParams({
-      custom: "1",
-      name: t.customAreaName,
-    });
-
+    updateURLParams({ custom: "1", name: t.customAreaName });
     setTimeout(() => setIsTransitioning(false), 600);
   }, [
-    lang,
-    clearStreets,
-    clearGameHint,
-    clearHint,
-    updateURLParams,
-    resetGameTracking,
-    trackCustomUse,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    lang, clearStreets, clearGameHint, clearHint, updateURLParams, resetGameTracking, trackCustomUse,
   ]);
 
   // Handle start custom game
@@ -838,57 +769,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const preset = PRESETS[presetIndex];
       if (!preset) return;
 
-      const presetName =
-        lang === "zh"
-          ? preset.name.split(" ")[0]
-          : preset.name.split(" ").slice(1).join(" ") || preset.name;
-      setMapName(presetName);
+      const presetName = getPresetDisplayName(preset, lang);
       setCurrentMapId(preset.id);
       setCustomMode(false);
       setBounds(preset.bounds);
-      setShowResult(false);
-      clearGameHint();
-      clearHint();
-      setErrorMessage(null);
-      setHintMessage(null);
-      setDirectionMessage(null);
-      resetGameTracking();
-      setTotalErrors(0);
       setIsDailyChallenge(true);
-      setGameTimeSeconds(0);
+      resetForNewGame(gameStartDeps);
 
       if (diff === "easy" || diff === "medium" || diff === "hard") {
         updateDifficulty(diff as Difficulty);
       }
 
-      fetchStreets(preset.bounds);
-      startGameTimer();
-      gameStartTimeRef.current = Date.now();
-
-      setIsTransitioning(true);
-      setView("game");
-      setGameStarted(true);
-
-      updateURLParams({
-        name: presetName,
-        south: preset.bounds.south,
-        west: preset.bounds.west,
-        north: preset.bounds.north,
-        east: preset.bounds.east,
-      });
-
-      setTimeout(() => setIsTransitioning(false), 600);
+      startTimer(gameStartDeps);
+      transitionToGame(gameStartDeps, presetName, preset.bounds);
     },
-    [
-      lang,
-      clearGameHint,
-      clearHint,
-      fetchStreets,
-      updateURLParams,
-      resetGameTracking,
-      startGameTimer,
-      updateDifficulty,
-    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lang, clearGameHint, clearHint, fetchStreets, updateURLParams, resetGameTracking, startGameTimer, updateDifficulty],
   );
 
   // Return to lobby
@@ -998,11 +894,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (!searchQuery.trim()) return;
       setSearchLoading(true);
       try {
-        const res = await fetch(
-          `/api/search?q=${encodeURIComponent(searchQuery)}`,
-        );
-        if (!res.ok) throw new Error("Search failed");
-        const data = await res.json();
+        const data = await searchLocation(searchQuery);
         if (Array.isArray(data) && data.length > 0) {
           const place = data[0];
           trackCitySearch(place.display_name || searchQuery);
@@ -1033,19 +925,23 @@ export function GameProvider({ children }: { children: ReactNode }) {
             }
           }
         } else {
-          setErrorMessage(TRANSLATIONS[lang].customSearchNoResults);
+          setErrorMessage(t.customSearchNoResults);
           setTimeout(() => setErrorMessage(null), 3000);
         }
       } catch (err) {
         console.error(err);
-        setErrorMessage(TRANSLATIONS[lang].customSearchNoResults);
+        setErrorMessage(t.customSearchNoResults);
         setTimeout(() => setErrorMessage(null), 3000);
       } finally {
         setSearchLoading(false);
       }
     },
-    [searchQuery, lang, toMapLatLng, mapRef, trackCitySearch],
+    [searchQuery, lang, toMapLatLng, mapRef, trackCitySearch, t.customSearchNoResults],
   );
+
+  // ============================================================
+  // SECTION 5: Derived values & context assembly
+  // ============================================================
 
   // Calculate badge
   const badge = calculateBadge(streets.length);
