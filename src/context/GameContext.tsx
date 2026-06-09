@@ -297,13 +297,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setErrorMessage(null), 3000);
   });
 
+  // Translation accessor (needed early for useEffect)
+  const t = TRANSLATIONS[lang];
+
   // Handle empty streets result
   useEffect(() => {
     if (noStreetsFound && !loading) {
       setErrorMessage(t.errorNoStreets);
       setTimeout(() => setErrorMessage(null), 3000);
     }
-  }, [noStreetsFound, loading, lang]);
+  }, [noStreetsFound, loading, lang, t.errorNoStreets]);
 
   const tutorial = useTutorial();
 
@@ -364,9 +367,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     resetGame,
     calculateBadge,
   } = useGameLogic();
-
-  // Translation accessor
-  const t = TRANSLATIONS[lang];
 
   // Sync language and settings with localStorage on load
   useEffect(() => {
