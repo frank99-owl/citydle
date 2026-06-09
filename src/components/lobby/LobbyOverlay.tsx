@@ -100,7 +100,7 @@ export function LobbyOverlay({
     <div
       className="lobby-overlay"
       role="dialog"
-      aria-label={lang === "zh" ? "游戏大厅" : "Game lobby"}
+      aria-label={t.gameLobbyLabel}
       aria-modal="true"
       style={{
         position: "fixed",
@@ -235,7 +235,7 @@ export function LobbyOverlay({
               letterSpacing: "0.15em",
             }}
           >
-            🏆 {t.highScore}：{highScore} {lang === "zh" ? "条街道" : "streets"}
+            🏆 {t.highScore}：{highScore} {t.streetsUnit}
           </div>
         )}
       </div>
@@ -269,7 +269,7 @@ export function LobbyOverlay({
 
       {/* History & Favorites Tabs */}
       <section
-        aria-label={lang === "zh" ? "游戏数据" : "Game data"}
+        aria-label={t.gameDataLabel}
         style={{ width: "100%", maxWidth: "900px", zIndex: 1 }}
       >
         <div

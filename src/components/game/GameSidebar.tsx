@@ -113,7 +113,7 @@ export function GameSidebar({
   return (
     <aside
       className="vintage-panel"
-      aria-label={lang === "zh" ? "游戏控制面板" : "Game controls"}
+      aria-label={t.gameControlsLabel}
       style={{
         position: "absolute",
         top: 0,
@@ -157,9 +157,7 @@ export function GameSidebar({
             {t.title}
           </h2>
           <div className="vintage-subtitle" style={{ fontSize: "0.85rem" }}>
-            {lang === "zh"
-              ? "Financial Street Cartographer"
-              : "世界金融中心 Street Guesser"}
+            {t.sidebarSubtitle}
           </div>
         </div>
         <LanguageToggle
@@ -314,13 +312,13 @@ export function GameSidebar({
               style={selectStyle}
             >
               <option value="easy">
-                {lang === "zh" ? "简单难度 (提示)" : "Easy (Hints)"}
+                {t.difficultyEasyOption}
               </option>
               <option value="medium">
-                {lang === "zh" ? "中等难度 (首字母)" : "Medium (Letters)"}
+                {t.difficultyMediumOption}
               </option>
               <option value="hard">
-                {lang === "zh" ? "困难难度 (无提示)" : "Hard (Blind)"}
+                {t.difficultyHardOption}
               </option>
             </select>
             <select
@@ -331,16 +329,16 @@ export function GameSidebar({
               style={selectStyle}
             >
               <option value="cartodb-dark">
-                {lang === "zh" ? "深色纸质" : "Dark Paper"}
+                {t.mapProviderCartoDarkOption}
               </option>
               <option value="cartodb">
-                {lang === "zh" ? "浅色纸质" : "Light Paper"}
+                {t.mapProviderCartoOption}
               </option>
               <option value="osm">
-                {lang === "zh" ? "OpenStreetMap" : "OpenStreetMap"}
+                {t.mapProviderOSMOption}
               </option>
               <option value="amap">
-                {lang === "zh" ? "高德地图" : "Amap"}
+                {t.mapProviderAmapOption}
               </option>
             </select>
           </div>

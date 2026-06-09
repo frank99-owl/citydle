@@ -196,7 +196,7 @@ function GameContent() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={ctx.lang === "zh" ? "确认退出" : "Confirm Exit"}
+          aria-label={TRANSLATIONS[ctx.lang].confirmExitLabel}
           style={{
             position: "fixed",
             inset: 0,
@@ -229,9 +229,7 @@ function GameContent() {
                 lineHeight: 1.5,
               }}
             >
-              {ctx.lang === "zh"
-                ? "确定要退出当前游戏吗？进度将不会保存。"
-                : "Are you sure you want to exit? Progress will not be saved."}
+              {TRANSLATIONS[ctx.lang].exitConfirmBody}
             </p>
             <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
               <button
@@ -239,7 +237,7 @@ function GameContent() {
                 className="vintage-btn"
                 style={{ padding: "0.5rem 1.5rem", fontSize: "0.85rem" }}
               >
-                {ctx.lang === "zh" ? "取消" : "Cancel"}
+                {TRANSLATIONS[ctx.lang].cancelBtn}
               </button>
               <button
                 onClick={ctx.confirmExitToLobby}
@@ -251,7 +249,7 @@ function GameContent() {
                   borderColor: "#8a3324",
                 }}
               >
-                {ctx.lang === "zh" ? "退出" : "Exit"}
+                {TRANSLATIONS[ctx.lang].exitBtn}
               </button>
             </div>
           </div>

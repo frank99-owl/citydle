@@ -84,7 +84,7 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
   ctx.fillStyle = "#8a3324";
   ctx.font = "bold 22px Cinzel, Georgia, serif";
   ctx.textAlign = "center";
-  ctx.fillText("Financial Street Cartographer", W / 2, 58);
+  ctx.fillText(t.shareCardTitle, W / 2, 58);
 
   // City name
   ctx.fillStyle = "#2c2519";
@@ -121,12 +121,12 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
     {
       label: t.maxStreakLabel,
       value: `${data.maxStreak}`,
-      sublabel: isZh ? "连续猜中" : "consecutive",
+      sublabel: t.shareStreakSublabel,
     },
     {
-      label: isZh ? "用时" : "Time",
+      label: t.shareTimeLabel,
       value: formatTime(data.timeSeconds),
-      sublabel: isZh ? "完成时间" : "elapsed",
+      sublabel: t.shareTimeSublabel,
     },
   ];
 
@@ -237,7 +237,7 @@ export async function generateShareImage(data: ShareCardData): Promise<Blob> {
   ctx.fillStyle = "rgba(66,48,35,0.25)";
   ctx.font = "10px Cinzel, Georgia, serif";
   ctx.textAlign = "center";
-  ctx.fillText("Financial Street Cartographer", W / 2, H - 30);
+  ctx.fillText(t.shareCardTitle, W / 2, H - 30);
 
   // Date
   ctx.fillStyle = "rgba(66,48,35,0.2)";

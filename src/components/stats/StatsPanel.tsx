@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { Language } from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
 import { PRESETS } from "@/lib/constants";
 import { PlayerStats } from "@/hooks/useStats";
 
@@ -37,6 +38,8 @@ export const StatsPanel = memo(function StatsPanel({
 }: StatsPanelProps) {
   if (!isVisible) return null;
 
+  const t = TRANSLATIONS[lang];
+
   const avgPerGame =
     stats.totalGamesPlayed > 0
       ? Math.round(stats.totalPlayTime / stats.totalGamesPlayed)
@@ -54,19 +57,19 @@ export const StatsPanel = memo(function StatsPanel({
         }}
       >
         <StatCard
-          label={lang === "zh" ? "游戏次数" : "Games Played"}
+          label={t.gamesPlayed}
           value={String(stats.totalGamesPlayed)}
           emoji="🎮"
           lang={lang}
         />
         <StatCard
-          label={lang === "zh" ? "猜对街道" : "Streets Guessed"}
+          label={t.streetsGuessed}
           value={String(stats.totalStreetsGuessed)}
           emoji="🗺"
           lang={lang}
         />
         <StatCard
-          label={lang === "zh" ? "平均完成率" : "Avg Completion"}
+          label={t.avgCompletion}
           value={
             stats.totalStreetsAttempted > 0
               ? `${(stats.averageCompletionRate * 100).toFixed(1)}%`
@@ -87,13 +90,13 @@ export const StatsPanel = memo(function StatsPanel({
         }}
       >
         <StatCard
-          label={lang === "zh" ? "最高连击" : "Best Streak"}
+          label={t.bestStreakLabel}
           value={`🔥 ${stats.bestStreak}`}
           emoji=""
           lang={lang}
         />
         <StatCard
-          label={lang === "zh" ? "最爱城市" : "Favorite City"}
+          label={t.favoriteCity}
           value={
             stats.favoriteCity
               ? getCityDisplayName(stats.favoriteCity, lang)
@@ -114,13 +117,13 @@ export const StatsPanel = memo(function StatsPanel({
         }}
       >
         <StatCard
-          label={lang === "zh" ? "总游戏时长" : "Total Play Time"}
+          label={t.totalPlayTime}
           value={formatPlayTime(stats.totalPlayTime)}
           emoji="⏱"
           lang={lang}
         />
         <StatCard
-          label={lang === "zh" ? "平均每局" : "Avg per Game"}
+          label={t.avgPerGame}
           value={formatPlayTime(avgPerGame)}
           emoji="📈"
           lang={lang}
@@ -140,7 +143,7 @@ export const StatsPanel = memo(function StatsPanel({
               textTransform: "uppercase",
             }}
           >
-            {lang === "zh" ? "🏙 城市统计" : "City Statistics"}
+            {t.cityStats}
           </h4>
           <table
             style={{
@@ -159,16 +162,16 @@ export const StatsPanel = memo(function StatsPanel({
                 }}
               >
                 <th style={{ textAlign: "left", padding: "0.25rem 0.4rem" }}>
-                  {lang === "zh" ? "城市" : "City"}
+                  {t.statsCity}
                 </th>
                 <th style={{ textAlign: "center", padding: "0.25rem 0.4rem" }}>
-                  {lang === "zh" ? "游玩" : "Played"}
+                  {t.played}
                 </th>
                 <th style={{ textAlign: "center", padding: "0.25rem 0.4rem" }}>
-                  {lang === "zh" ? "通关" : "Cleared"}
+                  {t.cleared}
                 </th>
                 <th style={{ textAlign: "center", padding: "0.25rem 0.4rem" }}>
-                  {lang === "zh" ? "最佳" : "Best"}
+                  {t.best}
                 </th>
               </tr>
             </thead>
@@ -227,9 +230,7 @@ export const StatsPanel = memo(function StatsPanel({
             fontSize: "0.9rem",
           }}
         >
-          {lang === "zh"
-            ? "还没有游戏记录，开始你的第一局吧！"
-            : "No games played yet. Start your first game!"}
+          {t.noStats}
         </div>
       )}
     </div>

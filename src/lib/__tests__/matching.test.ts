@@ -9,6 +9,7 @@ import {
   calculateDirectionHint,
 } from "../matching";
 import { Street, Bounds } from "@/types";
+import { TRANSLATIONS } from "../i18n";
 
 describe("levenshtein", () => {
   it("returns 0 for identical strings", () => {
@@ -92,50 +93,52 @@ describe("normalizeString", () => {
 
 describe("getDirectionLabel", () => {
   describe("English", () => {
+    const t = TRANSLATIONS.en;
     it("returns North for 0 degrees", () => {
-      expect(getDirectionLabel(0, "en")).toBe("North");
+      expect(getDirectionLabel(0, t)).toBe("North");
     });
 
     it("returns East for 90 degrees", () => {
-      expect(getDirectionLabel(90, "en")).toBe("East");
+      expect(getDirectionLabel(90, t)).toBe("East");
     });
 
     it("returns South for 180 degrees", () => {
-      expect(getDirectionLabel(180, "en")).toBe("South");
+      expect(getDirectionLabel(180, t)).toBe("South");
     });
 
     it("returns West for 270 degrees", () => {
-      expect(getDirectionLabel(270, "en")).toBe("West");
+      expect(getDirectionLabel(270, t)).toBe("West");
     });
 
     it("returns Northeast for 45 degrees", () => {
-      expect(getDirectionLabel(45, "en")).toBe("Northeast");
+      expect(getDirectionLabel(45, t)).toBe("Northeast");
     });
 
     it("normalizes negative angles", () => {
-      expect(getDirectionLabel(-90, "en")).toBe("West");
+      expect(getDirectionLabel(-90, t)).toBe("West");
     });
 
     it("normalizes angles > 360", () => {
-      expect(getDirectionLabel(450, "en")).toBe("East");
+      expect(getDirectionLabel(450, t)).toBe("East");
     });
   });
 
   describe("Chinese", () => {
+    const t = TRANSLATIONS.zh;
     it("returns 北 for 0 degrees", () => {
-      expect(getDirectionLabel(0, "zh")).toBe("北");
+      expect(getDirectionLabel(0, t)).toBe("北");
     });
 
     it("returns 东 for 90 degrees", () => {
-      expect(getDirectionLabel(90, "zh")).toBe("东");
+      expect(getDirectionLabel(90, t)).toBe("东");
     });
 
     it("returns 南 for 180 degrees", () => {
-      expect(getDirectionLabel(180, "zh")).toBe("南");
+      expect(getDirectionLabel(180, t)).toBe("南");
     });
 
     it("returns 西北 for 315 degrees", () => {
-      expect(getDirectionLabel(315, "zh")).toBe("西北");
+      expect(getDirectionLabel(315, t)).toBe("西北");
     });
   });
 });

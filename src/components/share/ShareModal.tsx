@@ -138,23 +138,22 @@ export function ShareModal({
 
   const handleTwitter = useCallback(() => {
     const pct = (completionRate * 100).toFixed(1);
-    const text =
-      lang === "zh"
-        ? `我在 Financial Street Cartographer 中探索了 ${cityName}，完成度 ${pct}%，最高连击 ${maxStreak}！🗺️`
-        : `I explored ${cityName} in Financial Street Cartographer with ${pct}% completion and ${maxStreak} streak! 🗺️`;
+    const text = t.shareTwitterText
+      .replace("{cityName}", cityName)
+      .replace("{completion}", pct)
+      .replace("{streak}", String(maxStreak));
     shareToTwitter(text);
-  }, [cityName, completionRate, maxStreak, lang, shareToTwitter]);
+  }, [t.shareTwitterText, cityName, completionRate, maxStreak, shareToTwitter]);
 
   const handleNativeShare = useCallback(async () => {
     if (shareBlob) {
       const pct = (completionRate * 100).toFixed(1);
-      const text =
-        lang === "zh"
-          ? `${cityName} - ${pct}% 完成度 | Financial Street Cartographer`
-          : `${cityName} - ${pct}% completion | Financial Street Cartographer`;
+      const text = t.shareNativeText
+        .replace("{cityName}", cityName)
+        .replace("{completion}", pct);
       await nativeShare(shareBlob, text);
     }
-  }, [shareBlob, cityName, completionRate, lang, nativeShare]);
+  }, [shareBlob, t.shareNativeText, cityName, completionRate, nativeShare]);
 
   if (!isOpen) return null;
 
@@ -162,7 +161,7 @@ export function ShareModal({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={isZh(lang) ? "分享成就" : "Share Achievement"}
+      aria-label={t.shareAchievementLabel}
       style={{
         position: "fixed",
         top: 0,
@@ -196,7 +195,7 @@ export function ShareModal({
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label={isZh(lang) ? "关闭" : "Close"}
+          aria-label={t.closeBtn}
           style={{
             position: "absolute",
             top: "0.75rem",
@@ -230,7 +229,7 @@ export function ShareModal({
             paddingRight: "1.5rem",
           }}
         >
-          {isZh(lang) ? "分享你的成就" : "Share Your Achievement"}
+          {t.shareTitle}
         </h3>
 
         {/* Preview */}
@@ -256,7 +255,7 @@ export function ShareModal({
                 fontStyle: "italic",
               }}
             >
-              {isZh(lang) ? "生成分享卡片中..." : "Generating share card..."}
+              {t.generatingCard}
             </div>
           ) : previewUrl ? (
             <img
@@ -266,7 +265,7 @@ export function ShareModal({
             />
           ) : (
             <div style={{ padding: "2rem", color: "rgba(78,54,41,0.4)" }}>
-              {isZh(lang) ? "预览生成失败" : "Preview generation failed"}
+              {t.previewGenFailed}
             </div>
           )}
         </div>
@@ -281,7 +280,7 @@ export function ShareModal({
             className="vintage-btn"
             style={{ width: "100%", padding: "0.6rem", fontSize: "0.85rem" }}
           >
-            {isZh(lang) ? "💾 保存图片" : "💾 Save Image"}
+            {t.saveImage}
           </button>
 
           <button
@@ -294,13 +293,7 @@ export function ShareModal({
               background: copied ? "#3a5f43" : undefined,
             }}
           >
-            {copied
-              ? isZh(lang)
-                ? "✓ 已复制"
-                : "✓ Copied"
-              : isZh(lang)
-                ? "🔗 复制链接"
-                : "🔗 Copy Link"}
+            {copied ? t.copied : t.copyLink}
           </button>
 
           <button
@@ -308,18 +301,18 @@ export function ShareModal({
             className="vintage-btn"
             style={{ width: "100%", padding: "0.6rem", fontSize: "0.85rem" }}
           >
-            {isZh(lang) ? "🐦 分享到 Twitter" : "🐦 Share on Twitter"}
+            {t.shareTwitter}
           </button>
 
           {/* WeChat: just save image (Chinese users) */}
-          {isZh(lang) && (
+          {lang === "zh" && (
             <button
               onClick={handleDownload}
               disabled={!shareBlob}
               className="vintage-btn"
               style={{ width: "100%", padding: "0.6rem", fontSize: "0.85rem" }}
             >
-              💬 微信（保存图片后分享）
+              {t.shareWechat}
             </button>
           )}
 
@@ -336,7 +329,7 @@ export function ShareModal({
                   fontSize: "0.85rem",
                 }}
               >
-                {isZh(lang) ? "📤 更多分享" : "📤 More Share Options"}
+                {t.moreShareOptions}
               </button>
             )}
         </div>
@@ -345,6 +338,3 @@ export function ShareModal({
   );
 }
 
-function isZh(lang: Language): boolean {
-  return lang === "zh";
-}

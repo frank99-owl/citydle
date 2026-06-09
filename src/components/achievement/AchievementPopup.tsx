@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Achievement, Language } from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 interface AchievementPopupProps {
   achievement: Achievement | null;
@@ -44,6 +45,7 @@ export function AchievementPopup({
   lang,
   onDismiss,
 }: AchievementPopupProps) {
+  const t = TRANSLATIONS[lang];
   const [visible, setVisible] = useState(false);
   const [exiting, setExiting] = useState(false);
   const onDismissRef = useRef(onDismiss);
@@ -193,9 +195,7 @@ export function AchievementPopup({
               textTransform: "uppercase",
             }}
           >
-            {lang === "zh"
-              ? `${tierLabel.zh}成就`
-              : `${tierLabel.en} Achievement`}
+            {t.achievementTierLabel.replace("{tier}", tierLabel[lang])}
           </div>
 
           {/* Icon */}
@@ -248,7 +248,7 @@ export function AchievementPopup({
             letterSpacing: "0.1em",
           }}
         >
-          {lang === "zh" ? "点击任意处继续" : "Click anywhere to continue"}
+          {t.clickToContinue}
         </div>
       </div>
     </div>

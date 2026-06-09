@@ -3,6 +3,7 @@
 import { Language, View } from "@/types";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { useTutorial } from "@/hooks/useTutorial";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 interface LobbyViewProps {
   lang: Language;
@@ -19,6 +20,7 @@ export function LobbyView({
   lobbyError,
   onRetryLobby,
 }: LobbyViewProps) {
+  const t = TRANSLATIONS[lang];
   return (
     <>
       {/* Lobby error banner */}
@@ -77,7 +79,7 @@ export function LobbyView({
             e.currentTarget.style.borderColor = "rgba(197,160,89,0.4)";
           }}
         >
-          {lang === "zh" ? "📖 查看教程" : "📖 View Tutorial"}
+          {t.viewTutorialBtn}
         </button>
       )}
 

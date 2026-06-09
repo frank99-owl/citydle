@@ -3,6 +3,7 @@
 import { memo } from "react";
 import { Language } from "@/types";
 import { PRESETS } from "@/lib/constants";
+import { TRANSLATIONS } from "@/lib/i18n";
 import { DailyChallenge, DailyChallengeRecord } from "@/hooks/useStats";
 
 interface DailyChallengeCardProps {
@@ -39,6 +40,7 @@ export const DailyChallengeCard = memo(function DailyChallengeCard({
 }: DailyChallengeCardProps) {
   if (!dailyChallenge) return null;
 
+  const t = TRANSLATIONS[lang];
   const preset = PRESETS[dailyChallenge.presetIndex];
   const today = new Date();
   const dateStr =
@@ -101,7 +103,7 @@ export const DailyChallengeCard = memo(function DailyChallengeCard({
               marginBottom: "0.5rem",
             }}
           >
-            {lang === "zh" ? "每日挑战" : "Daily Challenge"}
+            {t.dailyChallenge}
           </div>
 
           <div
@@ -178,7 +180,7 @@ export const DailyChallengeCard = memo(function DailyChallengeCard({
                   color: "#c5a059",
                 }}
               >
-                🔥 {dailyStreak} {lang === "zh" ? "天连击" : "day streak"}
+                🔥 {dailyStreak} {t.dayStreak}
               </span>
             )}
           </div>
@@ -199,7 +201,7 @@ export const DailyChallengeCard = memo(function DailyChallengeCard({
                   letterSpacing: "0.1em",
                 }}
               >
-                {lang === "zh" ? "今日已完成" : "COMPLETED TODAY"}
+                {t.completedToday}
               </div>
               <div
                 style={{
@@ -253,7 +255,7 @@ export const DailyChallengeCard = memo(function DailyChallengeCard({
                 e.currentTarget.style.boxShadow = "none";
               }}
             >
-              {lang === "zh" ? "开始挑战" : "Start Challenge"}
+              {t.startChallenge}
             </button>
           )}
         </div>

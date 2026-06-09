@@ -300,11 +300,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Handle empty streets result
   useEffect(() => {
     if (noStreetsFound && !loading) {
-      setErrorMessage(
-        lang === "zh"
-          ? "该区域未找到任何街道，请尝试缩小范围或换个区域。"
-          : "No streets found in this area. Try a smaller region or pick a different one.",
-      );
+      setErrorMessage(t.errorNoStreets);
       setTimeout(() => setErrorMessage(null), 3000);
     }
   }, [noStreetsFound, loading, lang]);
@@ -788,7 +784,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   // Start custom area mode
   const startCustomAreaMode = useCallback(() => {
-    setMapName(lang === "zh" ? "自定义区域" : "Custom Area");
+    setMapName(t.customAreaName);
     setCurrentMapId("custom");
     setCustomMode(true);
     setBounds(null);
@@ -806,7 +802,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     updateURLParams({
       custom: "1",
-      name: lang === "zh" ? "自定义区域" : "Custom Area",
+      name: t.customAreaName,
     });
 
     setTimeout(() => setIsTransitioning(false), 600);

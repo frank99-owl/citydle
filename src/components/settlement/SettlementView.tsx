@@ -228,7 +228,7 @@ export function SettlementView({
                     color: "rgba(66,48,35,0.7)",
                   }}
                 >
-                  {lang === "zh" ? "已用提示" : "Hints Used"}:
+                  {t.hintsUsedLabel}:
                 </td>
                 <td
                   style={{

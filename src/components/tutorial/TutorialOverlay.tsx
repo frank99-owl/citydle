@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Language } from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
 import { TUTORIAL_STEPS } from "@/hooks/useTutorial";
 
 interface TutorialOverlayProps {
@@ -53,6 +54,7 @@ export function TutorialOverlay({
   const steps = TUTORIAL_STEPS[lang];
   const step = steps[currentStep];
   const isLastStep = currentStep >= totalSteps - 1;
+  const t = TRANSLATIONS[lang];
 
   // SVG icons for each step
   const stepIcons = [
@@ -395,9 +397,9 @@ export function TutorialOverlay({
             marginBottom: "0.5rem",
           }}
         >
-          {lang === "zh"
-            ? `第 ${currentStep + 1} 步 / 共 ${totalSteps} 步`
-            : `Step ${currentStep + 1} of ${totalSteps}`}
+          {t.tutorialStepCounter
+            .replace("{current}", String(currentStep + 1))
+            .replace("{total}", String(totalSteps))}
         </div>
 
         {/* Title */}
@@ -453,7 +455,7 @@ export function TutorialOverlay({
                 textTransform: "uppercase",
               }}
             >
-              {lang === "zh" ? "示例流程" : "Example Flow"}
+              {t.tutorialExampleFlow}
             </div>
             <div
               style={{
@@ -463,17 +465,7 @@ export function TutorialOverlay({
                 lineHeight: 1.5,
               }}
             >
-              {lang === "zh" ? (
-                <>
-                  1. 选择「伦敦」城市卡片 → 2. 在输入框输入{" "}
-                  <b>Throgmorton Street</b> → 3. 街道出现在地图上!
-                </>
-              ) : (
-                <>
-                  1. Pick the &quot;London&quot; card → 2. Type{" "}
-                  <b>Throgmorton Street</b> → 3. Street appears on the map!
-                </>
-              )}
+              {t.tutorialExampleText}
             </div>
           </div>
         )}
@@ -490,18 +482,18 @@ export function TutorialOverlay({
           >
             {[
               {
-                label: lang === "zh" ? "简单" : "Easy",
-                desc: lang === "zh" ? "地图高亮" : "Map Highlight",
+                label: t.difficultyEasyShort,
+                desc: t.difficultyEasyDesc,
                 color: "#3a5f43",
               },
               {
-                label: lang === "zh" ? "中等" : "Medium",
-                desc: lang === "zh" ? "首字母提示" : "Letter Clues",
+                label: t.difficultyMediumShort,
+                desc: t.difficultyMediumDesc,
                 color: "#c5a059",
               },
               {
-                label: lang === "zh" ? "困难" : "Hard",
-                desc: lang === "zh" ? "无提示" : "No Hints",
+                label: t.difficultyHardShort,
+                desc: t.difficultyHardDesc,
                 color: "#8a3324",
               },
             ].map((d) => (
@@ -599,7 +591,7 @@ export function TutorialOverlay({
               e.currentTarget.style.color = "rgba(78,54,41,0.5)";
             }}
           >
-            {lang === "zh" ? "跳过" : "Skip"}
+            {t.tutorialSkipBtn}
           </button>
 
           {/* Prev button */}
@@ -625,7 +617,7 @@ export function TutorialOverlay({
                 e.currentTarget.style.borderColor = "rgba(78,54,41,0.3)";
               }}
             >
-              {lang === "zh" ? "上一步" : "Back"}
+              {t.tutorialBackBtn}
             </button>
           )}
 
@@ -661,13 +653,7 @@ export function TutorialOverlay({
               e.currentTarget.style.textShadow = "1px 1px 2px rgba(0,0,0,0.4)";
             }}
           >
-            {isLastStep
-              ? lang === "zh"
-                ? "开始探索"
-                : "Start Exploring"
-              : lang === "zh"
-                ? "下一步"
-                : "Next"}
+            {isLastStep ? t.tutorialStartExploringBtn : t.tutorialNextBtn}
           </button>
         </div>
       </div>

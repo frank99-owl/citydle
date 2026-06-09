@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Achievement, Language } from "@/types";
 import { ACHIEVEMENTS } from "@/lib/constants";
 import { loadUnlocked } from "@/hooks/useAchievements";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 interface AchievementPanelProps {
   lang: Language;
@@ -39,6 +40,7 @@ function formatDate(iso: string, lang: Language): string {
 }
 
 export function AchievementPanel({ lang, isVisible }: AchievementPanelProps) {
+  const t = TRANSLATIONS[lang];
   const [unlockedMap, setUnlockedMap] = useState<Record<string, string>>({});
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
@@ -76,7 +78,7 @@ export function AchievementPanel({ lang, isVisible }: AchievementPanelProps) {
             color: "rgba(244,235,208,0.6)",
           }}
         >
-          {lang === "zh" ? "总进度" : "Overall"}
+          {t.achievementOverallLabel}
         </span>
         <span
           style={{

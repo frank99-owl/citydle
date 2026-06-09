@@ -74,7 +74,7 @@ export const StreetList = memo(function StreetList({
       {/* Filter buttons */}
       <div
         role="group"
-        aria-label={lang === "zh" ? "街道筛选" : "Street filter"}
+        aria-label={t.streetFilterLabel}
         style={{ display: "flex", gap: "0.3rem", marginBottom: "0.5rem" }}
       >
         {filterButtons.map((btn) => (

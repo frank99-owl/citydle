@@ -62,17 +62,17 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
   };
 
   const periodLabels: Record<TimePeriod, string> = {
-    daily: isZh(lang) ? "今日" : "Today",
-    weekly: isZh(lang) ? "本周" : "This Week",
-    all: isZh(lang) ? "全部" : "All Time",
+    daily: t.leaderboardToday,
+    weekly: t.leaderboardWeek,
+    all: t.leaderboardAll,
   };
 
   const cityLabels: Record<string, string> = {
-    "new-york": isZh(lang) ? "纽约" : "New York",
-    london: isZh(lang) ? "伦敦" : "London",
-    tokyo: isZh(lang) ? "东京" : "Tokyo",
-    "hong-kong": isZh(lang) ? "香港" : "Hong Kong",
-    singapore: isZh(lang) ? "新加坡" : "Singapore",
+    "new-york": t.presetNY,
+    london: t.presetLondon,
+    tokyo: t.presetTokyo,
+    "hong-kong": t.presetHK,
+    singapore: t.presetSG,
   };
 
   const getRankDecoration = (index: number): string => {
@@ -110,7 +110,7 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
             minWidth: "80px",
           }}
         >
-          <option value="all">{isZh(lang) ? "全部城市" : "All Cities"}</option>
+          <option value="all">{t.leaderboardAllCities}</option>
           {cities.map((city) => (
             <option key={city} value={city}>
               {cityLabels[city] || city}
@@ -155,7 +155,7 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
             fontSize: "0.8rem",
           }}
         >
-          {isZh(lang) ? "加载中..." : "Loading..."}
+          {t.leaderboardLoading}
         </div>
       ) : entries.length === 0 ? (
         <div
@@ -167,7 +167,7 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
             fontSize: "0.8rem",
           }}
         >
-          {isZh(lang) ? "暂无排行榜数据" : "No leaderboard data yet"}
+          {t.leaderboardEmpty}
         </div>
       ) : (
         <div style={{ overflowX: "auto" }}>
@@ -180,13 +180,13 @@ export function Leaderboard({ lang, isVisible }: LeaderboardProps) {
           >
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(66,48,35,0.2)" }}>
-                <th style={thStyle}>{isZh(lang) ? "排名" : "Rank"}</th>
+                <th style={thStyle}>{t.leaderboardRank}</th>
                 <th style={{ ...thStyle, textAlign: "left" }}>
-                  {isZh(lang) ? "玩家" : "Player"}
+                  {t.leaderboardPlayer}
                 </th>
-                <th style={thStyle}>{isZh(lang) ? "完成率" : "Rate"}</th>
-                <th style={thStyle}>{isZh(lang) ? "连击" : "Streak"}</th>
-                <th style={thStyle}>{isZh(lang) ? "用时" : "Time"}</th>
+                <th style={thStyle}>{t.leaderboardRate}</th>
+                <th style={thStyle}>{t.leaderboardStreak}</th>
+                <th style={thStyle}>{t.leaderboardTime}</th>
               </tr>
             </thead>
             <tbody>
@@ -246,6 +246,3 @@ const tdStyle: React.CSSProperties = {
   color: "#2c2519",
 };
 
-function isZh(lang: Language): boolean {
-  return lang === "zh";
-}

@@ -11,17 +11,10 @@ interface GameStatsProps {
   totalStreets: number;
 }
 
-function getEncouragement(rate: number, lang: Language): string | null {
-  if (rate >= 0.9)
-    return lang === "zh"
-      ? "只差几步即可完美通关！"
-      : "Just a few more to perfect completion!";
-  if (rate >= 0.75)
-    return lang === "zh" ? "即将征服此图！" : "Almost conquered this map!";
-  if (rate >= 0.5)
-    return lang === "zh"
-      ? "已过半程，继续加油！"
-      : "Halfway there, keep going!";
+function getEncouragement(rate: number, t: (typeof TRANSLATIONS)[Language]): string | null {
+  if (rate >= 0.9) return t.encourage90;
+  if (rate >= 0.75) return t.encourage75;
+  if (rate >= 0.5) return t.encourage50;
   return null;
 }
 
@@ -35,7 +28,7 @@ export const GameStats = memo(function GameStats({
   const rate = totalStreets > 0 ? guessedCount / totalStreets : 0;
   const percent = (rate * 100).toFixed(1);
   const remaining = totalStreets - guessedCount;
-  const encouragement = getEncouragement(rate, lang);
+  const encouragement = getEncouragement(rate, t);
 
   return (
     <div

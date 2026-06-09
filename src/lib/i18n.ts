@@ -153,6 +153,67 @@ export const TRANSLATIONS = {
     submitFailed: "提交失败",
     playerNameLabel: "你的昵称",
     playerNamePlaceholder: "输入昵称",
+    // Exit confirmation
+    confirmExitLabel: "确认退出",
+    exitConfirmBody: "确定要退出当前游戏吗？进度将不会保存。",
+    cancelBtn: "取消",
+    exitBtn: "退出",
+    // Common labels
+    closeBtn: "关闭",
+    clickToContinue: "点击任意处继续",
+    // Error messages
+    errorNoStreets: "该区域未找到任何街道，请尝试缩小范围或换个区域。",
+    // Custom area
+    customAreaName: "自定义区域",
+    // Game sidebar
+    gameControlsLabel: "游戏控制面板",
+    sidebarSubtitle: "世界金融中心 Street Guesser",
+    difficultyEasyOption: "简单难度 (提示)",
+    difficultyMediumOption: "中等难度 (首字母)",
+    difficultyHardOption: "困难难度 (无提示)",
+    mapProviderCartoDarkOption: "深色纸质",
+    mapProviderCartoOption: "浅色纸质",
+    mapProviderOSMOption: "OpenStreetMap",
+    mapProviderAmapOption: "高德地图",
+    // Street list
+    streetFilterLabel: "街道筛选",
+    // Tutorial
+    tutorialStepCounter: "第 {current} 步 / 共 {total} 步",
+    tutorialExampleFlow: "示例流程",
+    tutorialExampleText: '1. 选择「伦敦」城市卡片 → 2. 在输入框输入 Throgmorton Street → 3. 街道出现在地图上!',
+    difficultyEasyShort: "简单",
+    difficultyEasyDesc: "地图高亮",
+    difficultyMediumShort: "中等",
+    difficultyMediumDesc: "首字母提示",
+    difficultyHardShort: "困难",
+    difficultyHardDesc: "无提示",
+    tutorialSkipBtn: "跳过",
+    tutorialBackBtn: "上一步",
+    tutorialNextBtn: "下一步",
+    tutorialStartExploringBtn: "开始探索",
+    // Achievement
+    achievementOverallLabel: "总进度",
+    achievementTierLabel: "{tier}成就",
+    // Settlement
+    hintsUsedLabel: "已用提示",
+    // Lobby
+    gameLobbyLabel: "游戏大厅",
+    streetsUnit: "条街道",
+    gameDataLabel: "游戏数据",
+    viewTutorialBtn: "📖 查看教程",
+    // Share modal
+    shareAchievementLabel: "分享成就",
+    previewGenFailed: "预览生成失败",
+    moreShareOptions: "📤 更多分享",
+    shareTwitterText: "我在 Financial Street Cartographer 中探索了 {cityName}，完成度 {completion}%，最高连击 {streak}！🗺️",
+    shareNativeText: "{cityName} - {completion}% 完成度 | Financial Street Cartographer",
+    // Share card
+    shareCardTitle: "Financial Street Cartographer",
+    shareStreakSublabel: "连续猜中",
+    shareTimeLabel: "用时",
+    shareTimeSublabel: "完成时间",
+    // Stats
+    statsCity: "城市",
   },
   en: {
     title: "Financial Street Cartographer",
@@ -309,5 +370,66 @@ export const TRANSLATIONS = {
     submitFailed: "Submit failed",
     playerNameLabel: "Your Name",
     playerNamePlaceholder: "Enter name",
+    // Exit confirmation
+    confirmExitLabel: "Confirm Exit",
+    exitConfirmBody: "Are you sure you want to exit? Progress will not be saved.",
+    cancelBtn: "Cancel",
+    exitBtn: "Exit",
+    // Common labels
+    closeBtn: "Close",
+    clickToContinue: "Click anywhere to continue",
+    // Error messages
+    errorNoStreets: "No streets found in this area. Try a smaller region or pick a different one.",
+    // Custom area
+    customAreaName: "Custom Area",
+    // Game sidebar
+    gameControlsLabel: "Game controls",
+    sidebarSubtitle: "Financial Street Cartographer",
+    difficultyEasyOption: "Easy (Hints)",
+    difficultyMediumOption: "Medium (Letters)",
+    difficultyHardOption: "Hard (Blind)",
+    mapProviderCartoDarkOption: "Dark Paper",
+    mapProviderCartoOption: "Light Paper",
+    mapProviderOSMOption: "OpenStreetMap",
+    mapProviderAmapOption: "Amap",
+    // Street list
+    streetFilterLabel: "Street filter",
+    // Tutorial
+    tutorialStepCounter: "Step {current} of {total}",
+    tutorialExampleFlow: "Example Flow",
+    tutorialExampleText: '1. Pick the "London" card → 2. Type Throgmorton Street → 3. Street appears on the map!',
+    difficultyEasyShort: "Easy",
+    difficultyEasyDesc: "Map Highlight",
+    difficultyMediumShort: "Medium",
+    difficultyMediumDesc: "Letter Clues",
+    difficultyHardShort: "Hard",
+    difficultyHardDesc: "No Hints",
+    tutorialSkipBtn: "Skip",
+    tutorialBackBtn: "Back",
+    tutorialNextBtn: "Next",
+    tutorialStartExploringBtn: "Start Exploring",
+    // Achievement
+    achievementOverallLabel: "Overall",
+    achievementTierLabel: "{tier} Achievement",
+    // Settlement
+    hintsUsedLabel: "Hints Used",
+    // Lobby
+    gameLobbyLabel: "Game lobby",
+    streetsUnit: "streets",
+    gameDataLabel: "Game data",
+    viewTutorialBtn: "📖 View Tutorial",
+    // Share modal
+    shareAchievementLabel: "Share Achievement",
+    previewGenFailed: "Preview generation failed",
+    moreShareOptions: "📤 More Share Options",
+    shareTwitterText: "I explored {cityName} in Financial Street Cartographer with {completion}% completion and {streak} streak! 🗺️",
+    shareNativeText: "{cityName} - {completion}% completion | Financial Street Cartographer",
+    // Share card
+    shareCardTitle: "Financial Street Cartographer",
+    shareStreakSublabel: "consecutive",
+    shareTimeLabel: "Time",
+    shareTimeSublabel: "elapsed",
+    // Stats
+    statsCity: "City",
   },
 };

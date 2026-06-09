@@ -1,4 +1,5 @@
 import { Street, Bounds } from "@/types";
+import { TRANSLATIONS } from "@/lib/i18n";
 
 /**
  * Levenshtein edit distance between two strings.
@@ -52,29 +53,30 @@ export function normalizeString(s: string): string {
     .trim();
 }
 
+export interface DirectionLabels {
+  dirNorth: string;
+  dirSouth: string;
+  dirEast: string;
+  dirWest: string;
+  dirNE: string;
+  dirNW: string;
+  dirSE: string;
+  dirSW: string;
+}
+
 /**
  * Get a compass direction label from an angle in degrees.
  */
-export function getDirectionLabel(angleDeg: number, lang: "zh" | "en"): string {
+export function getDirectionLabel(angleDeg: number, t: DirectionLabels): string {
   const a = ((angleDeg % 360) + 360) % 360;
-  if (lang === "zh") {
-    if (a >= 337.5 || a < 22.5) return "北";
-    if (a >= 22.5 && a < 67.5) return "东北";
-    if (a >= 67.5 && a < 112.5) return "东";
-    if (a >= 112.5 && a < 157.5) return "东南";
-    if (a >= 157.5 && a < 202.5) return "南";
-    if (a >= 202.5 && a < 247.5) return "西南";
-    if (a >= 247.5 && a < 292.5) return "西";
-    return "西北";
-  }
-  if (a >= 337.5 || a < 22.5) return "North";
-  if (a >= 22.5 && a < 67.5) return "Northeast";
-  if (a >= 67.5 && a < 112.5) return "East";
-  if (a >= 112.5 && a < 157.5) return "Southeast";
-  if (a >= 157.5 && a < 202.5) return "South";
-  if (a >= 202.5 && a < 247.5) return "Southwest";
-  if (a >= 247.5 && a < 292.5) return "West";
-  return "Northwest";
+  if (a >= 337.5 || a < 22.5) return t.dirNorth;
+  if (a >= 22.5 && a < 67.5) return t.dirNE;
+  if (a >= 67.5 && a < 112.5) return t.dirEast;
+  if (a >= 112.5 && a < 157.5) return t.dirSE;
+  if (a >= 157.5 && a < 202.5) return t.dirSouth;
+  if (a >= 202.5 && a < 247.5) return t.dirSW;
+  if (a >= 247.5 && a < 292.5) return t.dirWest;
+  return t.dirNW;
 }
 
 /**
@@ -137,5 +139,6 @@ export function calculateDirectionHint(
   const dLng = streetLng - centerLng;
   const angle = Math.atan2(dLng, dLat) * (180 / Math.PI);
 
-  return getDirectionLabel(angle, lang);
+  const { dirNorth, dirSouth, dirEast, dirWest, dirNE, dirNW, dirSE, dirSW } = TRANSLATIONS[lang];
+  return getDirectionLabel(angle, { dirNorth, dirSouth, dirEast, dirWest, dirNE, dirNW, dirSE, dirSW });
 }
