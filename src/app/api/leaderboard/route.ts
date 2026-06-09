@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { verifySignature } from "@/lib/hmac";
 
 export const dynamic = "force-dynamic";
 
@@ -136,7 +135,6 @@ export async function POST(req: NextRequest) {
       completionRate: number;
       maxStreak: number;
       timeSeconds: number;
-      signature?: string;
     };
 
     const {
@@ -147,7 +145,6 @@ export async function POST(req: NextRequest) {
       completionRate,
       maxStreak,
       timeSeconds,
-      signature,
     } = body;
 
     // Validate and sanitize playerName
@@ -179,25 +176,6 @@ export async function POST(req: NextRequest) {
     }
     if (timeSeconds < 0 || timeSeconds > 86400) {
       return NextResponse.json({ error: "Invalid time" }, { status: 400 });
-    }
-
-    // Verify HMAC signature
-    if (signature) {
-      const valid = await verifySignature({
-        city,
-        score,
-        totalStreets,
-        completionRate,
-        maxStreak,
-        timeSeconds,
-        signature,
-      });
-      if (!valid) {
-        return NextResponse.json(
-          { error: "Invalid signature" },
-          { status: 403 },
-        );
-      }
     }
 
     const stmt = db.prepare(

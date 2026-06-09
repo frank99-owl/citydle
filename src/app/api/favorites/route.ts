@@ -63,10 +63,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Sanitize name: trim, strip HTML tags, limit length
+    const safeName = String(name)
+      .trim()
+      .replace(/<[^>]*>/g, "")
+      .slice(0, 100);
+    if (!safeName) {
+      return NextResponse.json({ error: "Invalid name" }, { status: 400 });
+    }
+
     const stmt = db.prepare(
       "INSERT INTO favorite_maps (user_id, name, city_name, bounds) VALUES (1, ?, ?, ?)",
     );
-    const result = stmt.run(name, cityName ?? null, JSON.stringify(bounds)) as {
+    const result = stmt.run(safeName, cityName ?? null, JSON.stringify(bounds)) as {
       lastInsertRowid: number;
     };
 
@@ -93,8 +102,13 @@ export async function DELETE(req: NextRequest) {
     const id = searchParams.get("id");
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
+    const idNum = parseInt(id, 10);
+    if (isNaN(idNum) || idNum <= 0) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+
     db.prepare("DELETE FROM favorite_maps WHERE id = ? AND user_id = 1").run(
-      id,
+      idNum,
     );
     return NextResponse.json({ success: true });
   } catch (err) {

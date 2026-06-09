@@ -50,7 +50,16 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json();
-    return NextResponse.json(data);
+    // Only return necessary fields to avoid forwarding arbitrary Nominatim data
+    const filtered = (data as any[]).map((place) => ({
+      display_name: place.display_name,
+      lat: place.lat,
+      lon: place.lon,
+      boundingbox: place.boundingbox,
+      type: place.type,
+      class: place.class,
+    }));
+    return NextResponse.json(filtered);
   } catch (err: any) {
     console.error("Search API error:", err);
     return NextResponse.json(

@@ -13,7 +13,6 @@ import {
 import { useSearchParams } from "next/navigation";
 
 import { PRESETS } from "@/lib/constants";
-import { signSubmission } from "@/lib/hmac";
 import { TRANSLATIONS, Language } from "@/lib/i18n";
 import {
   Bounds,
@@ -928,11 +927,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
           maxStreak,
           timeSeconds: gameTimeSeconds,
         };
-        const signature = await signSubmission(payload);
         const res = await fetch("/api/leaderboard", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...payload, signature }),
+          body: JSON.stringify(payload),
         });
         return res.ok;
       } catch (err) {
