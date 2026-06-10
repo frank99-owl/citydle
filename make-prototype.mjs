@@ -1,4 +1,4 @@
-// make-prototype.mjs — 每日街图可玩单局交互原型生成器(Citydle 新玩法)。
+// make-prototype.mjs — 城脉(Citydle)可玩单局交互原型生成器。
 // 读取 public/cities/*.json(30 城真实 OSM 数据),生成「刚好一屏、不滚动」的可玩 demo。
 // 玩法:6 层真实线索递进 + 6 选 1。线索全部来自真实数据,没有的就不出现:
 //   1 干道剪影 → 2 +水系海岸 → 3 +次干路网 → 4 +完整路网 → 5 +一条街名 → 6 +国家首字母
@@ -67,7 +67,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>每日街图</title>
+<title>城脉 Citydle</title>
 <style>
   :root{ color-scheme: dark; }
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -104,7 +104,7 @@ const html = `<!doctype html>
 <body>
 <div class="app">
   <header>
-    <span class="brand">每日街图</span>
+    <span class="brand">城脉</span>
     <span class="step" id="step"></span>
   </header>
   <div id="board">
@@ -237,7 +237,7 @@ function newGame(){
   refresh();
 }
 function copy(){
-  const share='每日街图 #'+PNO+'  '+(won?level:'X')+'/'+MAX+'\\n'+resultBlocks()+'\\n'+location.href;
+  const share='城脉 Citydle #'+PNO+'  '+(won?level:'X')+'/'+MAX+'\\n'+resultBlocks()+'\\n'+location.href;
   const ta=document.getElementById('copybuf'); ta.value=share; ta.select();
   let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
   if(navigator.clipboard){ navigator.clipboard.writeText(share).catch(function(){}); ok=true; }

@@ -6,7 +6,7 @@
 
 ---
 
-**Citydle** (中文名：每日街图) is a daily map-reading puzzle. Every day you get one city's real road network — rendered as a parchment-style cartographic silhouette — and you have **6 clues** to figure out which of 6 candidate cities it is. Use fewer clues, score higher.
+**Citydle** (Chinese brand name: 城脉, "city veins") is a daily map-reading puzzle. Every day you get one city's real road network — rendered as a parchment-style cartographic silhouette — and you have **6 clues** to figure out which of 6 candidate cities it is. Use fewer clues, score higher.
 
 Think Wordle, but for geography — and instead of letters, you're reading the bones of a city.
 

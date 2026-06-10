@@ -3,12 +3,12 @@ export type Lang = "zh" | "en";
 
 export const STRINGS = {
   zh: {
-    brand: "每日街图",
+    brand: "城脉",
     clues: ["骨架剪影", "+ 水系与海岸", "+ 次干路网", "+ 完整路网纹理", "+ 一条街名", "+ 国家与首字母"],
     step: (n: number, max: number) => `线索 ${n} / ${max}`,
     puzzleNo: (n: number) => `#${n}`,
     skip: "不确定?看下一条线索 →",
-    obTitle: "每日街图,怎么玩?",
+    obTitle: "城脉,怎么玩?",
     obLines: [
       "每天一座城市,只给你它真实的路网骨架",
       "6 条线索逐层揭示地图,越早猜中,成绩越好",
@@ -32,7 +32,7 @@ export const STRINGS = {
     loading: "正在展开今日地图…",
     loadError: "地图加载失败",
     retry: "重试",
-    shareName: "每日街图",
+    shareName: "城脉 Citydle",
     langToggle: "EN",
   },
   en: {

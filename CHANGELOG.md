@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.3.0] - 2026-06-10 — 100-city library
 
 ### Added
+- Chinese brand name: 城脉 (Citydle stays the master brand; 每日街图 demoted to descriptor)
 - Unlimited practice mode after the daily puzzle (random city, today's answer excluded, daily stats/streak untouched)
 - Fluid all-device responsive layout: clamp()-based type/spacing, landscape>=640px switches to big-board + side-panel, 44px touch targets, notch safe-areas; canvas strokes scale with board size
 - City names shown in the active language only (was mixed 澳门 Macau)
