@@ -103,7 +103,7 @@ Every line you see on screen represents a real road or feature that exists in th
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/citydle.git
+git clone https://github.com/frank99-owl/citydle.git
 cd citydle
 
 # Install dependencies
@@ -142,7 +142,7 @@ No environment variables required — the app is fully static. The data pipeline
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/citydle)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/frank99-owl/citydle)
 
 The app is fully static — no environment variables, no database, no server functions. Any static host works.
 

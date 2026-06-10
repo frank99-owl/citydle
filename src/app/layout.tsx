@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, IM_Fell_English } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -15,7 +16,6 @@ const imFell = IM_Fell_English({
   weight: "400",
 });
 
-const SITE_URL = "https://street-guesser.vercel.app"; // TODO: update with real domain
 
 export const metadata: Metadata = {
   title: "Citydle · 每日街图 — Read the Map, Name the City",

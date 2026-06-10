@@ -106,7 +106,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/citydle.git
+git clone https://github.com/frank99-owl/citydle.git
 cd citydle
 
 # 安装依赖
@@ -147,7 +147,7 @@ npm start
 
 ### Vercel（推荐）
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/citydle)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/frank99-owl/citydle)
 
 应用完全静态——无环境变量、无数据库、无服务端函数，任何静态托管均可部署。
 
