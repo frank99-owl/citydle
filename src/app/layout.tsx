@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, IM_Fell_English } from "next/font/google";
 import "./globals.css";
-import "leaflet/dist/leaflet.css";
-import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 
 const cinzel = Cinzel({
   subsets: ["latin"],
