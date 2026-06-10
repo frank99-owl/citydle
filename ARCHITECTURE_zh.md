@@ -62,7 +62,8 @@ src/lib/citydle/
 
 src/components/citydle/
 ├── Game.tsx         单屏游戏:拉索引+形态+城市数据,
-│                    6 选 1 淘汰、方块分享、彩带、倒计时
+│                    6 选 1 淘汰、方块分享、彩带、倒计时、首访引导;
+│                    全设备流体自适应(竖屏单栏 / 横屏≥640px 双栏,clamp 缩放)
 └── Game.module.css  沧桑制图师美学
 ```
 

@@ -72,6 +72,7 @@ Every line you see on screen represents a real road or feature that exists in th
 | 6-choice elimination mode with morphology-based distractors | ✅ Done |
 | Wordle-style emoji share + daily streak (localStorage) | ✅ Done |
 | Unlimited practice mode after the daily (random city, stats untouched) | ✅ Done |
+| Fluid all-device responsive layout + first-visit onboarding | ✅ Done |
 | Full codebase rebuild — legacy gameplay removed, app is fully static | ✅ Done |
 | Difficulty curve tuning (post-launch, data-driven) | 📋 Planned |
 | Landmark clue (needs OSM POI pipeline support) | 📋 Planned |

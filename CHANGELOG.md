@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Unlimited practice mode after the daily puzzle (random city, today's answer excluded, daily stats/streak untouched)
+- Fluid all-device responsive layout: clamp()-based type/spacing, landscape>=640px switches to big-board + side-panel, 44px touch targets, notch safe-areas; canvas strokes scale with board size
+- City names shown in the active language only (was mixed 澳门 Macau)
+- First-visit onboarding overlay (3 rules, dismissed state persisted); next-clue action upgraded from a small link to a prominent full-width button
 - City library expanded 30 → 100 (Asia/Europe/Americas/Africa-ME/Oceania), all real OSM data, 0 fetch failures, machine QA 0 errors
 - Pipeline fetches multipolygon-relation water bodies (Sydney Harbour fixed: 52 → 161 water segments); country metadata now carried in city JSON + index.json
 - Validator: separate gap thresholds for water/coastline (long straight polygon edges are real geometry)

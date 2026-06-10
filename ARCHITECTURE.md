@@ -63,7 +63,10 @@ src/lib/citydle/
 
 src/components/citydle/
 ├── Game.tsx         single-screen game: fetch index+morphology+city,
-│                    6-choice elimination, share blocks, confetti, countdown
+│                    6-choice elimination, share blocks, confetti,
+│                    countdown, first-visit onboarding overlay;
+│                    fluid responsive (portrait single column /
+│                    landscape>=640px board+side-panel, clamp() type)
 └── Game.module.css  weathered-cartographer aesthetic
 ```
 
