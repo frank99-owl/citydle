@@ -32,11 +32,21 @@ for (const f of files) {
   const d = JSON.parse(fs.readFileSync(path.join(citiesDir, f), "utf8"));
   const byTier = { 1: [], 2: [], 3: [] };
   for (const s of d.streets) for (const seg of s.segments) byTier[s.tier].push(seg);
-  // 无干道的城市(如威尼斯全是步行巷):用最长的真实街道当骨架层,只是选取、不编造
-  if (!byTier[1].length) {
-    const n = Math.max(8, Math.round(d.streets.length * 0.04));
-    const top = [...d.streets].sort((a, b) => b.km - a.km).slice(0, n);
-    byTier[1] = top.flatMap((s) => s.segments);
+  // 线索 1 骨架层 = 全部干道;干道总长不足 30km 的城市(旧金山、多伦多、威尼斯…)
+  // 按 streets 原有排序(tier 升序、km 降序)补足真实街道 —— 只做选取,不编造。
+  // 否则第一条线索近乎空白,违反「难度来自用了几条线索」的设计。
+  const SKELETON_MIN_KM = 30;
+  let skelKm = d.streets.filter((s) => s.tier === 1).reduce((a, s) => a + s.km, 0);
+  if (skelKm < SKELETON_MIN_KM) {
+    const skeleton = [];
+    for (const s of d.streets) {
+      if (s.tier !== 1) {
+        if (skelKm >= SKELETON_MIN_KM) break;
+        skelKm += s.km;
+      }
+      skeleton.push(...s.segments);
+    }
+    byTier[1] = skeleton;
   }
   // 线索 5 的街名:最长的干道(streets 已按 tier 升序、km 降序排好)
   const ns = d.streets[0];
