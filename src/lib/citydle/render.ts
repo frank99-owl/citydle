@@ -44,8 +44,8 @@ function strokeSegs(ctx: CanvasRenderingContext2D, proj: Projector, segs: Seg[],
   }
 }
 
-function outlinedText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
-  ctx.font = "600 13px Georgia, serif";
+function outlinedText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, px: number) {
+  ctx.font = `600 ${px}px Georgia, serif`;
   ctx.textAlign = "center";
   ctx.lineWidth = 3;
   ctx.strokeStyle = "rgba(0,0,0,0.75)";
@@ -78,23 +78,24 @@ export function drawClue(
   ctx.fillStyle = C.bg;
   ctx.fillRect(0, 0, W, H);
 
-  const proj = projector(bbox, W, H, 14);
+  // 画布越大线越粗、字越大——桌面端大画幅保持视觉密度
+  const k = Math.max(1, Math.min(2.2, Math.min(W, H) / 520));
+  const proj = projector(bbox, W, H, 14 * k);
   const lv = Math.min(level, MAX_CLUES);
 
   if (lv >= 2) {
-    strokeSegs(ctx, proj, layers.water, C.water, 1.4);
-    strokeSegs(ctx, proj, layers.coast, C.coast, 1.6);
+    strokeSegs(ctx, proj, layers.water, C.water, 1.4 * k);
+    strokeSegs(ctx, proj, layers.coast, C.coast, 1.6 * k);
   }
-  if (lv >= 4) strokeSegs(ctx, proj, layers.t3, C.faint, 0.6);
-  if (lv >= 3) strokeSegs(ctx, proj, layers.t2, C.mid, 1.0);
-  strokeSegs(ctx, proj, layers.skeleton, C.bright, 1.8);
+  if (lv >= 4) strokeSegs(ctx, proj, layers.t3, C.faint, 0.6 * k);
+  if (lv >= 3) strokeSegs(ctx, proj, layers.t2, C.mid, 1.0 * k);
+  strokeSegs(ctx, proj, layers.skeleton, C.bright, 1.8 * k);
 
   if (lv >= 5 && layers.nameStreet) {
     const [x, y] = proj(layers.nameStreet.at[0], layers.nameStreet.at[1]);
-    outlinedText(ctx, layers.nameStreet.name, x, y - 8);
+    outlinedText(ctx, layers.nameStreet.name, x, y - 8 * k, Math.round(13 * k));
   }
   if (lv >= 6 && hints.countryHint) {
-    ctx.font = "600 14px Georgia, serif";
-    outlinedText(ctx, hints.countryHint, W / 2, 26);
+    outlinedText(ctx, hints.countryHint, W / 2, 26 * k, Math.round(14 * k));
   }
 }

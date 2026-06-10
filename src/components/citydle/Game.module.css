@@ -4,8 +4,10 @@
   width: 100%;
   max-width: 540px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto auto;
+  grid-template-areas: "header" "board" "clue" "blocks" "choices" "skip";
   padding: 14px 16px 14px;
   background: radial-gradient(circle at 30% -8%, #241a10, #0c0805 72%);
   color: #d8c5a0;
@@ -13,6 +15,7 @@
 }
 
 .header {
+  grid-area: header;
   flex: 0 0 auto;
   display: flex;
   align-items: baseline;
@@ -44,6 +47,7 @@
 }
 
 .board {
+  grid-area: board;
   flex: 1 1 auto;
   position: relative;
   min-height: 0;
@@ -60,6 +64,7 @@
 }
 
 .clue {
+  grid-area: clue;
   flex: 0 0 auto;
   text-align: center;
   font-size: 13px;
@@ -67,6 +72,7 @@
   min-height: 18px;
 }
 .blocks {
+  grid-area: blocks;
   flex: 0 0 auto;
   text-align: center;
   font-size: 16px;
@@ -75,6 +81,7 @@
 }
 
 .choices {
+  grid-area: choices;
   flex: 0 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -107,6 +114,7 @@
 }
 
 .skip {
+  grid-area: skip;
   flex: 0 0 auto;
   text-align: center;
   margin-top: 8px;
@@ -217,4 +225,64 @@
   gap: 12px;
   color: #9a8762;
   font-size: 14px;
+}
+
+/* —— PC 端:大画布在左占满全高,操作面板固定宽度在右 —— */
+@media (min-width: 1024px) {
+  .app {
+    max-width: none;
+    padding: 32px 48px;
+    column-gap: 44px;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "board header"
+      "board clue"
+      "board blocks"
+      "board choices"
+      "board skip";
+  }
+  .board {
+    margin: 0;
+    border-radius: 16px;
+  }
+  .header {
+    padding-bottom: 20px;
+  }
+  .brand {
+    font-size: 30px;
+  }
+  .puzzleNo,
+  .step {
+    font-size: 15px;
+  }
+  .clue {
+    font-size: 16px;
+    margin-top: 6px;
+  }
+  .blocks {
+    font-size: 24px;
+    margin: 16px 0 18px;
+  }
+  .choices {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .choiceBtn {
+    font-size: 16px;
+    padding: 13px 14px;
+  }
+  .skip {
+    align-self: start;
+    margin-top: 16px;
+  }
+  .skip a {
+    font-size: 14px;
+  }
+  .ovTitle {
+    font-size: 30px;
+  }
+  .ovBlocks {
+    font-size: 30px;
+  }
 }

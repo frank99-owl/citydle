@@ -117,7 +117,7 @@ export function Game() {
     if (!puzzle || !canvasRef.current) return;
     const country = puzzle.answer.country;
     const countryHint = country
-      ? t.countryHint(lang === "zh" ? `${country.cn} ${country.en}` : country.en, puzzle.answer.en[0])
+      ? t.countryHint(lang === "zh" ? country.cn : country.en, puzzle.answer.en[0])
       : "";
     const drawLevel = phase === "done" ? MAX_CLUES : level;
     drawClue(canvasRef.current, puzzle.bbox, puzzle.layers, drawLevel, { countryHint });
@@ -279,8 +279,8 @@ export function Game() {
             <div className={styles.ovTitle}>{won ? t.won(finalLevel, MAX_CLUES) : t.lost}</div>
             <div className={styles.ovAnswer}>
               {t.answer}
-              {puzzle.answer.cn} {puzzle.answer.en}
-              {country ? ` · ${lang === "zh" ? country.cn : ""} ${country.en}`.trimEnd() : ""}
+              {lang === "zh" ? puzzle.answer.cn : puzzle.answer.en}
+              {country ? ` · ${lang === "zh" ? country.cn : country.en}` : ""}
             </div>
             <div className={styles.ovBlocks}>{resultBlocks(won, finalLevel)}</div>
             {mode === "practice" && <div className={styles.practiceNote}>{t.practiceNote}</div>}
@@ -336,7 +336,7 @@ export function Game() {
               disabled={phase !== "playing" || isWrong}
               onClick={() => pick(c.id)}
             >
-              {c.cn} {c.en}
+              {lang === "zh" ? c.cn : c.en}
             </button>
           );
         })}
