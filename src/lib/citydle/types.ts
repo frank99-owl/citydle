@@ -34,6 +34,8 @@ export interface CityIndexEntry {
   id: string;
   cn: string;
   en: string;
+  /** 国家(事实性元数据,线索 6 与结算页用),由数据管线随 index.json 输出 */
+  country: { cn: string; en: string };
 }
 
 export interface Morph {

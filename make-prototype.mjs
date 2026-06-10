@@ -13,18 +13,6 @@ const citiesDir = path.join(__dirname, "public", "cities");
 const outDir = path.join(__dirname, "prototype");
 fs.mkdirSync(outDir, { recursive: true });
 
-// 展示用元数据(国家是事实性信息,不属于几何数据;待管线拉 POI 时一并迁入城市 JSON)
-const COUNTRY = {
-  "new-york": "美国 USA", "london": "英国 UK", "hong-kong": "中国 China", "singapore": "新加坡 Singapore",
-  "tokyo": "日本 Japan", "paris": "法国 France", "venice": "意大利 Italy", "barcelona": "西班牙 Spain",
-  "washington-dc": "美国 USA", "san-francisco": "美国 USA", "chicago": "美国 USA", "amsterdam": "荷兰 Netherlands",
-  "istanbul": "土耳其 Türkiye", "rome": "意大利 Italy", "sydney": "澳大利亚 Australia", "moscow": "俄罗斯 Russia",
-  "beijing": "中国 China", "shanghai": "中国 China", "bangkok": "泰国 Thailand", "toronto": "加拿大 Canada",
-  "boston": "美国 USA", "vienna": "奥地利 Austria", "berlin": "德国 Germany", "buenos-aires": "阿根廷 Argentina",
-  "vancouver": "加拿大 Canada", "lisbon": "葡萄牙 Portugal", "kyoto": "日本 Japan",
-  "rio-de-janeiro": "巴西 Brazil", "mumbai": "印度 India", "cape-town": "南非 South Africa",
-};
-
 const files = fs.readdirSync(citiesDir).filter((f) => f.endsWith(".json") && f !== "index.json" && f !== "morphology.json");
 const morphology = JSON.parse(fs.readFileSync(path.join(citiesDir, "morphology.json"), "utf8"));
 const cities = {};
@@ -61,7 +49,7 @@ for (const f of files) {
     t1: byTier[1], t2: byTier[2], t3: byTier[3],
     water: d.water, coast: d.coastline,
     nameStreet,
-    country: COUNTRY[d.id] || "",
+    country: d.country ? d.country.cn + " " + d.country.en : "",
     initial: d.en[0],
   };
   const m = morphology[d.id] || { grid: 0, water: "inland" };

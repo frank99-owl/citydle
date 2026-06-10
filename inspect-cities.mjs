@@ -17,7 +17,7 @@ function ds(g, max) {
   return o;
 }
 
-const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && f !== "index.json");
+const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && f !== "index.json" && f !== "morphology.json");
 const cities = files
   .map((f) => {
     const d = JSON.parse(fs.readFileSync(path.join(DIR, f)));

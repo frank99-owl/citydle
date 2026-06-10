@@ -10,8 +10,11 @@ const DIR = path.join(__dirname, "public", "cities");
 
 // 单段内相邻两点间距阈值(km)。OSM 一条 way 内的节点很密,
 // 超过 WARN 多半是稀疏直路/桥,超过 FAIL 基本可断定是拼接出来的假连线。
+// 水系/海岸线单独放宽:大型水体多边形的长直边是真实几何(如底特律河岸 2.3km)。
 const GAP_WARN_KM = 0.8;
 const GAP_FAIL_KM = 2.0;
+const WATER_GAP_WARN_KM = 1.5;
+const WATER_GAP_FAIL_KM = 5.0;
 // 几何裁切边界 = bbox 外扩 10%(与 fetch-cities.mjs 的 CLIP_MARGIN 一致),校验再放宽到 12% 容差
 const BOUND_MARGIN = 0.12;
 const MIN_STREETS_WARN = 50;
@@ -54,7 +57,7 @@ for (const f of files.sort()) {
   const city = d.id || f;
   ids.push(d.id);
 
-  for (const k of ["id", "cn", "en", "bbox", "source", "license", "fetchedAt", "counts", "streets", "water", "coastline"]) {
+  for (const k of ["id", "cn", "en", "country", "bbox", "source", "license", "fetchedAt", "counts", "streets", "water", "coastline"]) {
     if (d[k] === undefined) err(city, "缺少字段 " + k);
   }
   if (d.id !== f.replace(".json", "")) err(city, "id 与文件名不一致: " + f);
@@ -65,6 +68,7 @@ for (const f of files.sort()) {
   const bound = { south: d.bbox.south - mLat, north: d.bbox.north + mLat, west: d.bbox.west - mLng, east: d.bbox.east + mLng };
   const cosLat = Math.cos(((d.bbox.south + d.bbox.north) / 2 / 180) * Math.PI);
   const gaps = { max: 0, where: "" };
+  const waterGaps = { max: 0, where: "" };
 
   if (d.counts.streets !== d.streets.length) err(city, "counts.streets=" + d.counts.streets + " ≠ 实际 " + d.streets.length);
   if (d.counts.water !== d.water.length) err(city, "counts.water=" + d.counts.water + " ≠ 实际 " + d.water.length);
@@ -77,11 +81,13 @@ for (const f of files.sort()) {
     if (s.tier === 1) t1++;
     checkSegments(city, "街道[" + s.name + "]", s.segments || [], bound, cosLat, gaps);
   }
-  checkSegments(city, "水系", d.water, bound, cosLat, gaps);
-  checkSegments(city, "海岸线", d.coastline, bound, cosLat, gaps);
+  checkSegments(city, "水系", d.water, bound, cosLat, waterGaps);
+  checkSegments(city, "海岸线", d.coastline, bound, cosLat, waterGaps);
 
   if (gaps.max > GAP_FAIL_KM) err(city, "段内相邻点间距 " + gaps.max.toFixed(2) + "km @ " + gaps.where + "(疑似拼接假连线)");
   else if (gaps.max > GAP_WARN_KM) warn(city, "段内最大间距 " + gaps.max.toFixed(2) + "km @ " + gaps.where + "(检查是否稀疏桥段)");
+  if (waterGaps.max > WATER_GAP_FAIL_KM) err(city, "水体段内间距 " + waterGaps.max.toFixed(2) + "km @ " + waterGaps.where + "(疑似拼接假连线)");
+  else if (waterGaps.max > WATER_GAP_WARN_KM) warn(city, "水体段内最大间距 " + waterGaps.max.toFixed(2) + "km @ " + waterGaps.where);
   if (d.streets.length < MIN_STREETS_WARN) warn(city, "街道仅 " + d.streets.length + " 条,辨识度可能不足");
   if (t1 === 0) warn(city, "没有 tier 1 干道,线索 1「主干道剪影」会是空白");
 }

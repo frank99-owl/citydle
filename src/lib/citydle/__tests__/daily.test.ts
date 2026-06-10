@@ -58,7 +58,7 @@ describe("pickAnswerId", () => {
 });
 
 describe("pickCandidates", () => {
-  const index: CityIndexEntry[] = IDS.map((id) => ({ id, cn: id, en: id }));
+  const index: CityIndexEntry[] = IDS.map((id) => ({ id, cn: id, en: id, country: { cn: "测", en: "T" } }));
   const morphology: Morphology = Object.fromEntries(
     IDS.map((id, i) => [id, { grid: i / 30, water: i % 2 ? ("coast" as const) : ("river" as const) }]),
   );

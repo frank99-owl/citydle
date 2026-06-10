@@ -7,7 +7,6 @@ import styles from "./Game.module.css";
 import { dayNumber, msToNextPuzzle, pickAnswerId, pickCandidates } from "@/lib/citydle/daily";
 import { buildClueLayers, type ClueLayers } from "@/lib/citydle/clues";
 import { drawClue, MAX_CLUES } from "@/lib/citydle/render";
-import { COUNTRY } from "@/lib/citydle/countries";
 import { STRINGS, type Lang } from "@/lib/citydle/i18n";
 import { loadDayRecord, loadLang, loadStats, saveLang, saveResult, type Stats } from "@/lib/citydle/storage";
 import type { Bbox, CityIndexEntry } from "@/lib/citydle/types";
@@ -111,7 +110,7 @@ export function Game() {
   // 画布:线索层级变化或窗口尺寸变化时重绘;结束后完整揭示(第 6 层)
   const draw = useCallback(() => {
     if (!puzzle || !canvasRef.current) return;
-    const country = COUNTRY[puzzle.answer.id];
+    const country = puzzle.answer.country;
     const countryHint = country
       ? t.countryHint(lang === "zh" ? `${country.cn} ${country.en}` : country.en, puzzle.answer.en[0])
       : "";
@@ -214,7 +213,7 @@ export function Game() {
   }, [lang]);
 
   const shownLevel = Math.min(level, MAX_CLUES);
-  const country = puzzle ? COUNTRY[puzzle.answer.id] : null;
+  const country = puzzle ? puzzle.answer.country : null;
 
   return (
     <main className={styles.app}>
