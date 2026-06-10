@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文版
 
-> 🚧 **重构中** — Citydle 正在从旧版「金融街图志（Financial Street Cartographer）」改建而来。新玩法的可玩原型在 `prototype/` 目录。
+> 每日一题已可在 `/` 完整游玩。旧版「金融街图志」玩法已删除（见 git 历史）。
 
 ---
 
@@ -18,16 +18,18 @@
 
 | 线索 | 显示内容 |
 |------|---------|
-| 第 1 条 | 主干道剪影 |
-| 第 2 条 | + 主路网 / 海岸线 / 河流 |
-| 第 3 条 | + 完整路网纹理（信息量最大、形状个性最强） |
-| 第 4 条 | + 地标位置 |
+| 第 1 条 | 干道骨架剪影（干道稀疏时按长度从真实低层级街道补足） |
+| 第 2 条 | + 水系与海岸线 |
+| 第 3 条 | + 次干路网 |
+| 第 4 条 | + 完整路网纹理（信息量最大、形状个性最强） |
 | 第 5 条 | + 一条街道名 |
 | 第 6 条 | + 国家 / 首字母（兜底，不直接给答案） |
 
-**6 选 1**——从 6 个候选城市里选。难度来自「你用了几条线索」，而不是「前几条几乎是空白」。
+地标线索待管线拉到真实 OSM POI 后加入——绝不编造。
 
-每日同题，制造「今天你猜了吗」的同步感。分享 Wordle 风格方块（计划中）+ 连续天数 streak（计划中）。
+**6 选 1 淘汰制**——6 个候选里有 3 个与答案形态相近（这是难度旋钮）。选错会淘汰该候选**并**消耗一条线索。全球玩家每个 UTC 日同一道题。
+
+每日同题，制造「今天你猜了吗」的同步感。Wordle 风格方块分享 + 连续天数 streak。
 
 ---
 
@@ -60,7 +62,7 @@
 | 选城标准 | 有海岸线、有河流、路网形态独特（网格状、放射状、不规则老城）；排除「哪座城市都长一样」的纯住宅郊区 |
 | 生成方式 | 批量 Overpass pipeline，人工挑城市 + 划定代表性区域，机器拉数据 |
 
-城市库 5 → ~30 的扩充**进行中**。
+
 
 ---
 
@@ -68,16 +70,14 @@
 
 | 功能 | 状态 |
 |------|------|
-| 可玩单局原型（视觉验证） | ✅ 已完成——见 `prototype/` |
-| 城市库扩充 5 → ~30 | 🔄 进行中 |
-| 6 选 1 选择题模式 | 📋 计划中 |
-| Wordle 式方块分享卡 | 📋 计划中 |
-| 每日连续天数追踪 | 📋 计划中 |
-| 难度曲线调优 | 📋 计划中 |
-| 代码完整重构（替换旧玩法核心） | 📋 计划中 |
-| 真持久化 / 反作弊 / 数据分析接入 | 📋 计划中 |
-
-> `src/` 里的源码目前仍是旧版「金融街图志」玩法（拼写街道名）。新 Citydle 玩法的重构尚未开始。`prototype/` 目录是新版概念的可玩原型。
+| 每日一题——全球同题、确定性、30 天内不重复 | ✅ 已完成 |
+| 30 城城市库（真实 OSM 数据 + 机器校验） | ✅ 已完成 |
+| 6 选 1 淘汰模式 + 形态分组干扰项 | ✅ 已完成 |
+| Wordle 式方块分享 + streak（localStorage） | ✅ 已完成 |
+| 代码完整重构——旧玩法已删除，应用全静态 | ✅ 已完成 |
+| 难度曲线调优（上线后按数据） | 📋 计划中 |
+| 地标线索（待管线支持 OSM POI 与 relation 水体） | 📋 计划中 |
+| 数据分析（PostHog）/ 服务端判题 / 反作弊 | 📋 计划中 |
 
 ---
 
@@ -88,11 +88,9 @@
 | **框架** | Next.js 14 (App Router) |
 | **语言** | TypeScript |
 | **样式** | Tailwind CSS + CSS 变量 |
-| **地图** | Leaflet.js |
-| **瓦片** | CARTO Positron（无标签） |
-| **地理编码** | OpenStreetMap Nominatim |
+| **渲染** | 原生 `<canvas>`（不用地图库） |
 | **路网 / 地理数据** | Overpass API（OSM）——4 镜像并发竞速 |
-| **数据库** | SQLite（Node.js 原生 `node:sqlite`） |
+| **持久化** | 仅 localStorage（streak、统计、防重玩） |
 | **字体** | Cinzel（标题）、IM Fell English（正文） |
 
 ---
@@ -120,7 +118,15 @@ npm run dev
 
 在浏览器中打开 [http://localhost:3000](http://localhost:3000)。
 
-> 注意：当前运行的是旧版「金融街图志」玩法。新版 Citydle 概念原型在 `prototype/` 目录。
+### 数据管线
+
+```bash
+node fetch-cities.mjs            # 从 Overpass 重拉 30 城数据
+node validate-cities.mjs         # 机器校验门——每次拉取后必须通过
+node compute-morphology.mjs      # 网格度 + 水系分类 → morphology.json
+node make-prototype.mjs          # 独立可玩 demo → prototype/index.html
+node inspect-cities.mjs          # 全城市视觉抽查 → prototype/inspect.html
+```
 
 ### 生产构建
 
@@ -132,9 +138,8 @@ npm start
 ### 环境变量
 
 本地开发无需任何环境变量。应用使用：
-- 本地 SQLite 数据库（自动创建在 `data/` 目录）
+
 - 公共 Overpass API 镜像
-- 公共 Nominatim API
 
 ---
 
@@ -144,7 +149,7 @@ npm start
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/citydle)
 
-**注意**：Vercel 无服务器环境下 SQLite 会复制到 `/tmp`，冷启动时数据重置。如需持久化，可考虑 Vercel Postgres、Turso 或 PlanetScale。
+应用完全静态——无环境变量、无数据库、无服务端函数，任何静态托管均可部署。
 
 ### Docker
 
@@ -193,6 +198,4 @@ MIT
 
 - [OpenStreetMap](https://www.openstreetmap.org/) 贡献者提供所有地理数据
 - [Overpass API](https://overpass-api.de/) 提供路网与地理特征查询
-- [CARTO](https://carto.com/) 提供无标签瓦片样式
-- [Leaflet.js](https://leafletjs.com/) 提供交互式地图引擎
 - [Wordle](https://www.nytimes.com/games/wordle/index.html) 提供每日谜题格式的灵感

@@ -4,7 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.2.0] - 2026-06-10 — Citydle pivot
+
+The project pivoted from "Financial Street Cartographer" (spell street names on a map) to **Citydle / 每日街图** (identify a city from its real map skeleton, daily). See `CONCEPT.md`.
+
+### Added
+- **Data pipeline**: `fetch-cities.mjs` — 30-city library from Overpass/OSM; per-way segments (no phantom joins), highway tiers, bounded clipping with true line–box intersections, disk-rebuilt index, mirror retry
+- **QA gate**: `validate-cities.mjs` — segment continuity / bounds / tier / counts / index checks; 0 errors across 30 cities
+- **Morphology**: `compute-morphology.mjs` — street-orientation entropy (grid score) + water class; drives distractor similarity (the difficulty dial)
+- **Daily game** (`src/lib/citydle/`, `src/components/citydle/`): deterministic worldwide puzzle (seeded by UTC day, no repeats within 30 days), 6 honest clue layers, 6-choice elimination, emoji-block share, streak + stats in localStorage, anti-replay, zh/en, win confetti
+- **Prototype**: `make-prototype.mjs` regenerated demo on the 30-city library; `inspect-cities.mjs` all-city visual QA sheet
+
+### Changed
+- City data served statically from `public/cities/` — the app is now fully static (no API routes, no database)
+- `globals.css` trimmed to the dark weathered-cartographer base
+- Docs (README, ARCHITECTURE, CONCEPT) rewritten for the new architecture
+
+### Removed
+- Entire legacy gameplay (−11k lines): 6 API routes, SQLite layer, rate limiter, GameContext + 9 hooks + 10 component groups, achievements, leaderboard, custom areas, old presets
+- Dependencies: leaflet, @geoman-io/leaflet-geoman-free, @types/leaflet
+
+## [0.1.0] — Financial Street Cartographer (legacy, removed in 0.2.0)
 
 ### Added
 - **GameContext**: Extracted all game state and logic from page.tsx into `context/GameContext.tsx` (page.tsx 955→180 lines, GameContext.tsx ~990 lines)

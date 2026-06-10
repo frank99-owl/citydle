@@ -2,7 +2,7 @@
 
 [中文版](README_zh.md) | English
 
-> 🚧 **Work in progress** — Citydle is being rebuilt from the old "Financial Street Cartographer". The playable concept prototype lives in `prototype/`.
+> The daily game is fully playable at `/`. The legacy "Financial Street Cartographer" gameplay has been removed (see git history).
 
 ---
 
@@ -18,16 +18,18 @@ Each puzzle reveals the same city's road network in progressive layers:
 
 | Clue | What you see |
 |------|-------------|
-| 1 | Major arterial silhouette |
-| 2 | + Main road network / coastline / rivers |
-| 3 | + Full road texture (most distinctive layer) |
-| 4 | + Landmark positions |
+| 1 | Arterial skeleton (filled from real lower-tier streets if arterials are sparse) |
+| 2 | + Water & coastline |
+| 3 | + Secondary roads |
+| 4 | + Full street texture (most distinctive layer) |
 | 5 | + One street name |
 | 6 | + Country / first letter (last resort, not the answer itself) |
 
-**6-choice multiple select** — pick from 6 candidate cities. Difficulty comes from *how few clues you needed*, not from a blank canvas.
+A landmark clue will join the ladder once the pipeline fetches real OSM POIs — never fabricated.
 
-Share your result as a Wordle-style emoji grid (planned) + track your daily streak (planned).
+**6-choice elimination** — pick from 6 candidates (3 of them morphologically similar to the answer: that's the difficulty dial). A wrong pick eliminates the candidate *and* burns a clue. Same puzzle for everyone worldwide, every UTC day.
+
+Share your result as a Wordle-style emoji grid + track your daily streak.
 
 ---
 
@@ -55,12 +57,9 @@ Every line you see on screen represents a real road or feature that exists in th
 
 | Status | Details |
 |--------|---------|
-| Current prototype | 5 cities (New York, London, Tokyo, Hong Kong, Singapore) |
-| MVP target | ~30 high-distinctiveness world cities — enough for 1–2 months of daily puzzles without repeats |
+| Library | **30 high-distinctiveness world cities** — one full month of daily puzzles without repeats |
 | Selection criteria | Cities with coastline, rivers, or uniquely shaped road networks (grid, radial, irregular old town); generic suburban grids are excluded |
-| Generation pipeline | Batch Overpass queries, human-curated bounding boxes, machine-fetched data |
-
-Expanding the city library from 5 → ~30 is **in progress**.
+| Generation pipeline | `fetch-cities.mjs` (Overpass, curated bboxes) → `validate-cities.mjs` (machine QA gate, 0 errors) → `compute-morphology.mjs` (grid score + water class for distractor similarity) |
 
 ---
 
@@ -68,16 +67,14 @@ Expanding the city library from 5 → ~30 is **in progress**.
 
 | Feature | Status |
 |---------|--------|
-| Prototype (visual proof-of-concept, single session) | ✅ Done — see `prototype/` |
-| City library 5 → ~30 | 🔄 In progress |
-| 6-choice multiple-select mode | 📋 Planned |
-| Wordle-style emoji share card | 📋 Planned |
-| Daily streak tracking | 📋 Planned |
-| Difficulty curve tuning | 📋 Planned |
-| Full codebase rebuild (replacing old gameplay) | 📋 Planned |
-| Persistent storage / anti-cheat / analytics | 📋 Planned |
-
-> The source code in `src/` currently reflects the old "Financial Street Cartographer" gameplay (spelling street names). The rebuild has not started yet. The `prototype/` directory contains the new Citydle concept.
+| Daily puzzle — deterministic, same worldwide, no repeats within 30 days | ✅ Done |
+| 30-city library with machine-validated real OSM data | ✅ Done |
+| 6-choice elimination mode with morphology-based distractors | ✅ Done |
+| Wordle-style emoji share + daily streak (localStorage) | ✅ Done |
+| Full codebase rebuild — legacy gameplay removed, app is fully static | ✅ Done |
+| Difficulty curve tuning (post-launch, data-driven) | 📋 Planned |
+| Landmark clue (needs OSM POI + relation-water pipeline support) | 📋 Planned |
+| Analytics (PostHog) / server-side judging / anti-cheat | 📋 Planned |
 
 ---
 
@@ -85,14 +82,12 @@ Expanding the city library from 5 → ~30 is **in progress**.
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | Next.js 14 (App Router) |
+| **Framework** | Next.js 14 (App Router) — fully static output, zero server code |
 | **Language** | TypeScript |
-| **Styling** | Tailwind CSS + CSS Variables |
-| **Map** | Leaflet.js |
-| **Tiles** | CARTO Positron (label-free) |
-| **Geocoding** | OpenStreetMap Nominatim |
-| **Road / Feature Data** | Overpass API (OSM) — 4 mirrors, parallel racing |
-| **Database** | SQLite (Node.js native `node:sqlite`) |
+| **Styling** | Tailwind base + CSS Modules |
+| **Rendering** | Raw `<canvas>` (no map library) |
+| **Road / Feature Data** | Overpass API (OSM) — offline pipeline, 4 mirrors raced, data committed to `public/cities/` |
+| **Persistence** | localStorage only (streak, stats, anti-replay) |
 | **Fonts** | Cinzel (display), IM Fell English (body) |
 
 ---
@@ -120,7 +115,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-> Note: the running app is the old Financial Street Cartographer gameplay. The new Citydle concept prototype is in `prototype/`.
+### Data pipeline
+
+```bash
+node fetch-cities.mjs            # refetch the 30-city library from Overpass
+node validate-cities.mjs         # machine QA gate — must pass after every fetch
+node compute-morphology.mjs      # grid score + water class → morphology.json
+node make-prototype.mjs          # standalone playable demo → prototype/index.html
+node inspect-cities.mjs          # all-city visual QA sheet → prototype/inspect.html
+```
 
 ### Production Build
 
@@ -131,10 +134,7 @@ npm start
 
 ### Environment Variables
 
-No environment variables required for local development. The app uses:
-- Local SQLite database (auto-created in `data/`)
-- Public Overpass API mirrors
-- Public Nominatim API
+No environment variables required — the app is fully static. The data pipeline scripts use public Overpass API mirrors.
 
 ---
 
@@ -144,7 +144,7 @@ No environment variables required for local development. The app uses:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/citydle)
 
-**Note**: SQLite is copied to `/tmp` on Vercel serverless — data resets on cold starts. For persistence consider Vercel Postgres, Turso, or PlanetScale.
+The app is fully static — no environment variables, no database, no server functions. Any static host works.
 
 ### Docker
 
@@ -193,6 +193,4 @@ MIT
 
 - [OpenStreetMap](https://www.openstreetmap.org/) contributors for all geographic data
 - [Overpass API](https://overpass-api.de/) for road network and feature queries
-- [CARTO](https://carto.com/) for label-free tile styles
-- [Leaflet.js](https://leafletjs.com/) for the interactive map engine
 - [Wordle](https://www.nytimes.com/games/wordle/index.html) for the daily-puzzle format inspiration
