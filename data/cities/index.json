@@ -1,0 +1,482 @@
+[
+  {
+    "id": "amsterdam",
+    "cn": "阿姆斯特丹",
+    "en": "Amsterdam",
+    "feature": "同心运河",
+    "counts": {
+      "streets": 666,
+      "water": 780,
+      "coastline": 0,
+      "tiers": {
+        "t1": 15,
+        "t2": 52,
+        "t3": 599
+      }
+    }
+  },
+  {
+    "id": "bangkok",
+    "cn": "曼谷",
+    "en": "Bangkok",
+    "feature": "湄南河弯",
+    "counts": {
+      "streets": 383,
+      "water": 160,
+      "coastline": 0,
+      "tiers": {
+        "t1": 13,
+        "t2": 62,
+        "t3": 308
+      }
+    }
+  },
+  {
+    "id": "barcelona",
+    "cn": "巴塞罗那",
+    "en": "Barcelona",
+    "feature": "Eixample 网格",
+    "counts": {
+      "streets": 785,
+      "water": 26,
+      "coastline": 4,
+      "tiers": {
+        "t1": 13,
+        "t2": 78,
+        "t3": 694
+      }
+    }
+  },
+  {
+    "id": "beijing",
+    "cn": "北京",
+    "en": "Beijing",
+    "feature": "棋盘+故宫",
+    "counts": {
+      "streets": 170,
+      "water": 29,
+      "coastline": 0,
+      "tiers": {
+        "t1": 21,
+        "t2": 55,
+        "t3": 94
+      }
+    }
+  },
+  {
+    "id": "berlin",
+    "cn": "柏林",
+    "en": "Berlin",
+    "feature": "施普雷河",
+    "counts": {
+      "streets": 351,
+      "water": 55,
+      "coastline": 0,
+      "tiers": {
+        "t1": 35,
+        "t2": 76,
+        "t3": 240
+      }
+    }
+  },
+  {
+    "id": "boston",
+    "cn": "波士顿",
+    "en": "Boston",
+    "feature": "不规则老城+查尔斯河",
+    "counts": {
+      "streets": 468,
+      "water": 43,
+      "coastline": 22,
+      "tiers": {
+        "t1": 60,
+        "t2": 57,
+        "t3": 351
+      }
+    }
+  },
+  {
+    "id": "buenos-aires",
+    "cn": "布宜诺斯艾利斯",
+    "en": "Buenos Aires",
+    "feature": "网格",
+    "counts": {
+      "streets": 143,
+      "water": 11,
+      "coastline": 6,
+      "tiers": {
+        "t1": 14,
+        "t2": 44,
+        "t3": 85
+      }
+    }
+  },
+  {
+    "id": "cape-town",
+    "cn": "开普敦",
+    "en": "Cape Town",
+    "feature": "海岸+桌山",
+    "counts": {
+      "streets": 329,
+      "water": 18,
+      "coastline": 10,
+      "tiers": {
+        "t1": 13,
+        "t2": 36,
+        "t3": 280
+      }
+    }
+  },
+  {
+    "id": "chicago",
+    "cn": "芝加哥",
+    "en": "Chicago",
+    "feature": "Loop 网格+湖滨",
+    "counts": {
+      "streets": 180,
+      "water": 63,
+      "coastline": 0,
+      "tiers": {
+        "t1": 11,
+        "t2": 119,
+        "t3": 50
+      }
+    }
+  },
+  {
+    "id": "hong-kong",
+    "cn": "香港",
+    "en": "Hong Kong",
+    "feature": "中环+维港",
+    "counts": {
+      "streets": 226,
+      "water": 31,
+      "coastline": 34,
+      "tiers": {
+        "t1": 24,
+        "t2": 76,
+        "t3": 126
+      }
+    }
+  },
+  {
+    "id": "istanbul",
+    "cn": "伊斯坦布尔",
+    "en": "Istanbul",
+    "feature": "金角湾+海峡",
+    "counts": {
+      "streets": 1351,
+      "water": 15,
+      "coastline": 33,
+      "tiers": {
+        "t1": 36,
+        "t2": 106,
+        "t3": 1209
+      }
+    }
+  },
+  {
+    "id": "kyoto",
+    "cn": "京都",
+    "en": "Kyoto",
+    "feature": "古都棋盘",
+    "counts": {
+      "streets": 149,
+      "water": 98,
+      "coastline": 0,
+      "tiers": {
+        "t1": 10,
+        "t2": 33,
+        "t3": 106
+      }
+    }
+  },
+  {
+    "id": "lisbon",
+    "cn": "里斯本",
+    "en": "Lisbon",
+    "feature": "丘陵+塔霍河",
+    "counts": {
+      "streets": 823,
+      "water": 40,
+      "coastline": 6,
+      "tiers": {
+        "t1": 21,
+        "t2": 89,
+        "t3": 713
+      }
+    }
+  },
+  {
+    "id": "london",
+    "cn": "伦敦",
+    "en": "London",
+    "feature": "金融城+泰晤士河",
+    "counts": {
+      "streets": 1034,
+      "water": 50,
+      "coastline": 0,
+      "tiers": {
+        "t1": 94,
+        "t2": 59,
+        "t3": 881
+      }
+    }
+  },
+  {
+    "id": "moscow",
+    "cn": "莫斯科",
+    "en": "Moscow",
+    "feature": "放射环线+红场",
+    "counts": {
+      "streets": 355,
+      "water": 32,
+      "coastline": 0,
+      "tiers": {
+        "t1": 26,
+        "t2": 77,
+        "t3": 252
+      }
+    }
+  },
+  {
+    "id": "mumbai",
+    "cn": "孟买",
+    "en": "Mumbai",
+    "feature": "半岛海岸",
+    "counts": {
+      "streets": 200,
+      "water": 1,
+      "coastline": 7,
+      "tiers": {
+        "t1": 17,
+        "t2": 57,
+        "t3": 126
+      }
+    }
+  },
+  {
+    "id": "new-york",
+    "cn": "纽约",
+    "en": "New York",
+    "feature": "下城网格+海岸",
+    "counts": {
+      "streets": 227,
+      "water": 50,
+      "coastline": 24,
+      "tiers": {
+        "t1": 38,
+        "t2": 30,
+        "t3": 159
+      }
+    }
+  },
+  {
+    "id": "paris",
+    "cn": "巴黎",
+    "en": "Paris",
+    "feature": "塞纳河+西岱岛+放射",
+    "counts": {
+      "streets": 948,
+      "water": 122,
+      "coastline": 0,
+      "tiers": {
+        "t1": 49,
+        "t2": 115,
+        "t3": 784
+      }
+    }
+  },
+  {
+    "id": "rio-de-janeiro",
+    "cn": "里约热内卢",
+    "en": "Rio de Janeiro",
+    "feature": "海岸+山",
+    "counts": {
+      "streets": 279,
+      "water": 21,
+      "coastline": 7,
+      "tiers": {
+        "t1": 38,
+        "t2": 55,
+        "t3": 186
+      }
+    }
+  },
+  {
+    "id": "rome",
+    "cn": "罗马",
+    "en": "Rome",
+    "feature": "古城+台伯河",
+    "counts": {
+      "streets": 1082,
+      "water": 133,
+      "coastline": 0,
+      "tiers": {
+        "t1": 46,
+        "t2": 161,
+        "t3": 875
+      }
+    }
+  },
+  {
+    "id": "san-francisco",
+    "cn": "旧金山",
+    "en": "San Francisco",
+    "feature": "海湾+网格",
+    "counts": {
+      "streets": 203,
+      "water": 13,
+      "coastline": 6,
+      "tiers": {
+        "t1": 7,
+        "t2": 62,
+        "t3": 134
+      }
+    }
+  },
+  {
+    "id": "shanghai",
+    "cn": "上海",
+    "en": "Shanghai",
+    "feature": "外滩+黄浦江",
+    "counts": {
+      "streets": 226,
+      "water": 40,
+      "coastline": 0,
+      "tiers": {
+        "t1": 16,
+        "t2": 60,
+        "t3": 150
+      }
+    }
+  },
+  {
+    "id": "singapore",
+    "cn": "新加坡",
+    "en": "Singapore",
+    "feature": "滨海湾",
+    "counts": {
+      "streets": 225,
+      "water": 43,
+      "coastline": 4,
+      "tiers": {
+        "t1": 42,
+        "t2": 47,
+        "t3": 136
+      }
+    }
+  },
+  {
+    "id": "sydney",
+    "cn": "悉尼",
+    "en": "Sydney",
+    "feature": "海港+环形码头",
+    "counts": {
+      "streets": 312,
+      "water": 52,
+      "coastline": 0,
+      "tiers": {
+        "t1": 37,
+        "t2": 38,
+        "t3": 237
+      }
+    }
+  },
+  {
+    "id": "tokyo",
+    "cn": "东京",
+    "en": "Tokyo",
+    "feature": "丸之内+皇居",
+    "counts": {
+      "streets": 167,
+      "water": 50,
+      "coastline": 0,
+      "tiers": {
+        "t1": 35,
+        "t2": 56,
+        "t3": 76
+      }
+    }
+  },
+  {
+    "id": "toronto",
+    "cn": "多伦多",
+    "en": "Toronto",
+    "feature": "网格+安大略湖",
+    "counts": {
+      "streets": 243,
+      "water": 35,
+      "coastline": 0,
+      "tiers": {
+        "t1": 10,
+        "t2": 49,
+        "t3": 184
+      }
+    }
+  },
+  {
+    "id": "vancouver",
+    "cn": "温哥华",
+    "en": "Vancouver",
+    "feature": "半岛+网格",
+    "counts": {
+      "streets": 149,
+      "water": 36,
+      "coastline": 34,
+      "tiers": {
+        "t1": 12,
+        "t2": 53,
+        "t3": 84
+      }
+    }
+  },
+  {
+    "id": "venice",
+    "cn": "威尼斯",
+    "en": "Venice",
+    "feature": "运河迷宫",
+    "counts": {
+      "streets": 2081,
+      "water": 377,
+      "coastline": 0,
+      "tiers": {
+        "t1": 0,
+        "t2": 0,
+        "t3": 2081
+      }
+    }
+  },
+  {
+    "id": "vienna",
+    "cn": "维也纳",
+    "en": "Vienna",
+    "feature": "环城大道",
+    "counts": {
+      "streets": 678,
+      "water": 35,
+      "coastline": 0,
+      "tiers": {
+        "t1": 24,
+        "t2": 108,
+        "t3": 546
+      }
+    }
+  },
+  {
+    "id": "washington-dc",
+    "cn": "华盛顿",
+    "en": "Washington DC",
+    "feature": "放射+网格",
+    "counts": {
+      "streets": 157,
+      "water": 80,
+      "coastline": 0,
+      "tiers": {
+        "t1": 65,
+        "t2": 40,
+        "t3": 52
+      }
+    }
+  }
+]
