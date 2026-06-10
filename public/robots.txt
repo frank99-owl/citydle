@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://citydle.vercel.app/sitemap.xml
+Sitemap: https://citydle-henna.vercel.app/sitemap.xml
