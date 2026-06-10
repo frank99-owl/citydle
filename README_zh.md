@@ -70,13 +70,13 @@
 
 | 功能 | 状态 |
 |------|------|
-| 每日一题——全球同题、确定性、30 天内不重复 | ✅ 已完成 |
-| 30 城城市库（真实 OSM 数据 + 机器校验） | ✅ 已完成 |
+| 每日一题——全球同题、确定性、一轮城市库内不重复 | ✅ 已完成 |
+| 100 城城市库（真实 OSM 数据 + relation 水体 + 机器校验） | ✅ 已完成 |
 | 6 选 1 淘汰模式 + 形态分组干扰项 | ✅ 已完成 |
 | Wordle 式方块分享 + streak（localStorage） | ✅ 已完成 |
 | 代码完整重构——旧玩法已删除，应用全静态 | ✅ 已完成 |
 | 难度曲线调优（上线后按数据） | 📋 计划中 |
-| 地标线索（待管线支持 OSM POI 与 relation 水体） | 📋 计划中 |
+| 地标线索（待管线支持 OSM POI） | 📋 计划中 |
 | 数据分析（PostHog）/ 服务端判题 / 反作弊 | 📋 计划中 |
 
 ---
@@ -121,7 +121,7 @@ npm run dev
 ### 数据管线
 
 ```bash
-node fetch-cities.mjs            # 从 Overpass 重拉 30 城数据
+node fetch-cities.mjs            # 从 Overpass 重拉 100 城数据
 node validate-cities.mjs         # 机器校验门——每次拉取后必须通过
 node compute-morphology.mjs      # 网格度 + 水系分类 → morphology.json
 node make-prototype.mjs          # 独立可玩 demo → prototype/index.html

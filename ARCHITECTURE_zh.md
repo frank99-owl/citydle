@@ -45,7 +45,7 @@
 
 `compute-morphology.mjs` —— 每城街道方向熵(Boeing 方法)→ `grid` 网格度 0–1,加水系分类(coast/river/inland)→ `public/cities/morphology.json`,驱动干扰项相似度。
 
-已知局限:只拉 OSM way,multipolygon relation 形式的水体缺失(如悉尼港),待管线支持 relation。
+multipolygon relation 形式的水体(如悉尼港)通过 bbox 过滤的成员 way 拉取,按 way id 去重。
 
 ## 3. 游戏运行时(`src/`)
 
@@ -53,13 +53,12 @@
 src/lib/citydle/
 ├── types.ts      城市数据 / 索引 / 形态类型
 ├── daily.ts      UTC 期数;种子 PRNG(mulberry32);
-│                 答案 = 按轮洗牌(30 天内不重题);
+│                 答案 = 按轮洗牌(一轮城市库内不重题);
 │                 候选 = 3 个形态最近 + 2 个种子随机
 ├── clues.ts      6 层真实线索;干道 <30km 时从低层级补足(只选取,不编造)
 ├── render.ts     Canvas 渲染;按精选 bbox 取景;羊皮纸+暖金
 ├── storage.ts    localStorage:当日成绩、统计、streak、语言
-├── i18n.ts       约 20 条界面文案,中英
-└── countries.ts  城市 → 国家(线索 6),事实性元数据
+└── i18n.ts       约 20 条界面文案,中英(国家名来自 index.json)
 
 src/components/citydle/
 ├── Game.tsx         单屏游戏:拉索引+形态+城市数据,

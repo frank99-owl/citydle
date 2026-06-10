@@ -57,7 +57,7 @@ Every line you see on screen represents a real road or feature that exists in th
 
 | Status | Details |
 |--------|---------|
-| Library | **30 high-distinctiveness world cities** — one full month of daily puzzles without repeats |
+| Library | **100 high-distinctiveness world cities** — a full 100-day cycle of daily puzzles without repeats |
 | Selection criteria | Cities with coastline, rivers, or uniquely shaped road networks (grid, radial, irregular old town); generic suburban grids are excluded |
 | Generation pipeline | `fetch-cities.mjs` (Overpass, curated bboxes) → `validate-cities.mjs` (machine QA gate, 0 errors) → `compute-morphology.mjs` (grid score + water class for distractor similarity) |
 
@@ -67,13 +67,13 @@ Every line you see on screen represents a real road or feature that exists in th
 
 | Feature | Status |
 |---------|--------|
-| Daily puzzle — deterministic, same worldwide, no repeats within 30 days | ✅ Done |
-| 30-city library with machine-validated real OSM data | ✅ Done |
+| Daily puzzle — deterministic, same worldwide, no repeats within a library cycle | ✅ Done |
+| 100-city library with machine-validated real OSM data (incl. relation water bodies) | ✅ Done |
 | 6-choice elimination mode with morphology-based distractors | ✅ Done |
 | Wordle-style emoji share + daily streak (localStorage) | ✅ Done |
 | Full codebase rebuild — legacy gameplay removed, app is fully static | ✅ Done |
 | Difficulty curve tuning (post-launch, data-driven) | 📋 Planned |
-| Landmark clue (needs OSM POI + relation-water pipeline support) | 📋 Planned |
+| Landmark clue (needs OSM POI pipeline support) | 📋 Planned |
 | Analytics (PostHog) / server-side judging / anti-cheat | 📋 Planned |
 
 ---
@@ -118,7 +118,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### Data pipeline
 
 ```bash
-node fetch-cities.mjs            # refetch the 30-city library from Overpass
+node fetch-cities.mjs            # refetch the 100-city library from Overpass
 node validate-cities.mjs         # machine QA gate — must pass after every fetch
 node compute-morphology.mjs      # grid score + water class → morphology.json
 node make-prototype.mjs          # standalone playable demo → prototype/index.html

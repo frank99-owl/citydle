@@ -34,7 +34,7 @@
 
 ## 2. Data pipeline (`*.mjs`, repo root)
 
-`fetch-cities.mjs` — pulls each city's road network, water and coastline from Overpass (4 mirrors raced, 1 retry with backoff). Key invariants:
+`fetch-cities.mjs` — pulls each city's road network, water and coastline from Overpass (4 mirrors raced, retries with backoff). Key invariants:
 
 - **Every line is a real road**: each OSM way is kept as its own polyline segment; same-name ways are never concatenated (concatenation draws phantom straights).
 - **Tiers preserved**: highway class → tier 1 (motorway/trunk/primary), 2 (secondary/tertiary), 3 (rest). Clue layers render by tier.
@@ -45,7 +45,7 @@
 
 `compute-morphology.mjs` — per-city street-orientation entropy (Boeing method) → `grid` 0–1, plus `water` class (coast/river/inland) → `public/cities/morphology.json`. Drives distractor similarity.
 
-Known limitation: only OSM *ways* are fetched; multipolygon-relation water bodies (e.g. Sydney Harbour) are missing until the pipeline supports relations.
+Water mapped as multipolygon relations (e.g. Sydney Harbour) is fetched via bbox-filtered member ways and deduped by way id.
 
 ## 3. Game runtime (`src/`)
 
@@ -53,14 +53,13 @@ Known limitation: only OSM *ways* are fetched; multipolygon-relation water bodie
 src/lib/citydle/
 ├── types.ts      city data / index / morphology types
 ├── daily.ts      UTC day number; seeded PRNG (mulberry32);
-│                 answer = per-cycle shuffle (no repeat within 30 days);
+│                 answer = per-cycle shuffle (no repeat within a cycle);
 │                 candidates = 3 morphologically-nearest + 2 seeded-random
 ├── clues.ts      6 clue layers from real data; skeleton fills from
 │                 lower tiers when arterials < 30km (selection, never invention)
 ├── render.ts     canvas renderer; frames the curated bbox; parchment/gold
 ├── storage.ts    localStorage: day record, stats, streak, language
-├── i18n.ts       ~20 UI strings, zh/en
-└── countries.ts  city → country (clue 6); factual metadata
+└── i18n.ts       ~20 UI strings, zh/en (country names come from index.json)
 
 src/components/citydle/
 ├── Game.tsx         single-screen game: fetch index+morphology+city,
