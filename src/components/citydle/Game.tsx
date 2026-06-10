@@ -8,7 +8,7 @@ import { dayNumber, msToNextPuzzle, pickAnswerId, pickCandidates, pickPracticeAn
 import { buildClueLayers, type ClueLayers } from "@/lib/citydle/clues";
 import { drawClue, MAX_CLUES } from "@/lib/citydle/render";
 import { STRINGS, type Lang } from "@/lib/citydle/i18n";
-import { loadDayRecord, loadLang, loadStats, saveLang, saveResult, type Stats } from "@/lib/citydle/storage";
+import { loadDayRecord, loadLang, loadOnboarded, loadStats, saveLang, saveOnboarded, saveResult, type Stats } from "@/lib/citydle/storage";
 import type { Bbox, CityIndexEntry, Morphology } from "@/lib/citydle/types";
 
 type Phase = "loading" | "error" | "playing" | "done";
@@ -58,6 +58,7 @@ export function Game() {
   const [countdown, setCountdown] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
   const [mode, setMode] = useState<"daily" | "practice">("daily");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const libraryRef = useRef<{ index: CityIndexEntry[]; morphology: Morphology } | null>(null);
   const dailyAnswerIdRef = useRef("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -102,6 +103,7 @@ export function Game() {
           setLevel(1);
           setEliminated([]);
           setPhase("playing");
+          if (!loadOnboarded()) setShowOnboarding(true);
         }
       } catch {
         if (!cancelled) setPhase("error");
@@ -274,6 +276,25 @@ export function Game() {
             </button>
           </div>
         )}
+        {showOnboarding && phase === "playing" && (
+          <div className={styles.overlay} role="dialog" aria-modal="true">
+            <div className={styles.ovTitle}>{t.obTitle}</div>
+            <ol className={styles.obList}>
+              {t.obLines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ol>
+            <button
+              className={styles.primaryBtn}
+              onClick={() => {
+                saveOnboarded();
+                setShowOnboarding(false);
+              }}
+            >
+              {t.obStart}
+            </button>
+          </div>
+        )}
         {phase === "done" && puzzle && (
           <div className={styles.overlay} role="dialog" aria-modal="true">
             <div className={styles.ovTitle}>{won ? t.won(finalLevel, MAX_CLUES) : t.lost}</div>
@@ -344,9 +365,9 @@ export function Game() {
 
       <div className={styles.skip}>
         {phase === "playing" && (
-          <a onClick={skip} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && skip()}>
+          <button className={styles.skipBtn} onClick={skip}>
             {t.skip}
-          </a>
+          </button>
         )}
       </div>
     </main>

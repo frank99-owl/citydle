@@ -119,11 +119,32 @@
   text-align: center;
   margin-top: 8px;
 }
-.skip a {
-  color: #7e6c4c;
-  font-size: clamp(12px, 1.5vmin, 14px);
+.skipBtn {
+  width: 100%;
+  background: rgba(184, 134, 47, 0.1);
+  color: #c9a86a;
+  border: 1px dashed #6e5a38;
+  border-radius: 8px;
+  padding: clamp(10px, 1.5vmin, 14px);
+  font-size: clamp(13px, 1.7vmin, 16px);
+  font-family: inherit;
   cursor: pointer;
-  text-decoration: underline;
+}
+.skipBtn:hover {
+  border-color: #9a7d4e;
+  color: #e6c178;
+}
+.obList {
+  text-align: left;
+  margin: 4px 0 20px;
+  padding-left: 22px;
+  max-width: 420px;
+  color: #c4ae85;
+  font-size: clamp(13px, 1.8vmin, 16px);
+  line-height: 1.7;
+}
+.obList li {
+  margin-bottom: 8px;
 }
 
 .overlay {
@@ -269,8 +290,5 @@
   .choiceBtn {
     min-height: 44px;
   }
-  .skip a {
-    display: inline-block;
-    padding: 6px 4px;
-  }
+
 }

@@ -84,3 +84,11 @@ export function saveLang(lang: "zh" | "en") {
     /* noop */
   }
 }
+
+const KEY_ONBOARDED = "citydle_onboarded";
+export function loadOnboarded(): boolean {
+  try { return localStorage.getItem(KEY_ONBOARDED) === "1"; } catch { return true; }
+}
+export function saveOnboarded() {
+  try { localStorage.setItem(KEY_ONBOARDED, "1"); } catch { /* noop */ }
+}
