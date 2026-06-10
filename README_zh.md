@@ -1,166 +1,106 @@
-# 金融街图志 (Financial Street Cartographer)
+# Citydle · 每日街图 — 读地图，认城市
 
 [English](README.md) | 中文版
 
-> 一款复古风格的街道猜谜游戏，测试你对世界金融中心的地理知识。
-
-**金融街图志**是一款全栈网页应用，玩家在复古纸质风格的交互地图上拼写街道名称。可选择 5 个预设金融中心，或在世界任意区域绘制自定义挑战。
+> 🚧 **重构中** — Citydle 正在从旧版「金融街图志（Financial Street Cartographer）」改建而来。新玩法的可玩原型在 `prototype/` 目录。
 
 ---
 
-## ✨ 功能特色
+**Citydle**（每日街图）是一个每日地图推理小游戏。每天出一道题：给你一座真实城市的路网骨架——以羊皮纸风格的制图轮廓呈现——用 **6 条线索**，从 6 个候选城市里认出它是哪儿。用的线索越少，得分越高。
 
-### 🎮 核心玩法
-- **5 大金融中心**：纽约（华尔街）、伦敦（金融城）、东京（丸之内）、香港（中环）、新加坡（市中心）
-- **自定义区域模式**：在地图上绘制任意区域创建挑战
-- **地址搜索**：搜索任意城市或地址快速定位
-- **多语言街道匹配**：支持英文、中文、日文输入（含模糊匹配）
-
-### 🗺️ 地图体验
-- **复古纸质美学**：深色羊皮纸主题 + 复古色调地图
-- **60fps 流畅体验**：GPU 加速 CSS 滤镜，Canvas 矢量渲染
-- **防作弊设计**：无标签地图瓦片，无法直接读取街道名
-- **4 种地图源**：CartoDB 深色、CartoDB 浅色、OpenStreetMap、高德地图（中国优化）
-- **GCJ-02 坐标纠偏**：中国地图自动坐标转换
-
-### 🏆 成就系统（11 个成就）
-| 系列 | 成就 | 说明 |
-|------|------|------|
-| **进度** | 探索者、领航员、制图大师 | 完成 10%、50%、80% |
-| **城市大师** | 5 个城市专属成就 | 单城市 100% 通关 |
-| **技能** | 连击大师、闪电手、精准射手 | 20+ 连击、30 秒 5 条、零错误 |
-| **探索** | 探路者、城市猎人 | 10 次自定义区域、20 个城市搜索 |
-
-### 📊 统计与挑战
-- **个人统计面板**：游戏次数、猜对街道数、最爱城市、游戏时长
-- **每日挑战**：基于日期种子的固定区域，连续挑战天数追踪
-- **游戏历史**：完整记录所有游戏的得分和完成率
-- **收藏夹**：保存并重玩喜欢的地图区域
-
-### 💡 难度模式
-| 模式 | 提示 | 地图高亮 | 说明 |
-|------|------|----------|------|
-| **简单** | 首字母 + 模式 | ✅ 琥珀色脉冲 | 适合学习 |
-| **中等** | 首字母 + 模式 | ❌ | 中等挑战 |
-| **困难** | 无 | ❌ | 纯记忆 |
-
-### 📤 社交功能
-- **分享卡片**：Canvas 生成复古风格成就卡片
-- **分享方式**：保存图片、复制链接、Twitter、微信
-- **排行榜**：SQLite 支持的全局排名，按城市/时间筛选
-- **玩家档案**：持久化的昵称和统计数据
-
-### 🌐 国际化
-- **完整双语界面**：中文、英文
-- **本地化街道名**：预设数据包含原生名称 + 翻译
-- **智能提示**：模式生成适配 CJK 和拉丁字符
+像 Wordle，但猜的是城市——而且你用来猜的，是这座城市的路网线条本身。
 
 ---
 
-## 🏗️ 项目架构
+## 玩法
 
-```
-src/
-├── app/
-│   ├── page.tsx                    # 根 SPA 壳 — 懒加载条件组件
-│   ├── layout.tsx                  # 全局布局与字体
-│   ├── globals.css                 # 主题变量与动画
-│   └── api/                        # 无服务器 API 路由
-│       ├── streets/route.ts        # 街道数据（预设 + Overpass）
-│       ├── search/route.ts         # Nominatim 地址代理
-│       ├── favorites/route.ts      # 收藏地图 CRUD
-│       ├── history/route.ts        # 游戏历史与得分
-│       ├── leaderboard/route.ts    # 全局排行榜
-│       └── daily/route.ts          # 每日挑战生成
-├── context/
-│   └── GameContext.tsx              # 双 Context：LobbyContext + GameContext（useMemo 优化）
-├── types/
-│   └── index.ts                    # 集中 TypeScript 类型
-├── hooks/
-│   ├── useLeafletMap.ts            # 地图生命周期与图层管理
-│   ├── useMapProvider.ts           # 地图源切换与坐标转换
-│   ├── useStreets.ts               # 街道数据获取与缓存
-│   ├── useGameLogic.ts             # 核心游戏机制
-│   ├── useAchievements.ts          # 成就追踪与弹窗
-│   ├── useStats.ts                 # 个人统计
-│   ├── useTutorial.ts              # 新手引导流程
-│   ├── useShare.ts                 # 分享卡片生成
-│   └── useLocalStorage.ts          # 持久化存储（跨标签页同步）
-├── components/
-│   ├── map/
-│   │   └── GameMap.tsx             # 背景 Leaflet 地图（memo 优化）
-│   ├── lobby/                      # 大厅视图组件
-│   │   ├── LobbyOverlay.tsx        # 大厅主容器（懒加载 tab 面板）
-│   │   ├── LobbyView.tsx           # 教程按钮与错误横幅
-│   │   ├── PresetCards.tsx         # 城市选择网格
-│   │   ├── MapSettings.tsx         # 地图源与难度设置
-│   │   ├── HistoryTable.tsx        # 游戏历史显示
-│   │   ├── FavoritesList.tsx       # 收藏地图列表
-│   │   └── DailyChallengeCard.tsx  # 每日挑战卡片
-│   ├── game/                       # 游戏中组件
-│   │   ├── GameSidebar.tsx         # 游戏侧边栏容器
-│   │   ├── GameStats.tsx           # 得分与进度显示
-│   │   ├── GuessInput.tsx          # 街道名称输入
-│   │   ├── HintConsole.tsx         # 提示按钮与线索
-│   │   ├── StreakDisplay.tsx       # 连击计数器
-│   │   ├── StreetList.tsx          # 街道列表（带筛选）
-│   │   └── GameActions.tsx         # 收藏/放弃/返回按钮
-│   ├── settlement/
-│   │   └── SettlementView.tsx      # 游戏结算与分享（懒加载）
-│   ├── achievement/
-│   │   ├── AchievementPopup.tsx    # 成就解锁通知（懒加载）
-│   │   └── AchievementPanel.tsx    # 成就展示（懒加载）
-│   ├── share/
-│   │   ├── ShareCard.tsx           # Canvas 分享卡片生成器
-│   │   └── ShareModal.tsx          # 分享选项弹窗（懒加载）
-│   ├── leaderboard/
-│   │   └── Leaderboard.tsx         # 全局排行榜表格（懒加载）
-│   ├── stats/
-│   │   └── StatsPanel.tsx          # 个人统计面板（懒加载）
-│   ├── tutorial/
-│   │   └── TutorialOverlay.tsx     # 新手引导教程
-│   └── shared/
-│       ├── LanguageToggle.tsx      # 语言切换
-│       └── LoadingSpinner.tsx      # 加载指示器
-├── lib/
-│   ├── constants.ts                # 预设、成就、类型
-│   ├── i18n.ts                     # 翻译文本（中/英）
-│   ├── coord.ts                    # WGS-84/GCJ-02 坐标转换
-│   ├── db.ts                       # SQLite 单例
-│   ├── daily.ts                    # 每日挑战生成
-│   ├── matching.ts                 # 核心算法（Levenshtein、匹配、提示）
-│   └── rate-limit.ts               # 滑动窗口限流器
-└── data/
-    └── presets/                     # 预编译街道数据
-        ├── new-york.json            # 141 条街道
-        ├── london.json              # 360 条街道
-        ├── tokyo.json               # 55 条街道
-        ├── hong-kong.json           # 155 条街道
-        └── singapore.json           # 174 条街道
-```
+每道题把同一座城市的路网分 6 层递进揭示：
+
+| 线索 | 显示内容 |
+|------|---------|
+| 第 1 条 | 主干道剪影 |
+| 第 2 条 | + 主路网 / 海岸线 / 河流 |
+| 第 3 条 | + 完整路网纹理（信息量最大、形状个性最强） |
+| 第 4 条 | + 地标位置 |
+| 第 5 条 | + 一条街道名 |
+| 第 6 条 | + 国家 / 首字母（兜底，不直接给答案） |
+
+**6 选 1**——从 6 个候选城市里选。难度来自「你用了几条线索」，而不是「前几条几乎是空白」。
+
+每日同题，制造「今天你猜了吗」的同步感。分享 Wordle 风格方块（计划中）+ 连续天数 streak（计划中）。
 
 ---
 
-## 🛠️ 技术栈
+## 美学世界观
+
+**沧桑制图师**：羊皮纸质感、暖金线条地图。你在阅读一张张老地图残片，认出它画的是哪座城市。
+
+这是与 GeoGuessr（用街景照片）的核心差异点。Citydle 用**地图线条本身**作为谜题——「读图认城」是独占定位。
+
+---
+
+## 数据原则
+
+地图上每一根线，都是那座城市地面上**真实存在**的路或地理特征。没有任何虚构坐标。
+
+- **路网** → Overpass API（OpenStreetMap）
+- **海岸线 / 河流 / 水体** → OSM `natural=coastline`、`natural=water`、`waterway`
+- **地标** → OSM POI（`tourism`、`amenity` 等）；数据拉不到就不放，**绝不编造**
+- **每座城市数据带来源标记**（`source: overpass` + 拉取日期），可追溯
+- **零手工捏造坐标**
+
+---
+
+## 城市库
+
+| 状态 | 说明 |
+|------|------|
+| 当前原型 | 5 座城市（纽约、伦敦、东京、香港、新加坡） |
+| MVP 目标 | ~30 座高辨识度世界城市——够每日出题 1–2 个月不重复 |
+| 选城标准 | 有海岸线、有河流、路网形态独特（网格状、放射状、不规则老城）；排除「哪座城市都长一样」的纯住宅郊区 |
+| 生成方式 | 批量 Overpass pipeline，人工挑城市 + 划定代表性区域，机器拉数据 |
+
+城市库 5 → ~30 的扩充**进行中**。
+
+---
+
+## 当前状态 vs 计划
+
+| 功能 | 状态 |
+|------|------|
+| 可玩单局原型（视觉验证） | ✅ 已完成——见 `prototype/` |
+| 城市库扩充 5 → ~30 | 🔄 进行中 |
+| 6 选 1 选择题模式 | 📋 计划中 |
+| Wordle 式方块分享卡 | 📋 计划中 |
+| 每日连续天数追踪 | 📋 计划中 |
+| 难度曲线调优 | 📋 计划中 |
+| 代码完整重构（替换旧玩法核心） | 📋 计划中 |
+| 真持久化 / 反作弊 / 数据分析接入 | 📋 计划中 |
+
+> `src/` 里的源码目前仍是旧版「金融街图志」玩法（拼写街道名）。新 Citydle 玩法的重构尚未开始。`prototype/` 目录是新版概念的可玩原型。
+
+---
+
+## 技术栈
 
 | 类别 | 技术 |
 |------|------|
 | **框架** | Next.js 14 (App Router) |
 | **语言** | TypeScript |
 | **样式** | Tailwind CSS + CSS 变量 |
-| **地图** | Leaflet.js + Geoman |
+| **地图** | Leaflet.js |
 | **瓦片** | CARTO Positron（无标签） |
 | **地理编码** | OpenStreetMap Nominatim |
-| **街道数据** | Overpass API（4 镜像并发竞速） |
+| **路网 / 地理数据** | Overpass API（OSM）——4 镜像并发竞速 |
 | **数据库** | SQLite（Node.js 原生 `node:sqlite`） |
-| **动画** | canvas-confetti（动态导入） |
 | **字体** | Cinzel（标题）、IM Fell English（正文） |
 
 ---
 
-## 🚀 快速开始
+## 快速开始
 
 ### 环境要求
+
 - Node.js 22.x 或更高版本
 - npm 10.x 或更高版本
 
@@ -168,8 +108,8 @@ src/
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/financial-street-cartographer.git
-cd financial-street-cartographer
+git clone https://github.com/yourusername/citydle.git
+cd citydle
 
 # 安装依赖
 npm install
@@ -180,6 +120,8 @@ npm run dev
 
 在浏览器中打开 [http://localhost:3000](http://localhost:3000)。
 
+> 注意：当前运行的是旧版「金融街图志」玩法。新版 Citydle 概念原型在 `prototype/` 目录。
+
 ### 生产构建
 
 ```bash
@@ -189,23 +131,20 @@ npm start
 
 ### 环境变量
 
-本地开发无需环境变量。应用使用：
-- 本地 SQLite 数据库（自动创建在 `data/`）
+本地开发无需任何环境变量。应用使用：
+- 本地 SQLite 数据库（自动创建在 `data/` 目录）
 - 公共 Overpass API 镜像
 - 公共 Nominatim API
 
 ---
 
-## 📦 部署
+## 部署
 
 ### Vercel（推荐）
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/financial-street-cartographer)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/citydle)
 
-**注意**：Vercel 无服务器环境下 SQLite 数据库会复制到 `/tmp`。冷启动时数据会重置。如需持久化存储，建议：
-- Vercel Postgres
-- Turso（SQLite 兼容）
-- PlanetScale
+**注意**：Vercel 无服务器环境下 SQLite 会复制到 `/tmp`，冷启动时数据重置。如需持久化，可考虑 Vercel Postgres、Turso 或 PlanetScale。
 
 ### Docker
 
@@ -229,64 +168,13 @@ PORT=3000 npm start
 
 ---
 
-## 🔌 API 参考
-
-### `POST /api/streets`
-
-获取边界框内的街道数据。
-
-**请求体：**
-```json
-{
-  "bounds": {
-    "south": 40.6981,
-    "west": -74.0201,
-    "north": 40.7209,
-    "east": -73.9977
-  }
-}
-```
-
-**响应：**
-```json
-{
-  "streets": [
-    {
-      "name": "Wall Street",
-      "geometry": [[40.7074, -74.0113], ...],
-      "aliases": ["Wall Street", "华尔街"]
-    }
-  ],
-  "count": 141,
-  "source": "local_preset"
-}
-```
-
-### `GET /api/search?q={查询}`
-
-通过 Nominatim 搜索位置。
-
-### `GET /api/leaderboard?city={城市}&period={daily|weekly|all}`
-
-获取前 50 名成绩。
-
-### `POST /api/leaderboard`
-
-提交成绩（服务端验证所有字段）。
-
-### `GET /api/daily`
-
-获取今日挑战参数。
-
----
-
-## 🧪 测试
+## 测试
 
 ```bash
 # 运行单元测试（Vitest）
 npm test
 
-# 监听模式运行测试
+# 监听模式
 npm run test:watch
 
 # 构建验证（含 lint + 类型检查）
@@ -295,16 +183,16 @@ npm run build
 
 ---
 
-## 📄 许可证
+## 许可证
 
 MIT
 
 ---
 
-## 🙏 致谢
+## 致谢
 
-- [OpenStreetMap](https://www.openstreetmap.org/) 提供地图数据
-- [CARTO](https://carto.com/) 提供瓦片样式
-- [Leaflet.js](https://leafletjs.com/) 交互式地图
-- [Overpass API](https://overpass-api.de/) 街道数据
-- [canvas-confetti](https://github.com/catdad/canvas-confetti) 庆祝动画
+- [OpenStreetMap](https://www.openstreetmap.org/) 贡献者提供所有地理数据
+- [Overpass API](https://overpass-api.de/) 提供路网与地理特征查询
+- [CARTO](https://carto.com/) 提供无标签瓦片样式
+- [Leaflet.js](https://leafletjs.com/) 提供交互式地图引擎
+- [Wordle](https://www.nytimes.com/games/wordle/index.html) 提供每日谜题格式的灵感

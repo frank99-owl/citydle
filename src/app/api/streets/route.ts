@@ -71,7 +71,7 @@ async function raceOverpass(query: string): Promise<any> {
           "Content-Type": "application/x-www-form-urlencoded",
           "User-Agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Referer: "https://github.com/frank/financial-street-cartographer",
+          Referer: "https://github.com/frank/citydle",
         },
         body: `data=${encodeURIComponent(query)}`,
         signal: signal,

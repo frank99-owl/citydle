@@ -20,17 +20,20 @@ const imFell = IM_Fell_English({
 const SITE_URL = "https://street-guesser.vercel.app"; // TODO: update with real domain
 
 export const metadata: Metadata = {
-  title: "金融街图志 — Financial Street Cartographer",
+  title: "Citydle · 每日街图 — Read the Map, Name the City",
   description:
-    "猜出世界金融中心的每一条街道。测试你的城市地理知识，挑战个人最高分。A geography game where you name streets on vintage maps of the world's financial districts.",
+    "每天一座城市，只给你它真实的路网骨架，6 条线索内认出是哪儿。A daily map-reading puzzle: identify a city from its real road network, one clue at a time.",
   keywords: [
-    "street guessing game",
-    "街道猜谜",
-    "financial district",
-    "map game",
+    "citydle",
+    "每日街图",
+    "map guessing game",
+    "city guessing",
+    "street map",
     "geography quiz",
-    "GeoGuessr",
+    "daily puzzle",
     "城市地理",
+    "road network",
+    "OpenStreetMap",
   ],
   metadataBase: new URL(SITE_URL),
   alternates: {
@@ -44,16 +47,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "zh_CN",
     url: SITE_URL,
-    siteName: "金融街图志",
-    title: "金融街图志 — Financial Street Cartographer",
+    siteName: "Citydle · 每日街图",
+    title: "Citydle · 每日街图 — Read the Map, Name the City",
     description:
-      "猜出世界金融中心的每一条街道。测试你的城市地理知识，挑战个人最高分。",
+      "每天一座城市，只给你它真实的路网骨架，6 条线索内认出是哪儿。",
   },
   twitter: {
     card: "summary_large_image",
-    title: "金融街图志 — Financial Street Cartographer",
+    title: "Citydle · 每日街图 — Read the Map, Name the City",
     description:
-      "猜出世界金融中心的每一条街道。测试你的城市地理知识，挑战个人最高分。",
+      "每天一座城市，只给你它真实的路网骨架，6 条线索内认出是哪儿。",
   },
 };
 
@@ -71,9 +74,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "金融街图志 — Financial Street Cartographer",
+              name: "Citydle · 每日街图",
               description:
-                "猜出世界金融中心的每一条街道。测试你的城市地理知识，挑战个人最高分。",
+                "每天一座城市，只给你它真实的路网骨架，6 条线索内认出是哪儿。",
               url: SITE_URL,
               applicationCategory: "Game",
               operatingSystem: "Web",

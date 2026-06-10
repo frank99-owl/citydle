@@ -1,166 +1,106 @@
-# Financial Street Cartographer
+# Citydle — Read the Map, Name the City
 
 [中文版](README_zh.md) | English
 
-> A vintage-styled street guessing game that tests your geographical knowledge of the world's financial districts.
-
-**Financial Street Cartographer** is a full-stack web application where players spell out street names on an interactive parchment-style map. Choose from 5 preset financial centers or draw custom areas anywhere in the world.
+> 🚧 **Work in progress** — Citydle is being rebuilt from the old "Financial Street Cartographer". The playable concept prototype lives in `prototype/`.
 
 ---
 
-## ✨ Features
+**Citydle** (中文名：每日街图) is a daily map-reading puzzle. Every day you get one city's real road network — rendered as a parchment-style cartographic silhouette — and you have **6 clues** to figure out which of 6 candidate cities it is. Use fewer clues, score higher.
 
-### 🎮 Core Gameplay
-- **5 Preset Financial Centers**: New York (Wall Street), London (City), Tokyo (Marunouchi), Hong Kong (Central), Singapore (Downtown)
-- **Custom Area Mode**: Draw any region on the map to create your own challenge
-- **Location Search**: Search for any city or address to jump to that location
-- **Multi-Language Street Matching**: Input street names in English, Chinese, or Japanese (with fuzzy matching)
-
-### 🗺️ Map Experience
-- **Vintage Paper Aesthetics**: Dark parchment theme with sepia-toned maps
-- **60fps Performance**: GPU-accelerated CSS filters, canvas vector rendering
-- **Anti-Cheat Design**: Label-free map tiles prevent reading street names
-- **4 Map Providers**: CartoDB Dark, CartoDB Light, OpenStreetMap, Amap (China-optimized)
-- **GCJ-02 Coordinate Correction**: Automatic coordinate translation for Chinese maps
-
-### 🏆 Achievement System (11 Achievements)
-| Series | Achievements | Description |
-|--------|-------------|-------------|
-| **Progress** | Explorer, Navigator, Cartographer Master | 10%, 50%, 80% completion |
-| **City Master** | 5 city-specific achievements | 100% completion per city |
-| **Skill** | Streak Master, Lightning Hand, Sharpshooter | 20+ streak, 5 in 30s, zero errors |
-| **Exploration** | Pathfinder, City Hunter | 10 custom areas, 20 city searches |
-
-### 📊 Statistics & Challenges
-- **Personal Stats Panel**: Games played, streets guessed, favorite city, play time
-- **Daily Challenge**: Deterministic daily area with streak tracking
-- **Game History**: Complete log of all games with scores and completion rates
-- **Favorites**: Save and replay your favorite map regions
-
-### 💡 Difficulty Modes
-| Mode | Hints | Map Highlight | Description |
-|------|-------|---------------|-------------|
-| **Easy** | First letter + pattern | ✅ Pulsing amber | Best for learning |
-| **Medium** | First letter + pattern | ❌ | Moderate challenge |
-| **Hard** | None | ❌ | Pure recall |
-
-### 📤 Social Features
-- **Share Cards**: Canvas-generated vintage-style achievement cards
-- **Share Options**: Save image, copy link, Twitter, WeChat
-- **Leaderboard**: SQLite-backed global rankings with city/time filtering
-- **Player Profiles**: Persistent name and statistics
-
-### 🌐 Internationalization
-- **Full Bilingual UI**: Chinese (中文) and English
-- **Localized Street Names**: Preset data includes native names + translations
-- **Smart Hints**: Pattern generation adapts to CJK and Latin characters
+Think Wordle, but for geography — and instead of letters, you're reading the bones of a city.
 
 ---
 
-## 🏗️ Architecture
+## How It Works
 
-```
-src/
-├── app/
-│   ├── page.tsx                    # Root SPA shell — lazy loads conditional components
-│   ├── layout.tsx                  # Global layout & fonts
-│   ├── globals.css                 # Theme variables & animations
-│   └── api/                        # Serverless API routes
-│       ├── streets/route.ts        # Street data (preset + Overpass)
-│       ├── search/route.ts         # Nominatim location proxy
-│       ├── favorites/route.ts      # Saved maps CRUD
-│       ├── history/route.ts        # Game history & scores
-│       ├── leaderboard/route.ts    # Global rankings
-│       └── daily/route.ts          # Daily challenge generation
-├── context/
-│   └── GameContext.tsx              # Dual-context: LobbyContext + GameContext with useMemo
-├── types/
-│   └── index.ts                    # Centralized TypeScript types
-├── hooks/
-│   ├── useLeafletMap.ts            # Map lifecycle & layer management
-│   ├── useMapProvider.ts           # Provider switching & coordinate transforms
-│   ├── useStreets.ts               # Street data fetching & caching
-│   ├── useGameLogic.ts             # Core game mechanics
-│   ├── useAchievements.ts          # Achievement tracking & popups
-│   ├── useStats.ts                 # Personal statistics
-│   ├── useTutorial.ts              # Onboarding flow
-│   ├── useShare.ts                 # Share card generation
-│   └── useLocalStorage.ts          # Persistent storage with cross-tab sync
-├── components/
-│   ├── map/
-│   │   └── GameMap.tsx             # Background Leaflet map (memo'd)
-│   ├── lobby/                      # Lobby view components
-│   │   ├── LobbyOverlay.tsx        # Main lobby container (lazy-loads tab panels)
-│   │   ├── LobbyView.tsx           # Tutorial button & error banner
-│   │   ├── PresetCards.tsx         # City selection grid
-│   │   ├── MapSettings.tsx         # Provider & difficulty controls
-│   │   ├── HistoryTable.tsx        # Game history display
-│   │   ├── FavoritesList.tsx       # Saved maps list
-│   │   └── DailyChallengeCard.tsx  # Daily challenge widget
-│   ├── game/                       # Active game components
-│   │   ├── GameSidebar.tsx         # Game sidebar container
-│   │   ├── GameStats.tsx           # Score & progress display
-│   │   ├── GuessInput.tsx          # Street name input
-│   │   ├── HintConsole.tsx         # Hint button & clues
-│   │   ├── StreakDisplay.tsx       # Streak counter
-│   │   ├── StreetList.tsx          # Street list with filters
-│   │   └── GameActions.tsx         # Save/forfeit/exit buttons
-│   ├── settlement/
-│   │   └── SettlementView.tsx      # End-game results & sharing (lazy loaded)
-│   ├── achievement/
-│   │   ├── AchievementPopup.tsx    # Unlock notification (lazy loaded)
-│   │   └── AchievementPanel.tsx    # Achievement gallery (lazy loaded)
-│   ├── share/
-│   │   ├── ShareCard.tsx           # Canvas share card generator
-│   │   └── ShareModal.tsx          # Share options modal (lazy loaded)
-│   ├── leaderboard/
-│   │   └── Leaderboard.tsx         # Global rankings table (lazy loaded)
-│   ├── stats/
-│   │   └── StatsPanel.tsx          # Personal statistics (lazy loaded)
-│   ├── tutorial/
-│   │   └── TutorialOverlay.tsx     # Onboarding tutorial
-│   └── shared/
-│       ├── LanguageToggle.tsx      # Language switch
-│       └── LoadingSpinner.tsx      # Loading indicator
-├── lib/
-│   ├── constants.ts                # Presets, achievements, types
-│   ├── i18n.ts                     # Translations (zh/en)
-│   ├── coord.ts                    # WGS-84/GCJ-02 conversions
-│   ├── db.ts                       # SQLite singleton
-│   ├── daily.ts                    # Daily challenge generation
-│   ├── matching.ts                 # Core algorithms (Levenshtein, matching, hints)
-│   └── rate-limit.ts               # Sliding window rate limiter
-└── data/
-    └── presets/                     # Pre-compiled street data
-        ├── new-york.json            # 141 streets
-        ├── london.json              # 360 streets
-        ├── tokyo.json               # 55 streets
-        ├── hong-kong.json           # 155 streets
-        └── singapore.json           # 174 streets
-```
+Each puzzle reveals the same city's road network in progressive layers:
+
+| Clue | What you see |
+|------|-------------|
+| 1 | Major arterial silhouette |
+| 2 | + Main road network / coastline / rivers |
+| 3 | + Full road texture (most distinctive layer) |
+| 4 | + Landmark positions |
+| 5 | + One street name |
+| 6 | + Country / first letter (last resort, not the answer itself) |
+
+**6-choice multiple select** — pick from 6 candidate cities. Difficulty comes from *how few clues you needed*, not from a blank canvas.
+
+Share your result as a Wordle-style emoji grid (planned) + track your daily streak (planned).
 
 ---
 
-## 🛠 Tech Stack
+## Aesthetic
+
+**The Weathered Cartographer**: parchment textures, warm-gold line-work. You are reading fragments of old maps, identifying the city they depict.
+
+This is the key differentiator from GeoGuessr (which uses street-level photos). Citydle uses the map itself — *the lines* — as the puzzle.
+
+---
+
+## Data Principles
+
+Every line you see on screen represents a real road or feature that exists in that city. No invented geometry.
+
+- **Road networks** → Overpass API (OpenStreetMap)
+- **Coastlines / rivers / water** → OSM `natural=coastline`, `natural=water`, `waterway`
+- **Landmarks** → OSM POIs (`tourism`, `amenity`, etc.) — if the data isn't there, the clue is omitted; nothing is fabricated
+- **Every city dataset carries a source tag** (`source: overpass` + fetch date) for full traceability
+- **Zero hand-crafted coordinates**
+
+---
+
+## City Library
+
+| Status | Details |
+|--------|---------|
+| Current prototype | 5 cities (New York, London, Tokyo, Hong Kong, Singapore) |
+| MVP target | ~30 high-distinctiveness world cities — enough for 1–2 months of daily puzzles without repeats |
+| Selection criteria | Cities with coastline, rivers, or uniquely shaped road networks (grid, radial, irregular old town); generic suburban grids are excluded |
+| Generation pipeline | Batch Overpass queries, human-curated bounding boxes, machine-fetched data |
+
+Expanding the city library from 5 → ~30 is **in progress**.
+
+---
+
+## Current Status vs. Planned
+
+| Feature | Status |
+|---------|--------|
+| Prototype (visual proof-of-concept, single session) | ✅ Done — see `prototype/` |
+| City library 5 → ~30 | 🔄 In progress |
+| 6-choice multiple-select mode | 📋 Planned |
+| Wordle-style emoji share card | 📋 Planned |
+| Daily streak tracking | 📋 Planned |
+| Difficulty curve tuning | 📋 Planned |
+| Full codebase rebuild (replacing old gameplay) | 📋 Planned |
+| Persistent storage / anti-cheat / analytics | 📋 Planned |
+
+> The source code in `src/` currently reflects the old "Financial Street Cartographer" gameplay (spelling street names). The rebuild has not started yet. The `prototype/` directory contains the new Citydle concept.
+
+---
+
+## Tech Stack
 
 | Category | Technology |
 |----------|------------|
 | **Framework** | Next.js 14 (App Router) |
 | **Language** | TypeScript |
 | **Styling** | Tailwind CSS + CSS Variables |
-| **Map** | Leaflet.js + Geoman |
+| **Map** | Leaflet.js |
 | **Tiles** | CARTO Positron (label-free) |
 | **Geocoding** | OpenStreetMap Nominatim |
-| **Street Data** | Overpass API (4 mirrors, parallel racing) |
+| **Road / Feature Data** | Overpass API (OSM) — 4 mirrors, parallel racing |
 | **Database** | SQLite (Node.js native `node:sqlite`) |
-| **Animations** | canvas-confetti (dynamic import) |
 | **Fonts** | Cinzel (display), IM Fell English (body) |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 22.x or later
 - npm 10.x or later
 
@@ -168,8 +108,8 @@ src/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/financial-street-cartographer.git
-cd financial-street-cartographer
+git clone https://github.com/yourusername/citydle.git
+cd citydle
 
 # Install dependencies
 npm install
@@ -179,6 +119,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+> Note: the running app is the old Financial Street Cartographer gameplay. The new Citydle concept prototype is in `prototype/`.
 
 ### Production Build
 
@@ -196,16 +138,13 @@ No environment variables required for local development. The app uses:
 
 ---
 
-## 📦 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/financial-street-cartographer)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/citydle)
 
-**Note**: SQLite database is copied to `/tmp` on Vercel serverless. Data resets on cold starts. For persistent storage, consider:
-- Vercel Postgres
-- Turso (SQLite-compatible)
-- PlanetScale
+**Note**: SQLite is copied to `/tmp` on Vercel serverless — data resets on cold starts. For persistence consider Vercel Postgres, Turso, or PlanetScale.
 
 ### Docker
 
@@ -229,82 +168,31 @@ PORT=3000 npm start
 
 ---
 
-## 🔌 API Reference
-
-### `POST /api/streets`
-
-Fetch street data for a bounding box.
-
-**Request Body:**
-```json
-{
-  "bounds": {
-    "south": 40.6981,
-    "west": -74.0201,
-    "north": 40.7209,
-    "east": -73.9977
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "streets": [
-    {
-      "name": "Wall Street",
-      "geometry": [[40.7074, -74.0113], ...],
-      "aliases": ["Wall Street", "华尔街"]
-    }
-  ],
-  "count": 141,
-  "source": "local_preset"
-}
-```
-
-### `GET /api/search?q={query}`
-
-Search for locations via Nominatim.
-
-### `GET /api/leaderboard?city={city}&period={daily|weekly|all}`
-
-Get top 50 scores.
-
-### `POST /api/leaderboard`
-
-Submit a score (validates all fields server-side).
-
-### `GET /api/daily`
-
-Get today's challenge parameters.
-
----
-
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run unit tests (Vitest)
 npm test
 
-# Run tests in watch mode
+# Watch mode
 npm run test:watch
 
-# Build verification (includes lint + type check)
+# Build verification (lint + type check)
 npm run build
 ```
 
 ---
 
-## 📄 License
+## License
 
 MIT
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- [OpenStreetMap](https://www.openstreetmap.org/) for map data
-- [CARTO](https://carto.com/) for tile styles
-- [Leaflet.js](https://leafletjs.com/) for the interactive map
-- [Overpass API](https://overpass-api.de/) for street data
-- [canvas-confetti](https://github.com/catdad/canvas-confetti) for celebrations
+- [OpenStreetMap](https://www.openstreetmap.org/) contributors for all geographic data
+- [Overpass API](https://overpass-api.de/) for road network and feature queries
+- [CARTO](https://carto.com/) for label-free tile styles
+- [Leaflet.js](https://leafletjs.com/) for the interactive map engine
+- [Wordle](https://www.nytimes.com/games/wordle/index.html) for the daily-puzzle format inspiration
