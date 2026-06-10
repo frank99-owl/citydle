@@ -180,9 +180,28 @@
   font-family: inherit;
   cursor: pointer;
 }
+.ghostBtn {
+  background: transparent;
+  color: #9a8762;
+  border: 1px solid #4a3c26;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.ghostBtn:hover {
+  border-color: #9a7d4e;
+}
+.practiceNote {
+  font-size: 12px;
+  color: #7e6c4c;
+  margin-bottom: 12px;
+}
 .countdown {
   font-size: 13px;
   color: #9a8762;
+  margin-top: 12px;
 }
 .countdown b {
   color: #d8c5a0;

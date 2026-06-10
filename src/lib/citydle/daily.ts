@@ -83,3 +83,9 @@ export function pickCandidates(
   const rest = seededShuffle(others.slice(3), rand);
   return seededShuffle([...similar, ...rest.slice(0, 2), answer], rand);
 }
+
+/** 练习局答案:全库随机,排除指定 id(当日答案防剧透、上一局防连出) */
+export function pickPracticeAnswerId(ids: string[], exclude: string[]): string {
+  const pool = ids.filter((id) => !exclude.includes(id));
+  return pool[Math.floor(Math.random() * pool.length)];
+}

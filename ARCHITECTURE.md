@@ -71,7 +71,7 @@ src/components/citydle/
 
 **Game rules**: 6 clue levels (skeleton → +water → +secondary → +full texture → +street name → +country/initial). A wrong pick eliminates that candidate *and* burns a clue. Win = correct pick at level L (share as L/6). 5 wrong picks or running out of clues = loss (X/6).
 
-**Anti-replay**: the day's result is stored in localStorage; reloading shows the settle screen. (Server-side judging / real anti-cheat is explicitly out of MVP scope — the answer is derivable client-side, same as early Wordle.)
+**Anti-replay**: the daily result is stored in localStorage; reloading shows the settle screen. After the daily, **practice mode** offers unlimited random rounds (today's answer excluded; daily stats/streak untouched). (Server-side judging / real anti-cheat is explicitly out of MVP scope — the answer is derivable client-side, same as early Wordle.)
 
 ## 4. Testing & CI
 

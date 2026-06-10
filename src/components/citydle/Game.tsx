@@ -4,12 +4,12 @@
 // 数据从 /cities/*.json 静态直出,无任何后端依赖;成绩只存本机 localStorage。
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./Game.module.css";
-import { dayNumber, msToNextPuzzle, pickAnswerId, pickCandidates } from "@/lib/citydle/daily";
+import { dayNumber, msToNextPuzzle, pickAnswerId, pickCandidates, pickPracticeAnswerId } from "@/lib/citydle/daily";
 import { buildClueLayers, type ClueLayers } from "@/lib/citydle/clues";
 import { drawClue, MAX_CLUES } from "@/lib/citydle/render";
 import { STRINGS, type Lang } from "@/lib/citydle/i18n";
 import { loadDayRecord, loadLang, loadStats, saveLang, saveResult, type Stats } from "@/lib/citydle/storage";
-import type { Bbox, CityIndexEntry } from "@/lib/citydle/types";
+import type { Bbox, CityIndexEntry, Morphology } from "@/lib/citydle/types";
 
 type Phase = "loading" | "error" | "playing" | "done";
 const WRONG_MAX = 5;
@@ -57,6 +57,9 @@ export function Game() {
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [mode, setMode] = useState<"daily" | "practice">("daily");
+  const libraryRef = useRef<{ index: CityIndexEntry[]; morphology: Morphology } | null>(null);
+  const dailyAnswerIdRef = useRef("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const t = STRINGS[lang];
@@ -74,7 +77,9 @@ export function Game() {
         if (!idxRes.ok || !morphRes.ok) throw new Error("index fetch failed");
         const index: CityIndexEntry[] = await idxRes.json();
         const morphology = await morphRes.json();
+        libraryRef.current = { index, morphology };
         const answerId = pickAnswerId(index.map((c) => c.id), d);
+        dailyAnswerIdRef.current = answerId;
         const candidates = pickCandidates(index, morphology, answerId, d);
         const cityRes = await fetch(`/cities/${answerId}.json`);
         if (!cityRes.ok) throw new Error("city fetch failed");
@@ -145,7 +150,7 @@ export function Game() {
     (didWin: boolean, lvl: number) => {
       setWon(didWin);
       setFinalLevel(lvl);
-      setStats(saveResult(day, didWin, lvl, puzzle?.answer.id || ""));
+      if (mode === "daily") setStats(saveResult(day, didWin, lvl, puzzle?.answer.id || ""));
       setPhase("done");
       if (didWin) {
         import("canvas-confetti").then((m) =>
@@ -153,8 +158,39 @@ export function Game() {
         );
       }
     },
-    [day, puzzle],
+    [day, puzzle, mode],
   );
+
+  // 练习局:每日答完后无限再来,随机出题(排除当日答案防剧透),不动每日成绩
+  const startPractice = useCallback(async () => {
+    const lib = libraryRef.current;
+    if (!lib) return;
+    setPhase("loading");
+    setMode("practice");
+    try {
+      const answerId = pickPracticeAnswerId(
+        lib.index.map((c) => c.id),
+        [dailyAnswerIdRef.current, puzzle?.answer.id || ""],
+      );
+      const candidates = pickCandidates(lib.index, lib.morphology, answerId, Math.floor(Math.random() * 1e9) + 1);
+      const res = await fetch(`/cities/${answerId}.json`);
+      if (!res.ok) throw new Error("city fetch failed");
+      const city = await res.json();
+      setPuzzle({
+        bbox: city.bbox,
+        layers: buildClueLayers(city),
+        answer: candidates.find((c) => c.id === answerId)!,
+        candidates,
+      });
+      setLevel(1);
+      setEliminated([]);
+      setWon(false);
+      setFinalLevel(LOST_LEVEL);
+      setPhase("playing");
+    } catch {
+      setPhase("error");
+    }
+  }, [puzzle]);
 
   const pick = useCallback(
     (id: string) => {
@@ -185,7 +221,8 @@ export function Game() {
 
   const share = useCallback(() => {
     const score = won ? `${finalLevel}/${MAX_CLUES}` : `X/${MAX_CLUES}`;
-    const text = `${t.shareName} #${day}  ${score}\n${resultBlocks(won, finalLevel)}\n${location.origin}`;
+    const tag = mode === "practice" ? t.practice : `#${day}`;
+    const text = `${t.shareName} ${tag}  ${score}\n${resultBlocks(won, finalLevel)}\n${location.origin}`;
     const done = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -204,7 +241,7 @@ export function Game() {
       }
       done();
     }
-  }, [won, finalLevel, day, t]);
+  }, [won, finalLevel, day, t, mode]);
 
   const toggleLang = useCallback(() => {
     const next: Lang = lang === "zh" ? "en" : "zh";
@@ -219,7 +256,7 @@ export function Game() {
     <main className={styles.app}>
       <header className={styles.header}>
         <span className={styles.brand}>{t.brand}</span>
-        <span className={styles.puzzleNo}>{t.puzzleNo(day)}</span>
+        <span className={styles.puzzleNo}>{mode === "practice" ? t.practice : t.puzzleNo(day)}</span>
         <span className={styles.step}>{phase === "playing" ? t.step(shownLevel, MAX_CLUES) : ""}</span>
         <button className={styles.langBtn} onClick={toggleLang} aria-label="Switch language">
           {t.langToggle}
@@ -246,7 +283,8 @@ export function Game() {
               {country ? ` · ${lang === "zh" ? country.cn : ""} ${country.en}`.trimEnd() : ""}
             </div>
             <div className={styles.ovBlocks}>{resultBlocks(won, finalLevel)}</div>
-            {stats && (
+            {mode === "practice" && <div className={styles.practiceNote}>{t.practiceNote}</div>}
+            {mode === "daily" && stats && (
               <div className={styles.ovStats}>
                 <div>
                   <b>{stats.games}</b>
@@ -270,10 +308,15 @@ export function Game() {
               <button className={styles.primaryBtn} onClick={share}>
                 {copied ? t.copied : t.copy}
               </button>
-              <span className={styles.countdown}>
-                {t.next} <b>{countdown}</b>
-              </span>
+              <button className={styles.ghostBtn} onClick={startPractice}>
+                {t.practiceMore}
+              </button>
             </div>
+            {mode === "daily" && (
+              <div className={styles.countdown}>
+                {t.next} <b>{countdown}</b>
+              </div>
+            )}
           </div>
         )}
       </div>
