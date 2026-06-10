@@ -4,9 +4,13 @@
     "cn": "阿姆斯特丹",
     "en": "Amsterdam",
     "feature": "同心运河",
+    "country": {
+      "cn": "荷兰",
+      "en": "Netherlands"
+    },
     "counts": {
       "streets": 666,
-      "water": 780,
+      "water": 827,
       "coastline": 0,
       "tiers": {
         "t1": 15,
@@ -16,13 +20,57 @@
     }
   },
   {
+    "id": "athens",
+    "cn": "雅典",
+    "en": "Athens",
+    "feature": "卫城+普拉卡",
+    "country": {
+      "cn": "希腊",
+      "en": "Greece"
+    },
+    "counts": {
+      "streets": 994,
+      "water": 44,
+      "coastline": 0,
+      "tiers": {
+        "t1": 39,
+        "t2": 115,
+        "t3": 840
+      }
+    }
+  },
+  {
+    "id": "auckland",
+    "cn": "奥克兰",
+    "en": "Auckland",
+    "feature": "怀特马塔港",
+    "country": {
+      "cn": "新西兰",
+      "en": "New Zealand"
+    },
+    "counts": {
+      "streets": 289,
+      "water": 45,
+      "coastline": 19,
+      "tiers": {
+        "t1": 13,
+        "t2": 50,
+        "t3": 226
+      }
+    }
+  },
+  {
     "id": "bangkok",
     "cn": "曼谷",
     "en": "Bangkok",
     "feature": "湄南河弯",
+    "country": {
+      "cn": "泰国",
+      "en": "Thailand"
+    },
     "counts": {
       "streets": 383,
-      "water": 160,
+      "water": 238,
       "coastline": 0,
       "tiers": {
         "t1": 13,
@@ -36,9 +84,13 @@
     "cn": "巴塞罗那",
     "en": "Barcelona",
     "feature": "Eixample 网格",
+    "country": {
+      "cn": "西班牙",
+      "en": "Spain"
+    },
     "counts": {
       "streets": 785,
-      "water": 26,
+      "water": 28,
       "coastline": 4,
       "tiers": {
         "t1": 13,
@@ -52,9 +104,13 @@
     "cn": "北京",
     "en": "Beijing",
     "feature": "棋盘+故宫",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
     "counts": {
       "streets": 170,
-      "water": 29,
+      "water": 38,
       "coastline": 0,
       "tiers": {
         "t1": 21,
@@ -68,9 +124,13 @@
     "cn": "柏林",
     "en": "Berlin",
     "feature": "施普雷河",
+    "country": {
+      "cn": "德国",
+      "en": "Germany"
+    },
     "counts": {
       "streets": 351,
-      "water": 55,
+      "water": 76,
       "coastline": 0,
       "tiers": {
         "t1": 35,
@@ -80,13 +140,57 @@
     }
   },
   {
+    "id": "bogota",
+    "cn": "波哥大",
+    "en": "Bogotá",
+    "feature": "安第斯山麓网格",
+    "country": {
+      "cn": "哥伦比亚",
+      "en": "Colombia"
+    },
+    "counts": {
+      "streets": 301,
+      "water": 35,
+      "coastline": 0,
+      "tiers": {
+        "t1": 12,
+        "t2": 84,
+        "t3": 205
+      }
+    }
+  },
+  {
+    "id": "bordeaux",
+    "cn": "波尔多",
+    "en": "Bordeaux",
+    "feature": "加龙河月亮港",
+    "country": {
+      "cn": "法国",
+      "en": "France"
+    },
+    "counts": {
+      "streets": 710,
+      "water": 24,
+      "coastline": 0,
+      "tiers": {
+        "t1": 2,
+        "t2": 131,
+        "t3": 577
+      }
+    }
+  },
+  {
     "id": "boston",
     "cn": "波士顿",
     "en": "Boston",
     "feature": "不规则老城+查尔斯河",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
     "counts": {
       "streets": 468,
-      "water": 43,
+      "water": 62,
       "coastline": 22,
       "tiers": {
         "t1": 60,
@@ -96,13 +200,97 @@
     }
   },
   {
+    "id": "brasilia",
+    "cn": "巴西利亚",
+    "en": "Brasília",
+    "feature": "飞机平面图",
+    "country": {
+      "cn": "巴西",
+      "en": "Brazil"
+    },
+    "counts": {
+      "streets": 290,
+      "water": 45,
+      "coastline": 0,
+      "tiers": {
+        "t1": 30,
+        "t2": 163,
+        "t3": 97
+      }
+    }
+  },
+  {
+    "id": "brisbane",
+    "cn": "布里斯班",
+    "en": "Brisbane",
+    "feature": "河曲半岛",
+    "country": {
+      "cn": "澳大利亚",
+      "en": "Australia"
+    },
+    "counts": {
+      "streets": 326,
+      "water": 36,
+      "coastline": 0,
+      "tiers": {
+        "t1": 38,
+        "t2": 48,
+        "t3": 240
+      }
+    }
+  },
+  {
+    "id": "brussels",
+    "cn": "布鲁塞尔",
+    "en": "Brussels",
+    "feature": "五边形老城",
+    "country": {
+      "cn": "比利时",
+      "en": "Belgium"
+    },
+    "counts": {
+      "streets": 822,
+      "water": 135,
+      "coastline": 0,
+      "tiers": {
+        "t1": 43,
+        "t2": 92,
+        "t3": 687
+      }
+    }
+  },
+  {
+    "id": "budapest",
+    "cn": "布达佩斯",
+    "en": "Budapest",
+    "feature": "多瑙河双城",
+    "country": {
+      "cn": "匈牙利",
+      "en": "Hungary"
+    },
+    "counts": {
+      "streets": 507,
+      "water": 35,
+      "coastline": 0,
+      "tiers": {
+        "t1": 10,
+        "t2": 91,
+        "t3": 406
+      }
+    }
+  },
+  {
     "id": "buenos-aires",
     "cn": "布宜诺斯艾利斯",
     "en": "Buenos Aires",
     "feature": "网格",
+    "country": {
+      "cn": "阿根廷",
+      "en": "Argentina"
+    },
     "counts": {
       "streets": 143,
-      "water": 11,
+      "water": 29,
       "coastline": 6,
       "tiers": {
         "t1": 14,
@@ -112,13 +300,37 @@
     }
   },
   {
+    "id": "cairo",
+    "cn": "开罗",
+    "en": "Cairo",
+    "feature": "尼罗河+扎马莱克岛",
+    "country": {
+      "cn": "埃及",
+      "en": "Egypt"
+    },
+    "counts": {
+      "streets": 1668,
+      "water": 23,
+      "coastline": 0,
+      "tiers": {
+        "t1": 39,
+        "t2": 52,
+        "t3": 1577
+      }
+    }
+  },
+  {
     "id": "cape-town",
     "cn": "开普敦",
     "en": "Cape Town",
     "feature": "海岸+桌山",
+    "country": {
+      "cn": "南非",
+      "en": "South Africa"
+    },
     "counts": {
       "streets": 329,
-      "water": 18,
+      "water": 25,
       "coastline": 10,
       "tiers": {
         "t1": 13,
@@ -128,13 +340,57 @@
     }
   },
   {
+    "id": "casablanca",
+    "cn": "卡萨布兰卡",
+    "en": "Casablanca",
+    "feature": "放射+麦地那",
+    "country": {
+      "cn": "摩洛哥",
+      "en": "Morocco"
+    },
+    "counts": {
+      "streets": 499,
+      "water": 9,
+      "coastline": 3,
+      "tiers": {
+        "t1": 23,
+        "t2": 52,
+        "t3": 424
+      }
+    }
+  },
+  {
+    "id": "chengdu",
+    "cn": "成都",
+    "en": "Chengdu",
+    "feature": "环形路网+府南河",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 368,
+      "water": 24,
+      "coastline": 0,
+      "tiers": {
+        "t1": 47,
+        "t2": 64,
+        "t3": 257
+      }
+    }
+  },
+  {
     "id": "chicago",
     "cn": "芝加哥",
     "en": "Chicago",
     "feature": "Loop 网格+湖滨",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
     "counts": {
       "streets": 180,
-      "water": 63,
+      "water": 169,
       "coastline": 0,
       "tiers": {
         "t1": 11,
@@ -144,13 +400,377 @@
     }
   },
   {
+    "id": "chongqing",
+    "cn": "重庆",
+    "en": "Chongqing",
+    "feature": "渝中两江半岛",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 112,
+      "water": 11,
+      "coastline": 0,
+      "tiers": {
+        "t1": 13,
+        "t2": 63,
+        "t3": 36
+      }
+    }
+  },
+  {
+    "id": "cologne",
+    "cn": "科隆",
+    "en": "Cologne",
+    "feature": "莱茵河+半环老城",
+    "country": {
+      "cn": "德国",
+      "en": "Germany"
+    },
+    "counts": {
+      "streets": 491,
+      "water": 42,
+      "coastline": 0,
+      "tiers": {
+        "t1": 45,
+        "t2": 46,
+        "t3": 400
+      }
+    }
+  },
+  {
+    "id": "copenhagen",
+    "cn": "哥本哈根",
+    "en": "Copenhagen",
+    "feature": "运河+港湾",
+    "country": {
+      "cn": "丹麦",
+      "en": "Denmark"
+    },
+    "counts": {
+      "streets": 453,
+      "water": 121,
+      "coastline": 41,
+      "tiers": {
+        "t1": 11,
+        "t2": 70,
+        "t3": 372
+      }
+    }
+  },
+  {
+    "id": "delhi",
+    "cn": "德里",
+    "en": "Delhi",
+    "feature": "康诺特广场放射",
+    "country": {
+      "cn": "印度",
+      "en": "India"
+    },
+    "counts": {
+      "streets": 207,
+      "water": 2,
+      "coastline": 0,
+      "tiers": {
+        "t1": 0,
+        "t2": 82,
+        "t3": 125
+      }
+    }
+  },
+  {
+    "id": "denver",
+    "cn": "丹佛",
+    "en": "Denver",
+    "feature": "斜核+正交拼接",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 150,
+      "water": 32,
+      "coastline": 0,
+      "tiers": {
+        "t1": 11,
+        "t2": 68,
+        "t3": 71
+      }
+    }
+  },
+  {
+    "id": "detroit",
+    "cn": "底特律",
+    "en": "Detroit",
+    "feature": "放射轮辐",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 171,
+      "water": 18,
+      "coastline": 0,
+      "tiers": {
+        "t1": 19,
+        "t2": 61,
+        "t3": 91
+      }
+    }
+  },
+  {
+    "id": "dubai",
+    "cn": "迪拜",
+    "en": "Dubai",
+    "feature": "迪拜湾",
+    "country": {
+      "cn": "阿联酋",
+      "en": "UAE"
+    },
+    "counts": {
+      "streets": 204,
+      "water": 4,
+      "coastline": 10,
+      "tiers": {
+        "t1": 12,
+        "t2": 29,
+        "t3": 163
+      }
+    }
+  },
+  {
+    "id": "dublin",
+    "cn": "都柏林",
+    "en": "Dublin",
+    "feature": "利菲河",
+    "country": {
+      "cn": "爱尔兰",
+      "en": "Ireland"
+    },
+    "counts": {
+      "streets": 916,
+      "water": 103,
+      "coastline": 0,
+      "tiers": {
+        "t1": 0,
+        "t2": 256,
+        "t3": 660
+      }
+    }
+  },
+  {
+    "id": "edinburgh",
+    "cn": "爱丁堡",
+    "en": "Edinburgh",
+    "feature": "新城网格+老城脊线",
+    "country": {
+      "cn": "英国",
+      "en": "UK"
+    },
+    "counts": {
+      "streets": 630,
+      "water": 32,
+      "coastline": 0,
+      "tiers": {
+        "t1": 39,
+        "t2": 99,
+        "t3": 492
+      }
+    }
+  },
+  {
+    "id": "florence",
+    "cn": "佛罗伦萨",
+    "en": "Florence",
+    "feature": "阿诺河文艺复兴老城",
+    "country": {
+      "cn": "意大利",
+      "en": "Italy"
+    },
+    "counts": {
+      "streets": 626,
+      "water": 33,
+      "coastline": 0,
+      "tiers": {
+        "t1": 31,
+        "t2": 6,
+        "t3": 589
+      }
+    }
+  },
+  {
+    "id": "frankfurt",
+    "cn": "法兰克福",
+    "en": "Frankfurt",
+    "feature": "美因河+银行区",
+    "country": {
+      "cn": "德国",
+      "en": "Germany"
+    },
+    "counts": {
+      "streets": 517,
+      "water": 38,
+      "coastline": 0,
+      "tiers": {
+        "t1": 36,
+        "t2": 57,
+        "t3": 424
+      }
+    }
+  },
+  {
+    "id": "geneva",
+    "cn": "日内瓦",
+    "en": "Geneva",
+    "feature": "莱芒湖口+罗讷河",
+    "country": {
+      "cn": "瑞士",
+      "en": "Switzerland"
+    },
+    "counts": {
+      "streets": 587,
+      "water": 90,
+      "coastline": 0,
+      "tiers": {
+        "t1": 17,
+        "t2": 115,
+        "t3": 455
+      }
+    }
+  },
+  {
+    "id": "guangzhou",
+    "cn": "广州",
+    "en": "Guangzhou",
+    "feature": "珠江+老城",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 204,
+      "water": 18,
+      "coastline": 0,
+      "tiers": {
+        "t1": 27,
+        "t2": 89,
+        "t3": 88
+      }
+    }
+  },
+  {
+    "id": "hamburg",
+    "cn": "汉堡",
+    "en": "Hamburg",
+    "feature": "阿尔斯特湖+港口",
+    "country": {
+      "cn": "德国",
+      "en": "Germany"
+    },
+    "counts": {
+      "streets": 426,
+      "water": 198,
+      "coastline": 0,
+      "tiers": {
+        "t1": 22,
+        "t2": 89,
+        "t3": 315
+      }
+    }
+  },
+  {
+    "id": "hangzhou",
+    "cn": "杭州",
+    "en": "Hangzhou",
+    "feature": "西湖东岸",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 164,
+      "water": 60,
+      "coastline": 0,
+      "tiers": {
+        "t1": 15,
+        "t2": 34,
+        "t3": 115
+      }
+    }
+  },
+  {
+    "id": "hanoi",
+    "cn": "河内",
+    "en": "Hanoi",
+    "feature": "三十六行街+还剑湖",
+    "country": {
+      "cn": "越南",
+      "en": "Vietnam"
+    },
+    "counts": {
+      "streets": 326,
+      "water": 42,
+      "coastline": 0,
+      "tiers": {
+        "t1": 16,
+        "t2": 71,
+        "t3": 239
+      }
+    }
+  },
+  {
+    "id": "havana",
+    "cn": "哈瓦那",
+    "en": "Havana",
+    "feature": "老城+海堤大道",
+    "country": {
+      "cn": "古巴",
+      "en": "Cuba"
+    },
+    "counts": {
+      "streets": 206,
+      "water": 4,
+      "coastline": 17,
+      "tiers": {
+        "t1": 42,
+        "t2": 30,
+        "t3": 134
+      }
+    }
+  },
+  {
+    "id": "ho-chi-minh",
+    "cn": "胡志明市",
+    "en": "Ho Chi Minh City",
+    "feature": "西贡河+法式网格",
+    "country": {
+      "cn": "越南",
+      "en": "Vietnam"
+    },
+    "counts": {
+      "streets": 316,
+      "water": 57,
+      "coastline": 0,
+      "tiers": {
+        "t1": 41,
+        "t2": 70,
+        "t3": 205
+      }
+    }
+  },
+  {
     "id": "hong-kong",
     "cn": "香港",
     "en": "Hong Kong",
     "feature": "中环+维港",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
     "counts": {
       "streets": 226,
-      "water": 31,
+      "water": 35,
       "coastline": 34,
       "tiers": {
         "t1": 24,
@@ -164,6 +784,10 @@
     "cn": "伊斯坦布尔",
     "en": "Istanbul",
     "feature": "金角湾+海峡",
+    "country": {
+      "cn": "土耳其",
+      "en": "Türkiye"
+    },
     "counts": {
       "streets": 1351,
       "water": 15,
@@ -176,13 +800,77 @@
     }
   },
   {
+    "id": "jakarta",
+    "cn": "雅加达",
+    "en": "Jakarta",
+    "feature": "独立广场+运河",
+    "country": {
+      "cn": "印度尼西亚",
+      "en": "Indonesia"
+    },
+    "counts": {
+      "streets": 534,
+      "water": 69,
+      "coastline": 0,
+      "tiers": {
+        "t1": 42,
+        "t2": 75,
+        "t3": 417
+      }
+    }
+  },
+  {
+    "id": "krakow",
+    "cn": "克拉科夫",
+    "en": "Kraków",
+    "feature": "老城绿带环",
+    "country": {
+      "cn": "波兰",
+      "en": "Poland"
+    },
+    "counts": {
+      "streets": 318,
+      "water": 27,
+      "coastline": 0,
+      "tiers": {
+        "t1": 10,
+        "t2": 35,
+        "t3": 273
+      }
+    }
+  },
+  {
+    "id": "kuala-lumpur",
+    "cn": "吉隆坡",
+    "en": "Kuala Lumpur",
+    "feature": "双河交汇",
+    "country": {
+      "cn": "马来西亚",
+      "en": "Malaysia"
+    },
+    "counts": {
+      "streets": 230,
+      "water": 78,
+      "coastline": 0,
+      "tiers": {
+        "t1": 16,
+        "t2": 50,
+        "t3": 164
+      }
+    }
+  },
+  {
     "id": "kyoto",
     "cn": "京都",
     "en": "Kyoto",
     "feature": "古都棋盘",
+    "country": {
+      "cn": "日本",
+      "en": "Japan"
+    },
     "counts": {
       "streets": 149,
-      "water": 98,
+      "water": 130,
       "coastline": 0,
       "tiers": {
         "t1": 10,
@@ -192,13 +880,57 @@
     }
   },
   {
+    "id": "lagos",
+    "cn": "拉各斯",
+    "en": "Lagos",
+    "feature": "拉各斯岛+泻湖",
+    "country": {
+      "cn": "尼日利亚",
+      "en": "Nigeria"
+    },
+    "counts": {
+      "streets": 149,
+      "water": 17,
+      "coastline": 0,
+      "tiers": {
+        "t1": 20,
+        "t2": 18,
+        "t3": 111
+      }
+    }
+  },
+  {
+    "id": "lima",
+    "cn": "利马",
+    "en": "Lima",
+    "feature": "殖民棋盘老城",
+    "country": {
+      "cn": "秘鲁",
+      "en": "Peru"
+    },
+    "counts": {
+      "streets": 372,
+      "water": 5,
+      "coastline": 0,
+      "tiers": {
+        "t1": 15,
+        "t2": 64,
+        "t3": 293
+      }
+    }
+  },
+  {
     "id": "lisbon",
     "cn": "里斯本",
     "en": "Lisbon",
     "feature": "丘陵+塔霍河",
+    "country": {
+      "cn": "葡萄牙",
+      "en": "Portugal"
+    },
     "counts": {
       "streets": 823,
-      "water": 40,
+      "water": 43,
       "coastline": 6,
       "tiers": {
         "t1": 21,
@@ -212,9 +944,13 @@
     "cn": "伦敦",
     "en": "London",
     "feature": "金融城+泰晤士河",
+    "country": {
+      "cn": "英国",
+      "en": "UK"
+    },
     "counts": {
       "streets": 1034,
-      "water": 50,
+      "water": 94,
       "coastline": 0,
       "tiers": {
         "t1": 94,
@@ -224,13 +960,237 @@
     }
   },
   {
+    "id": "los-angeles",
+    "cn": "洛杉矶",
+    "en": "Los Angeles",
+    "feature": "DTLA 斜网格",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 212,
+      "water": 6,
+      "coastline": 0,
+      "tiers": {
+        "t1": 48,
+        "t2": 50,
+        "t3": 114
+      }
+    }
+  },
+  {
+    "id": "lyon",
+    "cn": "里昂",
+    "en": "Lyon",
+    "feature": "两河半岛",
+    "country": {
+      "cn": "法国",
+      "en": "France"
+    },
+    "counts": {
+      "streets": 674,
+      "water": 29,
+      "coastline": 0,
+      "tiers": {
+        "t1": 56,
+        "t2": 50,
+        "t3": 568
+      }
+    }
+  },
+  {
+    "id": "macau",
+    "cn": "澳门",
+    "en": "Macau",
+    "feature": "半岛老城",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 655,
+      "water": 25,
+      "coastline": 3,
+      "tiers": {
+        "t1": 25,
+        "t2": 61,
+        "t3": 569
+      }
+    }
+  },
+  {
+    "id": "madrid",
+    "cn": "马德里",
+    "en": "Madrid",
+    "feature": "太阳门放射",
+    "country": {
+      "cn": "西班牙",
+      "en": "Spain"
+    },
+    "counts": {
+      "streets": 842,
+      "water": 98,
+      "coastline": 0,
+      "tiers": {
+        "t1": 50,
+        "t2": 69,
+        "t3": 723
+      }
+    }
+  },
+  {
+    "id": "marrakesh",
+    "cn": "马拉喀什",
+    "en": "Marrakesh",
+    "feature": "红色麦地那迷宫",
+    "country": {
+      "cn": "摩洛哥",
+      "en": "Morocco"
+    },
+    "counts": {
+      "streets": 222,
+      "water": 14,
+      "coastline": 0,
+      "tiers": {
+        "t1": 3,
+        "t2": 31,
+        "t3": 188
+      }
+    }
+  },
+  {
+    "id": "marseille",
+    "cn": "马赛",
+    "en": "Marseille",
+    "feature": "老港扇形",
+    "country": {
+      "cn": "法国",
+      "en": "France"
+    },
+    "counts": {
+      "streets": 756,
+      "water": 34,
+      "coastline": 24,
+      "tiers": {
+        "t1": 8,
+        "t2": 105,
+        "t3": 643
+      }
+    }
+  },
+  {
+    "id": "melbourne",
+    "cn": "墨尔本",
+    "en": "Melbourne",
+    "feature": "Hoddle 网格+亚拉河",
+    "country": {
+      "cn": "澳大利亚",
+      "en": "Australia"
+    },
+    "counts": {
+      "streets": 380,
+      "water": 57,
+      "coastline": 0,
+      "tiers": {
+        "t1": 69,
+        "t2": 48,
+        "t3": 263
+      }
+    }
+  },
+  {
+    "id": "mexico-city",
+    "cn": "墨西哥城",
+    "en": "Mexico City",
+    "feature": "索卡洛殖民网格",
+    "country": {
+      "cn": "墨西哥",
+      "en": "Mexico"
+    },
+    "counts": {
+      "streets": 468,
+      "water": 33,
+      "coastline": 0,
+      "tiers": {
+        "t1": 22,
+        "t2": 53,
+        "t3": 393
+      }
+    }
+  },
+  {
+    "id": "miami",
+    "cn": "迈阿密",
+    "en": "Miami",
+    "feature": "比斯坎湾",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 150,
+      "water": 41,
+      "coastline": 12,
+      "tiers": {
+        "t1": 29,
+        "t2": 47,
+        "t3": 74
+      }
+    }
+  },
+  {
+    "id": "milan",
+    "cn": "米兰",
+    "en": "Milan",
+    "feature": "同心环",
+    "country": {
+      "cn": "意大利",
+      "en": "Italy"
+    },
+    "counts": {
+      "streets": 713,
+      "water": 50,
+      "coastline": 0,
+      "tiers": {
+        "t1": 0,
+        "t2": 96,
+        "t3": 617
+      }
+    }
+  },
+  {
+    "id": "montreal",
+    "cn": "蒙特利尔",
+    "en": "Montreal",
+    "feature": "老港+网格",
+    "country": {
+      "cn": "加拿大",
+      "en": "Canada"
+    },
+    "counts": {
+      "streets": 250,
+      "water": 23,
+      "coastline": 0,
+      "tiers": {
+        "t1": 7,
+        "t2": 57,
+        "t3": 186
+      }
+    }
+  },
+  {
     "id": "moscow",
     "cn": "莫斯科",
     "en": "Moscow",
     "feature": "放射环线+红场",
+    "country": {
+      "cn": "俄罗斯",
+      "en": "Russia"
+    },
     "counts": {
       "streets": 355,
-      "water": 32,
+      "water": 177,
       "coastline": 0,
       "tiers": {
         "t1": 26,
@@ -244,6 +1204,10 @@
     "cn": "孟买",
     "en": "Mumbai",
     "feature": "半岛海岸",
+    "country": {
+      "cn": "印度",
+      "en": "India"
+    },
     "counts": {
       "streets": 200,
       "water": 1,
@@ -256,13 +1220,77 @@
     }
   },
   {
+    "id": "munich",
+    "cn": "慕尼黑",
+    "en": "Munich",
+    "feature": "老城环+伊萨尔河",
+    "country": {
+      "cn": "德国",
+      "en": "Germany"
+    },
+    "counts": {
+      "streets": 404,
+      "water": 99,
+      "coastline": 0,
+      "tiers": {
+        "t1": 0,
+        "t2": 82,
+        "t3": 322
+      }
+    }
+  },
+  {
+    "id": "naples",
+    "cn": "那不勒斯",
+    "en": "Naples",
+    "feature": "海湾+西班牙区网格",
+    "country": {
+      "cn": "意大利",
+      "en": "Italy"
+    },
+    "counts": {
+      "streets": 849,
+      "water": 3,
+      "coastline": 4,
+      "tiers": {
+        "t1": 22,
+        "t2": 53,
+        "t3": 774
+      }
+    }
+  },
+  {
+    "id": "new-orleans",
+    "cn": "新奥尔良",
+    "en": "New Orleans",
+    "feature": "密西西比月牙扇形",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 173,
+      "water": 9,
+      "coastline": 0,
+      "tiers": {
+        "t1": 11,
+        "t2": 40,
+        "t3": 122
+      }
+    }
+  },
+  {
     "id": "new-york",
     "cn": "纽约",
     "en": "New York",
     "feature": "下城网格+海岸",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
     "counts": {
       "streets": 227,
-      "water": 50,
+      "water": 55,
       "coastline": 24,
       "tiers": {
         "t1": 38,
@@ -272,13 +1300,57 @@
     }
   },
   {
+    "id": "osaka",
+    "cn": "大阪",
+    "en": "Osaka",
+    "feature": "御堂筋+道顿堀",
+    "country": {
+      "cn": "日本",
+      "en": "Japan"
+    },
+    "counts": {
+      "streets": 262,
+      "water": 25,
+      "coastline": 0,
+      "tiers": {
+        "t1": 24,
+        "t2": 72,
+        "t3": 166
+      }
+    }
+  },
+  {
+    "id": "oslo",
+    "cn": "奥斯陆",
+    "en": "Oslo",
+    "feature": "峡湾口网格",
+    "country": {
+      "cn": "挪威",
+      "en": "Norway"
+    },
+    "counts": {
+      "streets": 383,
+      "water": 56,
+      "coastline": 48,
+      "tiers": {
+        "t1": 38,
+        "t2": 55,
+        "t3": 290
+      }
+    }
+  },
+  {
     "id": "paris",
     "cn": "巴黎",
     "en": "Paris",
     "feature": "塞纳河+西岱岛+放射",
+    "country": {
+      "cn": "法国",
+      "en": "France"
+    },
     "counts": {
       "streets": 948,
-      "water": 122,
+      "water": 133,
       "coastline": 0,
       "tiers": {
         "t1": 49,
@@ -288,13 +1360,137 @@
     }
   },
   {
+    "id": "perth",
+    "cn": "珀斯",
+    "en": "Perth",
+    "feature": "天鹅河+网格",
+    "country": {
+      "cn": "澳大利亚",
+      "en": "Australia"
+    },
+    "counts": {
+      "streets": 215,
+      "water": 24,
+      "coastline": 0,
+      "tiers": {
+        "t1": 31,
+        "t2": 39,
+        "t3": 145
+      }
+    }
+  },
+  {
+    "id": "philadelphia",
+    "cn": "费城",
+    "en": "Philadelphia",
+    "feature": "佩恩五广场网格",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 241,
+      "water": 54,
+      "coastline": 0,
+      "tiers": {
+        "t1": 39,
+        "t2": 45,
+        "t3": 157
+      }
+    }
+  },
+  {
+    "id": "pittsburgh",
+    "cn": "匹兹堡",
+    "en": "Pittsburgh",
+    "feature": "三河金三角",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 249,
+      "water": 26,
+      "coastline": 0,
+      "tiers": {
+        "t1": 33,
+        "t2": 65,
+        "t3": 151
+      }
+    }
+  },
+  {
+    "id": "porto",
+    "cn": "波尔图",
+    "en": "Porto",
+    "feature": "杜罗河谷阶梯",
+    "country": {
+      "cn": "葡萄牙",
+      "en": "Portugal"
+    },
+    "counts": {
+      "streets": 547,
+      "water": 66,
+      "coastline": 0,
+      "tiers": {
+        "t1": 17,
+        "t2": 112,
+        "t3": 418
+      }
+    }
+  },
+  {
+    "id": "prague",
+    "cn": "布拉格",
+    "en": "Prague",
+    "feature": "伏尔塔瓦河弯+老城",
+    "country": {
+      "cn": "捷克",
+      "en": "Czechia"
+    },
+    "counts": {
+      "streets": 455,
+      "water": 88,
+      "coastline": 0,
+      "tiers": {
+        "t1": 2,
+        "t2": 83,
+        "t3": 370
+      }
+    }
+  },
+  {
+    "id": "quebec-city",
+    "cn": "魁北克城",
+    "en": "Quebec City",
+    "feature": "城墙老城",
+    "country": {
+      "cn": "加拿大",
+      "en": "Canada"
+    },
+    "counts": {
+      "streets": 224,
+      "water": 36,
+      "coastline": 0,
+      "tiers": {
+        "t1": 14,
+        "t2": 23,
+        "t3": 187
+      }
+    }
+  },
+  {
     "id": "rio-de-janeiro",
     "cn": "里约热内卢",
     "en": "Rio de Janeiro",
     "feature": "海岸+山",
+    "country": {
+      "cn": "巴西",
+      "en": "Brazil"
+    },
     "counts": {
       "streets": 279,
-      "water": 21,
+      "water": 24,
       "coastline": 7,
       "tiers": {
         "t1": 38,
@@ -308,9 +1504,13 @@
     "cn": "罗马",
     "en": "Rome",
     "feature": "古城+台伯河",
+    "country": {
+      "cn": "意大利",
+      "en": "Italy"
+    },
     "counts": {
       "streets": 1082,
-      "water": 133,
+      "water": 157,
       "coastline": 0,
       "tiers": {
         "t1": 46,
@@ -320,10 +1520,34 @@
     }
   },
   {
+    "id": "saint-petersburg",
+    "cn": "圣彼得堡",
+    "en": "Saint Petersburg",
+    "feature": "涅瓦河放射+运河",
+    "country": {
+      "cn": "俄罗斯",
+      "en": "Russia"
+    },
+    "counts": {
+      "streets": 240,
+      "water": 570,
+      "coastline": 0,
+      "tiers": {
+        "t1": 39,
+        "t2": 89,
+        "t3": 112
+      }
+    }
+  },
+  {
     "id": "san-francisco",
     "cn": "旧金山",
     "en": "San Francisco",
     "feature": "海湾+网格",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
     "counts": {
       "streets": 203,
       "water": 13,
@@ -336,13 +1560,117 @@
     }
   },
   {
+    "id": "santiago",
+    "cn": "圣地亚哥",
+    "en": "Santiago",
+    "feature": "马波乔河+棋盘",
+    "country": {
+      "cn": "智利",
+      "en": "Chile"
+    },
+    "counts": {
+      "streets": 367,
+      "water": 33,
+      "coastline": 0,
+      "tiers": {
+        "t1": 44,
+        "t2": 62,
+        "t3": 261
+      }
+    }
+  },
+  {
+    "id": "sao-paulo",
+    "cn": "圣保罗",
+    "en": "São Paulo",
+    "feature": "中心区放射",
+    "country": {
+      "cn": "巴西",
+      "en": "Brazil"
+    },
+    "counts": {
+      "streets": 568,
+      "water": 20,
+      "coastline": 0,
+      "tiers": {
+        "t1": 55,
+        "t2": 162,
+        "t3": 351
+      }
+    }
+  },
+  {
+    "id": "seattle",
+    "cn": "西雅图",
+    "en": "Seattle",
+    "feature": "海湾斜拼网格",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
+    "counts": {
+      "streets": 169,
+      "water": 12,
+      "coastline": 27,
+      "tiers": {
+        "t1": 34,
+        "t2": 66,
+        "t3": 69
+      }
+    }
+  },
+  {
+    "id": "seoul",
+    "cn": "首尔",
+    "en": "Seoul",
+    "feature": "清溪川+景福宫",
+    "country": {
+      "cn": "韩国",
+      "en": "South Korea"
+    },
+    "counts": {
+      "streets": 336,
+      "water": 40,
+      "coastline": 0,
+      "tiers": {
+        "t1": 23,
+        "t2": 42,
+        "t3": 271
+      }
+    }
+  },
+  {
+    "id": "seville",
+    "cn": "塞维利亚",
+    "en": "Seville",
+    "feature": "老城迷宫+瓜河",
+    "country": {
+      "cn": "西班牙",
+      "en": "Spain"
+    },
+    "counts": {
+      "streets": 1107,
+      "water": 54,
+      "coastline": 0,
+      "tiers": {
+        "t1": 46,
+        "t2": 39,
+        "t3": 1022
+      }
+    }
+  },
+  {
     "id": "shanghai",
     "cn": "上海",
     "en": "Shanghai",
     "feature": "外滩+黄浦江",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
     "counts": {
       "streets": 226,
-      "water": 40,
+      "water": 42,
       "coastline": 0,
       "tiers": {
         "t1": 16,
@@ -352,13 +1680,37 @@
     }
   },
   {
+    "id": "shenzhen",
+    "cn": "深圳",
+    "en": "Shenzhen",
+    "feature": "福田中轴网格",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 127,
+      "water": 54,
+      "coastline": 0,
+      "tiers": {
+        "t1": 20,
+        "t2": 28,
+        "t3": 79
+      }
+    }
+  },
+  {
     "id": "singapore",
     "cn": "新加坡",
     "en": "Singapore",
     "feature": "滨海湾",
+    "country": {
+      "cn": "新加坡",
+      "en": "Singapore"
+    },
     "counts": {
       "streets": 225,
-      "water": 43,
+      "water": 97,
       "coastline": 4,
       "tiers": {
         "t1": 42,
@@ -368,13 +1720,37 @@
     }
   },
   {
+    "id": "stockholm",
+    "cn": "斯德哥尔摩",
+    "en": "Stockholm",
+    "feature": "老城群岛",
+    "country": {
+      "cn": "瑞典",
+      "en": "Sweden"
+    },
+    "counts": {
+      "streets": 490,
+      "water": 65,
+      "coastline": 32,
+      "tiers": {
+        "t1": 17,
+        "t2": 75,
+        "t3": 398
+      }
+    }
+  },
+  {
     "id": "sydney",
     "cn": "悉尼",
     "en": "Sydney",
     "feature": "海港+环形码头",
+    "country": {
+      "cn": "澳大利亚",
+      "en": "Australia"
+    },
     "counts": {
       "streets": 312,
-      "water": 52,
+      "water": 161,
       "coastline": 0,
       "tiers": {
         "t1": 37,
@@ -384,13 +1760,57 @@
     }
   },
   {
+    "id": "tel-aviv",
+    "cn": "特拉维夫",
+    "en": "Tel Aviv",
+    "feature": "地中海岸+白城",
+    "country": {
+      "cn": "以色列",
+      "en": "Israel"
+    },
+    "counts": {
+      "streets": 508,
+      "water": 27,
+      "coastline": 2,
+      "tiers": {
+        "t1": 2,
+        "t2": 71,
+        "t3": 435
+      }
+    }
+  },
+  {
+    "id": "tianjin",
+    "cn": "天津",
+    "en": "Tianjin",
+    "feature": "海河九曲",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 200,
+      "water": 7,
+      "coastline": 0,
+      "tiers": {
+        "t1": 12,
+        "t2": 112,
+        "t3": 76
+      }
+    }
+  },
+  {
     "id": "tokyo",
     "cn": "东京",
     "en": "Tokyo",
     "feature": "丸之内+皇居",
+    "country": {
+      "cn": "日本",
+      "en": "Japan"
+    },
     "counts": {
       "streets": 167,
-      "water": 50,
+      "water": 92,
       "coastline": 0,
       "tiers": {
         "t1": 35,
@@ -404,9 +1824,13 @@
     "cn": "多伦多",
     "en": "Toronto",
     "feature": "网格+安大略湖",
+    "country": {
+      "cn": "加拿大",
+      "en": "Canada"
+    },
     "counts": {
       "streets": 243,
-      "water": 35,
+      "water": 43,
       "coastline": 0,
       "tiers": {
         "t1": 10,
@@ -416,13 +1840,37 @@
     }
   },
   {
+    "id": "tunis",
+    "cn": "突尼斯",
+    "en": "Tunis",
+    "feature": "麦地那+新城对比",
+    "country": {
+      "cn": "突尼斯",
+      "en": "Tunisia"
+    },
+    "counts": {
+      "streets": 623,
+      "water": 8,
+      "coastline": 0,
+      "tiers": {
+        "t1": 19,
+        "t2": 49,
+        "t3": 555
+      }
+    }
+  },
+  {
     "id": "vancouver",
     "cn": "温哥华",
     "en": "Vancouver",
     "feature": "半岛+网格",
+    "country": {
+      "cn": "加拿大",
+      "en": "Canada"
+    },
     "counts": {
       "streets": 149,
-      "water": 36,
+      "water": 47,
       "coastline": 34,
       "tiers": {
         "t1": 12,
@@ -436,9 +1884,13 @@
     "cn": "威尼斯",
     "en": "Venice",
     "feature": "运河迷宫",
+    "country": {
+      "cn": "意大利",
+      "en": "Italy"
+    },
     "counts": {
       "streets": 2081,
-      "water": 377,
+      "water": 396,
       "coastline": 0,
       "tiers": {
         "t1": 0,
@@ -452,9 +1904,13 @@
     "cn": "维也纳",
     "en": "Vienna",
     "feature": "环城大道",
+    "country": {
+      "cn": "奥地利",
+      "en": "Austria"
+    },
     "counts": {
       "streets": 678,
-      "water": 35,
+      "water": 45,
       "coastline": 0,
       "tiers": {
         "t1": 24,
@@ -468,14 +1924,78 @@
     "cn": "华盛顿",
     "en": "Washington DC",
     "feature": "放射+网格",
+    "country": {
+      "cn": "美国",
+      "en": "USA"
+    },
     "counts": {
       "streets": 157,
-      "water": 80,
+      "water": 95,
       "coastline": 0,
       "tiers": {
         "t1": 65,
         "t2": 40,
         "t3": 52
+      }
+    }
+  },
+  {
+    "id": "wellington",
+    "cn": "惠灵顿",
+    "en": "Wellington",
+    "feature": "港湾环抱",
+    "country": {
+      "cn": "新西兰",
+      "en": "New Zealand"
+    },
+    "counts": {
+      "streets": 267,
+      "water": 27,
+      "coastline": 10,
+      "tiers": {
+        "t1": 17,
+        "t2": 49,
+        "t3": 201
+      }
+    }
+  },
+  {
+    "id": "xian",
+    "cn": "西安",
+    "en": "Xi'an",
+    "feature": "明城墙棋盘",
+    "country": {
+      "cn": "中国",
+      "en": "China"
+    },
+    "counts": {
+      "streets": 209,
+      "water": 19,
+      "coastline": 0,
+      "tiers": {
+        "t1": 14,
+        "t2": 79,
+        "t3": 116
+      }
+    }
+  },
+  {
+    "id": "zurich",
+    "cn": "苏黎世",
+    "en": "Zurich",
+    "feature": "湖口+利马特河",
+    "country": {
+      "cn": "瑞士",
+      "en": "Switzerland"
+    },
+    "counts": {
+      "streets": 553,
+      "water": 34,
+      "coastline": 0,
+      "tiers": {
+        "t1": 15,
+        "t2": 92,
+        "t3": 446
       }
     }
   }

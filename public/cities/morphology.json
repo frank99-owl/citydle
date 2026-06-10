@@ -3,70 +3,273 @@
     "grid": 0.003,
     "water": "river",
     "streetKm": 192.3,
-    "waterKm": 141.5,
+    "waterKm": 159.8,
     "coastKm": 0
+  },
+  "athens": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 253.7,
+    "waterKm": 5.7,
+    "coastKm": 0
+  },
+  "auckland": {
+    "grid": 0.004,
+    "water": "coast",
+    "streetKm": 101.2,
+    "waterKm": 1.7,
+    "coastKm": 17.1
   },
   "bangkok": {
     "grid": 0.001,
     "water": "river",
     "streetKm": 149.4,
-    "waterKm": 54.7,
+    "waterKm": 86,
     "coastKm": 0
   },
   "barcelona": {
     "grid": 0.122,
     "water": "coast",
     "streetKm": 270.6,
-    "waterKm": 1.6,
+    "waterKm": 1.8,
     "coastKm": 3.3
   },
   "beijing": {
     "grid": 0.455,
     "water": "river",
     "streetKm": 121.1,
-    "waterKm": 23.3,
+    "waterKm": 33,
     "coastKm": 0
   },
   "berlin": {
     "grid": 0.006,
     "water": "river",
     "streetKm": 156.8,
-    "waterKm": 28.3,
+    "waterKm": 43.4,
+    "coastKm": 0
+  },
+  "bogota": {
+    "grid": 0.085,
+    "water": "inland",
+    "streetKm": 210.8,
+    "waterKm": 1.3,
+    "coastKm": 0
+  },
+  "bordeaux": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 174.8,
+    "waterKm": 11.9,
     "coastKm": 0
   },
   "boston": {
     "grid": 0.001,
     "water": "coast",
     "streetKm": 153,
-    "waterKm": 16,
+    "waterKm": 25.2,
     "coastKm": 15.4
+  },
+  "brasilia": {
+    "grid": 0.004,
+    "water": "river",
+    "streetKm": 338.4,
+    "waterKm": 21.8,
+    "coastKm": 0
+  },
+  "brisbane": {
+    "grid": 0.009,
+    "water": "river",
+    "streetKm": 149.1,
+    "waterKm": 24.4,
+    "coastKm": 0
+  },
+  "brussels": {
+    "grid": 0.004,
+    "water": "river",
+    "streetKm": 219.4,
+    "waterKm": 20.3,
+    "coastKm": 0
+  },
+  "budapest": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 192.1,
+    "waterKm": 14.1,
+    "coastKm": 0
   },
   "buenos-aires": {
     "grid": 0.262,
-    "water": "inland",
+    "water": "river",
     "streetKm": 189.8,
-    "waterKm": 0.4,
+    "waterKm": 8.6,
     "coastKm": 1.7
+  },
+  "cairo": {
+    "grid": 0.005,
+    "water": "river",
+    "streetKm": 289.8,
+    "waterKm": 27.1,
+    "coastKm": 0
   },
   "cape-town": {
     "grid": 0.026,
     "water": "coast",
     "streetKm": 148.3,
-    "waterKm": 2,
+    "waterKm": 6.5,
     "coastKm": 10.7
+  },
+  "casablanca": {
+    "grid": 0,
+    "water": "coast",
+    "streetKm": 175.9,
+    "waterKm": 1.1,
+    "coastKm": 12
+  },
+  "chengdu": {
+    "grid": 0.064,
+    "water": "river",
+    "streetKm": 175.8,
+    "waterKm": 22.8,
+    "coastKm": 0
   },
   "chicago": {
     "grid": 0.457,
     "water": "river",
     "streetKm": 166,
-    "waterKm": 11.4,
+    "waterKm": 40.4,
+    "coastKm": 0
+  },
+  "chongqing": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 100.1,
+    "waterKm": 25.6,
+    "coastKm": 0
+  },
+  "cologne": {
+    "grid": 0.004,
+    "water": "river",
+    "streetKm": 156.8,
+    "waterKm": 19.5,
+    "coastKm": 0
+  },
+  "copenhagen": {
+    "grid": 0.007,
+    "water": "coast",
+    "streetKm": 151.6,
+    "waterKm": 41.6,
+    "coastKm": 22.1
+  },
+  "delhi": {
+    "grid": 0.019,
+    "water": "inland",
+    "streetKm": 152.8,
+    "waterKm": 0.3,
+    "coastKm": 0
+  },
+  "denver": {
+    "grid": 0.138,
+    "water": "river",
+    "streetKm": 158,
+    "waterKm": 16.1,
+    "coastKm": 0
+  },
+  "detroit": {
+    "grid": 0.115,
+    "water": "river",
+    "streetKm": 129.3,
+    "waterKm": 12.9,
+    "coastKm": 0
+  },
+  "dubai": {
+    "grid": 0.003,
+    "water": "coast",
+    "streetKm": 158.7,
+    "waterKm": 5.5,
+    "coastKm": 21.1
+  },
+  "dublin": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 172,
+    "waterKm": 26.9,
+    "coastKm": 0
+  },
+  "edinburgh": {
+    "grid": 0.006,
+    "water": "river",
+    "streetKm": 142.9,
+    "waterKm": 14.7,
+    "coastKm": 0
+  },
+  "florence": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 141,
+    "waterKm": 12.9,
+    "coastKm": 0
+  },
+  "frankfurt": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 178.7,
+    "waterKm": 18.2,
+    "coastKm": 0
+  },
+  "geneva": {
+    "grid": 0.003,
+    "water": "river",
+    "streetKm": 148,
+    "waterKm": 24.9,
+    "coastKm": 0
+  },
+  "guangzhou": {
+    "grid": 0.009,
+    "water": "river",
+    "streetKm": 128.9,
+    "waterKm": 16.5,
+    "coastKm": 0
+  },
+  "hamburg": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 135.9,
+    "waterKm": 87.6,
+    "coastKm": 0
+  },
+  "hangzhou": {
+    "grid": 0.075,
+    "water": "river",
+    "streetKm": 124.6,
+    "waterKm": 29.9,
+    "coastKm": 0
+  },
+  "hanoi": {
+    "grid": 0.012,
+    "water": "river",
+    "streetKm": 123.2,
+    "waterKm": 23.2,
+    "coastKm": 0
+  },
+  "havana": {
+    "grid": 0.029,
+    "water": "coast",
+    "streetKm": 144.5,
+    "waterKm": 0.7,
+    "coastKm": 15.3
+  },
+  "ho-chi-minh": {
+    "grid": 0.037,
+    "water": "river",
+    "streetKm": 170,
+    "waterKm": 34.2,
     "coastKm": 0
   },
   "hong-kong": {
     "grid": 0.005,
     "water": "coast",
     "streetKm": 113.3,
-    "waterKm": 2.5,
+    "waterKm": 2.8,
     "coastKm": 5.8
   },
   "istanbul": {
@@ -76,11 +279,46 @@
     "waterKm": 0.8,
     "coastKm": 18.2
   },
+  "jakarta": {
+    "grid": 0.019,
+    "water": "river",
+    "streetKm": 186.9,
+    "waterKm": 44,
+    "coastKm": 0
+  },
+  "krakow": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 113.3,
+    "waterKm": 11.4,
+    "coastKm": 0
+  },
+  "kuala-lumpur": {
+    "grid": 0,
+    "water": "river",
+    "streetKm": 142.7,
+    "waterKm": 27.9,
+    "coastKm": 0
+  },
   "kyoto": {
     "grid": 0.336,
     "water": "river",
     "streetKm": 158.8,
-    "waterKm": 34,
+    "waterKm": 41.1,
+    "coastKm": 0
+  },
+  "lagos": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 90.3,
+    "waterKm": 26.5,
+    "coastKm": 0
+  },
+  "lima": {
+    "grid": 0.039,
+    "water": "river",
+    "streetKm": 203,
+    "waterKm": 11.9,
     "coastKm": 0
   },
   "lisbon": {
@@ -94,14 +332,91 @@
     "grid": 0.001,
     "water": "river",
     "streetKm": 192.8,
-    "waterKm": 10.3,
+    "waterKm": 21.7,
+    "coastKm": 0
+  },
+  "los-angeles": {
+    "grid": 0.07,
+    "water": "inland",
+    "streetKm": 165.8,
+    "waterKm": 0.4,
+    "coastKm": 0
+  },
+  "lyon": {
+    "grid": 0.019,
+    "water": "river",
+    "streetKm": 220.1,
+    "waterKm": 27.2,
+    "coastKm": 0
+  },
+  "macau": {
+    "grid": 0.003,
+    "water": "coast",
+    "streetKm": 122,
+    "waterKm": 10.8,
+    "coastKm": 11.1
+  },
+  "madrid": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 250.6,
+    "waterKm": 15.1,
+    "coastKm": 0
+  },
+  "marrakesh": {
+    "grid": 0.002,
+    "water": "inland",
+    "streetKm": 81.6,
+    "waterKm": 3.7,
+    "coastKm": 0
+  },
+  "marseille": {
+    "grid": 0.005,
+    "water": "coast",
+    "streetKm": 190.4,
+    "waterKm": 1.3,
+    "coastKm": 15.3
+  },
+  "melbourne": {
+    "grid": 0.022,
+    "water": "river",
+    "streetKm": 224.6,
+    "waterKm": 21.3,
+    "coastKm": 0
+  },
+  "mexico-city": {
+    "grid": 0.233,
+    "water": "inland",
+    "streetKm": 257.3,
+    "waterKm": 1.8,
+    "coastKm": 0
+  },
+  "miami": {
+    "grid": 0.239,
+    "water": "coast",
+    "streetKm": 127.8,
+    "waterKm": 20.9,
+    "coastKm": 11.3
+  },
+  "milan": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 183.9,
+    "waterKm": 19.1,
+    "coastKm": 0
+  },
+  "montreal": {
+    "grid": 0.263,
+    "water": "river",
+    "streetKm": 158.1,
+    "waterKm": 29.4,
     "coastKm": 0
   },
   "moscow": {
     "grid": 0,
     "water": "river",
     "streetKm": 164.3,
-    "waterKm": 14.6,
+    "waterKm": 34.5,
     "coastKm": 0
   },
   "mumbai": {
@@ -111,32 +426,116 @@
     "waterKm": 0.5,
     "coastKm": 16.6
   },
+  "munich": {
+    "grid": 0.005,
+    "water": "river",
+    "streetKm": 144.8,
+    "waterKm": 42.6,
+    "coastKm": 0
+  },
+  "naples": {
+    "grid": 0.002,
+    "water": "coast",
+    "streetKm": 151.7,
+    "waterKm": 0.1,
+    "coastKm": 14.2
+  },
+  "new-orleans": {
+    "grid": 0.132,
+    "water": "river",
+    "streetKm": 179.8,
+    "waterKm": 10.2,
+    "coastKm": 0
+  },
   "new-york": {
     "grid": 0.005,
     "water": "coast",
     "streetKm": 134.3,
-    "waterKm": 5.3,
+    "waterKm": 7.4,
     "coastKm": 15.9
+  },
+  "osaka": {
+    "grid": 0.147,
+    "water": "river",
+    "streetKm": 223.8,
+    "waterKm": 27.2,
+    "coastKm": 0
+  },
+  "oslo": {
+    "grid": 0.002,
+    "water": "coast",
+    "streetKm": 144.3,
+    "waterKm": 13.3,
+    "coastKm": 11.6
   },
   "paris": {
     "grid": 0.01,
     "water": "river",
     "streetKm": 230.1,
-    "waterKm": 14.5,
+    "waterKm": 28.8,
+    "coastKm": 0
+  },
+  "perth": {
+    "grid": 0.16,
+    "water": "river",
+    "streetKm": 134.1,
+    "waterKm": 15,
+    "coastKm": 0
+  },
+  "philadelphia": {
+    "grid": 0.33,
+    "water": "river",
+    "streetKm": 225.2,
+    "waterKm": 9.2,
+    "coastKm": 0
+  },
+  "pittsburgh": {
+    "grid": 0.003,
+    "water": "river",
+    "streetKm": 134.2,
+    "waterKm": 22.7,
+    "coastKm": 0
+  },
+  "porto": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 134.5,
+    "waterKm": 14.4,
+    "coastKm": 0
+  },
+  "prague": {
+    "grid": 0.009,
+    "water": "river",
+    "streetKm": 151.9,
+    "waterKm": 31.1,
+    "coastKm": 0
+  },
+  "quebec-city": {
+    "grid": 0.032,
+    "water": "river",
+    "streetKm": 76.7,
+    "waterKm": 18.1,
     "coastKm": 0
   },
   "rio-de-janeiro": {
     "grid": 0.004,
     "water": "coast",
     "streetKm": 126.5,
-    "waterKm": 3.6,
+    "waterKm": 4.4,
     "coastKm": 16.5
   },
   "rome": {
     "grid": 0,
     "water": "river",
     "streetKm": 212.2,
-    "waterKm": 9.5,
+    "waterKm": 22.3,
+    "coastKm": 0
+  },
+  "saint-petersburg": {
+    "grid": 0.008,
+    "water": "river",
+    "streetKm": 161,
+    "waterKm": 62.8,
     "coastKm": 0
   },
   "san-francisco": {
@@ -146,67 +545,158 @@
     "waterKm": 0.8,
     "coastKm": 10.6
   },
+  "santiago": {
+    "grid": 0.066,
+    "water": "river",
+    "streetKm": 207.8,
+    "waterKm": 13.7,
+    "coastKm": 0
+  },
+  "sao-paulo": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 256.5,
+    "waterKm": 14.4,
+    "coastKm": 0
+  },
+  "seattle": {
+    "grid": 0.064,
+    "water": "coast",
+    "streetKm": 135.1,
+    "waterKm": 1.2,
+    "coastKm": 7
+  },
+  "seoul": {
+    "grid": 0.012,
+    "water": "river",
+    "streetKm": 176.4,
+    "waterKm": 10.6,
+    "coastKm": 0
+  },
+  "seville": {
+    "grid": 0.001,
+    "water": "river",
+    "streetKm": 193.6,
+    "waterKm": 16.8,
+    "coastKm": 0
+  },
   "shanghai": {
     "grid": 0.022,
     "water": "river",
     "streetKm": 186.4,
-    "waterKm": 30.8,
+    "waterKm": 31.3,
+    "coastKm": 0
+  },
+  "shenzhen": {
+    "grid": 0.33,
+    "water": "river",
+    "streetKm": 164.5,
+    "waterKm": 19.8,
     "coastKm": 0
   },
   "singapore": {
     "grid": 0.013,
     "water": "river",
     "streetKm": 128.1,
-    "waterKm": 12.3,
+    "waterKm": 27.8,
     "coastKm": 2.8
+  },
+  "stockholm": {
+    "grid": 0.01,
+    "water": "coast",
+    "streetKm": 188.7,
+    "waterKm": 16.4,
+    "coastKm": 10.3
   },
   "sydney": {
     "grid": 0.007,
-    "water": "inland",
+    "water": "river",
     "streetKm": 127.5,
-    "waterKm": 2.3,
+    "waterKm": 34.8,
+    "coastKm": 0
+  },
+  "tel-aviv": {
+    "grid": 0.007,
+    "water": "coast",
+    "streetKm": 187.5,
+    "waterKm": 10,
+    "coastKm": 4.9
+  },
+  "tianjin": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 183.2,
+    "waterKm": 16.4,
     "coastKm": 0
   },
   "tokyo": {
     "grid": 0.008,
     "water": "river",
     "streetKm": 150,
-    "waterKm": 26.5,
+    "waterKm": 42.2,
     "coastKm": 0
   },
   "toronto": {
     "grid": 0.386,
     "water": "river",
     "streetKm": 140.2,
-    "waterKm": 5.6,
+    "waterKm": 16.9,
+    "coastKm": 0
+  },
+  "tunis": {
+    "grid": 0.017,
+    "water": "river",
+    "streetKm": 158.2,
+    "waterKm": 14,
     "coastKm": 0
   },
   "vancouver": {
     "grid": 0.079,
     "water": "coast",
     "streetKm": 113.5,
-    "waterKm": 2.9,
+    "waterKm": 5.4,
     "coastKm": 20.6
   },
   "venice": {
     "grid": 0,
     "water": "river",
     "streetKm": 163.7,
-    "waterKm": 164,
+    "waterKm": 184.9,
     "coastKm": 0
   },
   "vienna": {
     "grid": 0,
     "water": "river",
     "streetKm": 189.9,
-    "waterKm": 11,
+    "waterKm": 19,
     "coastKm": 0
   },
   "washington-dc": {
     "grid": 0.114,
     "water": "river",
     "streetKm": 202.5,
-    "waterKm": 21.4,
+    "waterKm": 34.5,
+    "coastKm": 0
+  },
+  "wellington": {
+    "grid": 0.02,
+    "water": "coast",
+    "streetKm": 92.3,
+    "waterKm": 1.3,
+    "coastKm": 8.2
+  },
+  "xian": {
+    "grid": 0.342,
+    "water": "river",
+    "streetKm": 140.1,
+    "waterKm": 10.4,
+    "coastKm": 0
+  },
+  "zurich": {
+    "grid": 0.002,
+    "water": "river",
+    "streetKm": 163.9,
+    "waterKm": 30.1,
     "coastKm": 0
   }
 }
