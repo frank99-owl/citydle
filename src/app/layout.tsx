@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, IM_Fell_English } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
@@ -16,6 +16,13 @@ const imFell = IM_Fell_English({
   weight: "400",
 });
 
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0c0805",
+};
 
 export const metadata: Metadata = {
   title: "Citydle · 每日街图 — Read the Map, Name the City",

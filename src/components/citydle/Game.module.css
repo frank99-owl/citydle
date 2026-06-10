@@ -2,13 +2,13 @@
 .app {
   height: 100dvh;
   width: 100%;
-  max-width: 540px;
+  max-width: min(100%, clamp(540px, 60vh, 780px));
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto auto auto auto;
   grid-template-areas: "header" "board" "clue" "blocks" "choices" "skip";
-  padding: 14px 16px 14px;
+  padding: calc(clamp(10px, 1.6vmin, 24px) + env(safe-area-inset-top)) calc(clamp(14px, 2vmin, 28px) + env(safe-area-inset-right)) calc(clamp(10px, 1.6vmin, 24px) + env(safe-area-inset-bottom)) calc(clamp(14px, 2vmin, 28px) + env(safe-area-inset-left));
   background: radial-gradient(circle at 30% -8%, #241a10, #0c0805 72%);
   color: #d8c5a0;
   font-family: Georgia, "Songti SC", serif;
@@ -22,16 +22,16 @@
   gap: 8px;
 }
 .brand {
-  font-size: 19px;
+  font-size: clamp(19px, 2.6vmin, 30px);
   color: #e6c178;
   letter-spacing: 1px;
 }
 .puzzleNo {
-  font-size: 13px;
+  font-size: clamp(12px, 1.6vmin, 15px);
   color: #7e6c4c;
 }
 .step {
-  font-size: 13px;
+  font-size: clamp(12px, 1.6vmin, 15px);
   color: #a8946f;
   margin-left: auto;
 }
@@ -67,7 +67,7 @@
   grid-area: clue;
   flex: 0 0 auto;
   text-align: center;
-  font-size: 13px;
+  font-size: clamp(13px, 1.8vmin, 17px);
   color: #b89a63;
   min-height: 18px;
 }
@@ -75,7 +75,7 @@
   grid-area: blocks;
   flex: 0 0 auto;
   text-align: center;
-  font-size: 16px;
+  font-size: clamp(15px, 2.2vmin, 24px);
   letter-spacing: 2px;
   margin: 6px 0 8px;
 }
@@ -92,8 +92,8 @@
   color: #e2cda0;
   border: 1px solid #4a3c26;
   border-radius: 8px;
-  padding: 9px 8px;
-  font-size: 13px;
+  padding: clamp(9px, 1.3vmin, 14px) 10px;
+  font-size: clamp(13px, 1.7vmin, 17px);
   font-family: inherit;
   cursor: pointer;
   text-align: center;
@@ -121,7 +121,7 @@
 }
 .skip a {
   color: #7e6c4c;
-  font-size: 12px;
+  font-size: clamp(12px, 1.5vmin, 14px);
   cursor: pointer;
   text-decoration: underline;
 }
@@ -138,7 +138,7 @@
   text-align: center;
 }
 .ovTitle {
-  font-size: 22px;
+  font-size: clamp(22px, 3vmin, 32px);
   color: #e6c178;
   margin-bottom: 6px;
 }
@@ -148,7 +148,7 @@
   margin-bottom: 12px;
 }
 .ovBlocks {
-  font-size: 24px;
+  font-size: clamp(24px, 3vmin, 32px);
   letter-spacing: 3px;
   margin-bottom: 14px;
 }
@@ -227,13 +227,12 @@
   font-size: 14px;
 }
 
-/* —— PC 端:大画布在左占满全高,操作面板固定宽度在右 —— */
-@media (min-width: 1024px) {
+/* 横屏且够宽(横屏手机/iPad 横屏/笔记本/桌面):大画布在左,流体宽度面板在右 */
+@media (orientation: landscape) and (min-width: 640px) {
   .app {
     max-width: none;
-    padding: 32px 48px;
-    column-gap: 44px;
-    grid-template-columns: minmax(0, 1fr) 400px;
+    column-gap: clamp(20px, 3.5vw, 56px);
+    grid-template-columns: minmax(0, 1fr) clamp(290px, 30vw, 430px);
     grid-template-rows: auto auto auto auto minmax(0, 1fr);
     grid-template-areas:
       "board header"
@@ -247,42 +246,31 @@
     border-radius: 16px;
   }
   .header {
-    padding-bottom: 20px;
-  }
-  .brand {
-    font-size: 30px;
-  }
-  .puzzleNo,
-  .step {
-    font-size: 15px;
+    padding-bottom: clamp(6px, 2vmin, 22px);
   }
   .clue {
-    font-size: 16px;
     margin-top: 6px;
   }
   .blocks {
-    font-size: 24px;
-    margin: 16px 0 18px;
+    margin: clamp(6px, 1.8vmin, 18px) 0;
   }
   .choices {
     grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .choiceBtn {
-    font-size: 16px;
-    padding: 13px 14px;
+    gap: clamp(6px, 1.2vmin, 11px);
   }
   .skip {
     align-self: start;
-    margin-top: 16px;
+    margin-top: clamp(6px, 1.6vmin, 16px);
+  }
+}
+
+/* 触屏设备:保证拇指可点的目标高度 */
+@media (pointer: coarse) {
+  .choiceBtn {
+    min-height: 44px;
   }
   .skip a {
-    font-size: 14px;
-  }
-  .ovTitle {
-    font-size: 30px;
-  }
-  .ovBlocks {
-    font-size: 30px;
+    display: inline-block;
+    padding: 6px 4px;
   }
 }
