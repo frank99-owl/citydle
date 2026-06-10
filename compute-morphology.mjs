@@ -1,14 +1,14 @@
 // compute-morphology.mjs — 从城市库计算每城形态指标,驱动干扰项分组(主难度旋钮)。
 // grid:街道方向熵的网格度(Boeing street-orientation 方法),1=纯正交网格,0=方向均匀分布
 // water:'coast'(海岸主导)| 'river'(河/运河主导)| 'inland'(基本无水)
-// 纯几何统计,零 LLM、零人工标注。输出 data/cities/morphology.json。
+// 纯几何统计,零 LLM、零人工标注。输出 public/cities/morphology.json。
 // 用法: node compute-morphology.mjs   (每次重跑 fetch-cities.mjs 后执行)
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIR = path.join(__dirname, "data", "cities");
+const DIR = path.join(__dirname, "public", "cities");
 const BINS = 18; // 10° 一档,方向按无向处理(0–180°)
 
 function segKm(seg, cosLat, from, to) {
@@ -62,4 +62,4 @@ fs.writeFileSync(path.join(DIR, "morphology.json"), JSON.stringify(out, null, 2)
 console.log("id".padEnd(16), "grid".padStart(6), "water".padStart(7), "街km".padStart(8), "水km".padStart(7), "岸km".padStart(7));
 for (const [id, m] of Object.entries(out))
   console.log(id.padEnd(16), String(m.grid).padStart(6), m.water.padStart(7), String(m.streetKm).padStart(8), String(m.waterKm).padStart(7), String(m.coastKm).padStart(7));
-console.log("\n✓ 写入 data/cities/morphology.json(" + Object.keys(out).length + " 城)");
+console.log("\n✓ 写入 public/cities/morphology.json(" + Object.keys(out).length + " 城)");

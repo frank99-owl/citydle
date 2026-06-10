@@ -1,5 +1,5 @@
 // make-prototype.mjs — 每日街图可玩单局交互原型生成器(Citydle 新玩法)。
-// 读取 data/cities/*.json(30 城真实 OSM 数据),生成「刚好一屏、不滚动」的可玩 demo。
+// 读取 public/cities/*.json(30 城真实 OSM 数据),生成「刚好一屏、不滚动」的可玩 demo。
 // 玩法:6 层真实线索递进 + 6 选 1。线索全部来自真实数据,没有的就不出现:
 //   1 干道剪影 → 2 +水系海岸 → 3 +次干路网 → 4 +完整路网 → 5 +一条街名 → 6 +国家首字母
 // (CONCEPT 里的「地标」线索暂缺 POI 数据,等管线补拉后再加,不编造。)
@@ -9,7 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const citiesDir = path.join(__dirname, "data", "cities");
+const citiesDir = path.join(__dirname, "public", "cities");
 const outDir = path.join(__dirname, "prototype");
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -25,7 +25,8 @@ const COUNTRY = {
   "rio-de-janeiro": "巴西 Brazil", "mumbai": "印度 India", "cape-town": "南非 South Africa",
 };
 
-const files = fs.readdirSync(citiesDir).filter((f) => f.endsWith(".json") && f !== "index.json");
+const files = fs.readdirSync(citiesDir).filter((f) => f.endsWith(".json") && f !== "index.json" && f !== "morphology.json");
+const morphology = JSON.parse(fs.readFileSync(path.join(citiesDir, "morphology.json"), "utf8"));
 const cities = {};
 const index = [];
 for (const f of files) {
@@ -63,7 +64,8 @@ for (const f of files) {
     country: COUNTRY[d.id] || "",
     initial: d.en[0],
   };
-  index.push({ id: d.id, cn: d.cn, en: d.en });
+  const m = morphology[d.id] || { grid: 0, water: "inland" };
+  index.push({ id: d.id, cn: d.cn, en: d.en, grid: m.grid, water: m.water });
 }
 index.sort((a, b) => a.id.localeCompare(b.id));
 
@@ -229,11 +231,17 @@ function renderChoices(){
     box.appendChild(b);
   }
 }
+// 干扰项是主难度旋钮:3 个形态最相近的城市(网格度+水系类型) + 2 个随机,
+// 逼玩家读图的「细节」而不是只认「大类」。
+function morphDist(a,b){ return Math.abs(a.grid-b.grid)+(a.water===b.water?0:0.3); }
 function newGame(){
-  answerId=INDEX[Math.floor(Math.random()*INDEX.length)].id;
+  const answer=INDEX[Math.floor(Math.random()*INDEX.length)];
+  answerId=answer.id;
   const others=INDEX.filter(function(c){return c.id!==answerId;});
-  for(let i=others.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=others[i];others[i]=others[j];others[j]=t; }
-  candidates=others.slice(0,5).concat(INDEX.find(function(c){return c.id===answerId;}));
+  others.sort(function(a,b){ return morphDist(a,answer)-morphDist(b,answer); });
+  const similar=others.slice(0,3), rest=others.slice(3);
+  for(let i=rest.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=rest[i];rest[i]=rest[j];rest[j]=t; }
+  candidates=similar.concat(rest.slice(0,2),[answer]);
   for(let i=candidates.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=candidates[i];candidates[i]=candidates[j];candidates[j]=t; }
   level=1; done=false; won=false; wrongs=0;
   document.getElementById('ov').classList.remove('on');

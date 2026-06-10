@@ -1,6 +1,6 @@
 // fetch-cities.mjs — 批量从 OSM / Overpass 拉取世界城市「地图骨架」,生成 Citydle 城市库。
 // 数据干净:全部真实 OSM(路网 + 水系 + 海岸线),带 source + license + 拉取时间,
-// 坐标精度截断到 5 位,零手工捏造。输出到 data/cities/,不触碰旧的 data/presets/。
+// 坐标精度截断到 5 位,零手工捏造。输出到 public/cities/(游戏端静态直出)。
 //
 // 数据格式要点:
 // - 同名街道的多个 way 保存为独立 segments(绝不首尾拼接 → 不产生现实中不存在的连线)
@@ -15,7 +15,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUT = path.join(__dirname, "data", "cities");
+const OUT = path.join(__dirname, "public", "cities");
 fs.mkdirSync(OUT, { recursive: true });
 
 // 中心点取各城最有辨识度的核心区,半径 km 控制 bbox。坐标为真实地标位置。

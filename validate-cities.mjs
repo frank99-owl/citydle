@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIR = path.join(__dirname, "data", "cities");
+const DIR = path.join(__dirname, "public", "cities");
 
 // 单段内相邻两点间距阈值(km)。OSM 一条 way 内的节点很密,
 // 超过 WARN 多半是稀疏直路/桥,超过 FAIL 基本可断定是拼接出来的假连线。
@@ -42,9 +42,9 @@ function checkSegments(city, label, segments, bound, cosLat, gaps) {
   }
 }
 
-const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && f !== "index.json");
+const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && f !== "index.json" && f !== "morphology.json");
 if (!files.length) {
-  console.error("data/cities/ 为空,先跑 node fetch-cities.mjs");
+  console.error("public/cities/ 为空,先跑 node fetch-cities.mjs");
   process.exit(1);
 }
 

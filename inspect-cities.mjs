@@ -1,11 +1,11 @@
-// inspect-cities.mjs — 把 data/cities 全部城市渲成一张总览图,肉眼抽查数据质量。
+// inspect-cities.mjs — 把 public/cities 全部城市渲成一张总览图,肉眼抽查数据质量。
 // 干道=亮金 / 次干=暖褐 / 毛细=暗褐 / 水系=蓝 / 海岸线=青。运行后打开 prototype/inspect.html。
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIR = path.join(__dirname, "data", "cities");
+const DIR = path.join(__dirname, "public", "cities");
 const OUT = path.join(__dirname, "prototype");
 fs.mkdirSync(OUT, { recursive: true });
 
