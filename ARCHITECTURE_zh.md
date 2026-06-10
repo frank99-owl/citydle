@@ -75,7 +75,7 @@ src/components/citydle/
 
 ## 4. 测试与 CI
 
-- `vitest`:`src/lib/citydle/__tests__/` —— 期数计算、确定性、不重复轮、候选生成、骨架规则(18 个)。
+- `vitest`:`src/lib/citydle/__tests__/` —— 期数计算、确定性、不重复轮、候选生成、骨架规则、街名线索(18 个)。
 - `npm run lint` + `npm run build` 必须通过;构建产物全静态(所有路由 ○)。
 - 视觉抽查:`node inspect-cities.mjs` 渲染全城市总览;`node make-prototype.mjs` 生成独立 demo。
 

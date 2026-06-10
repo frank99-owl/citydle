@@ -40,6 +40,12 @@ The project pivoted from "Financial Street Cartographer" (spell street names on 
 - Entire legacy gameplay (−11k lines): 6 API routes, SQLite layer, rate limiter, GameContext + 9 hooks + 10 component groups, achievements, leaderboard, custom areas, old presets
 - Dependencies: leaflet, @geoman-io/leaflet-geoman-free, @types/leaflet
 
+---
+
+## Legacy Versions (Financial Street Cartographer — fully removed in v0.2.0)
+
+> The entries below document the original "Financial Street Cartographer" game. That entire codebase was removed in the Citydle pivot (v0.2.0). They are kept for historical reference only.
+
 ## [0.1.0] — Financial Street Cartographer (legacy, removed in 0.2.0)
 
 ### Added
@@ -90,6 +96,8 @@ The project pivoted from "Financial Street Cartographer" (spell street names on 
 - **i18n**: Removed duplicated `isZh()` helper from ShareModal.tsx and Leaderboard.tsx
 - **i18n**: Refactored `getDirectionLabel` in matching.ts to accept `DirectionLabels` object instead of raw language string
 - **Bug fix**: GameSidebar subtitle was showing English when `lang=zh` and vice versa (reversed ternary)
+
+### Older Legacy Versions
 
 ## [2.0.0] - 2026-06-04
 

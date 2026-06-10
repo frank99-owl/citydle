@@ -1,6 +1,6 @@
 {
   "name": "citydle",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Citydle — 城脉——读地图认城市的每日推理小游戏。Identify a city from its real OSM map skeleton, one daily puzzle at a time.",
   "engines": {

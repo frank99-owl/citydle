@@ -78,7 +78,7 @@ src/components/citydle/
 
 ## 4. Testing & CI
 
-- `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule (18 tests).
+- `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule, street name clue (18 tests).
 - `npm run lint` + `npm run build` must pass; the build is fully static (every route ○).
 - Visual QA: `node inspect-cities.mjs` renders all cities into `prototype/inspect.html`; `node make-prototype.mjs` builds the standalone demo.
 

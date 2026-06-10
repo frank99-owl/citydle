@@ -10,10 +10,6 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
 
-  experimental: {
-    optimizePackageImports: ["leaflet", "@geoman-io/leaflet-geoman-free"],
-  },
-
   // Strict mode for better dev warnings
   reactStrictMode: true,
 };
