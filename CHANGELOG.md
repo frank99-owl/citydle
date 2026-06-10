@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.3.0] - 2026-06-10 — 100-city library
 
 ### Added
+- Unlimited practice mode after the daily puzzle (random city, today's answer excluded, daily stats/streak untouched)
 - City library expanded 30 → 100 (Asia/Europe/Americas/Africa-ME/Oceania), all real OSM data, 0 fetch failures, machine QA 0 errors
 - Pipeline fetches multipolygon-relation water bodies (Sydney Harbour fixed: 52 → 161 water segments); country metadata now carried in city JSON + index.json
 - Validator: separate gap thresholds for water/coastline (long straight polygon edges are real geometry)
