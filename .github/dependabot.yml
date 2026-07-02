@@ -5,7 +5,9 @@ updates:
     schedule:
       interval: "monthly"
     ignore:
-      - dependency-name: "@types/node"
+      # Major upgrades are done deliberately by hand, not via Dependabot —
+      # the app stays on Next 14 / Tailwind 3 until an intentional migration.
+      - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
     groups:
