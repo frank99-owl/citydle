@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { EPOCH_UTC, dayNumber, morphDist, msToNextPuzzle, mulberry32, pickAnswerId, pickCandidates, seededShuffle } from "../daily";
 import type { CityIndexEntry, Morphology } from "../types";
+import cityIndex from "../../../../public/cities/index.json";
+import cityMorphology from "../../../../public/cities/morphology.json";
 
 const IDS = Array.from({ length: 30 }, (_, i) => `city-${String(i).padStart(2, "0")}`);
 
@@ -82,5 +84,54 @@ describe("pickCandidates", () => {
   it("缺形态数据时不崩(回退默认值)", () => {
     const got = pickCandidates(index, {}, IDS[0], 1);
     expect(got).toHaveLength(6);
+  });
+});
+
+describe("真实城市库的形态数据与候选", () => {
+  const index = cityIndex as CityIndexEntry[];
+  const morphology = cityMorphology as Morphology;
+
+  it("每座城都有形态数据,grid 在 [0, 1]", () => {
+    for (const c of index) {
+      const m = morphology[c.id];
+      expect(m, c.id).toBeDefined();
+      expect(m.grid).toBeGreaterThanOrEqual(0);
+      expect(m.grid).toBeLessThanOrEqual(1);
+    }
+  });
+
+  // OSMnx 2.1.1 在各城相同 bbox、相同 highway+name 过滤下算出的 Boeing φ(按长度加权,36 箱)
+  const OSMNX_PHI: Record<string, number> = {
+    chicago: 0.928, xian: 0.941, kyoto: 0.944, philadelphia: 0.914, barcelona: 0.504, "new-york": 0.192,
+    seattle: 0.535, paris: 0.175, london: 0.058, venice: 0.024, amsterdam: 0.141, rome: 0.022,
+  };
+  it("grid 与 OSMnx 的 φ 相差不超过 0.05", () => {
+    for (const [id, phi] of Object.entries(OSMNX_PHI)) {
+      expect(Math.abs(morphology[id].grid - phi), id).toBeLessThanOrEqual(0.05);
+    }
+  });
+
+  it("grid 没有被压扁到 0 附近((1 − r)² 公式曾让 57 城 < 0.01)", () => {
+    expect(index.filter((c) => morphology[c.id].grid < 0.01).length).toBeLessThan(5);
+  });
+
+  it("强网格城市的干扰项里至少 3 个也是强网格", () => {
+    const strong = index.filter((c) => morphology[c.id].grid >= 0.85);
+    expect(strong.length).toBeGreaterThanOrEqual(5); // 芝加哥、京都、费城、西安、北京……
+    for (const c of strong) {
+      const grids = pickCandidates(index, morphology, c.id, 1)
+        .filter((x) => x.id !== c.id)
+        .map((x) => morphology[x.id].grid);
+      expect(grids.filter((g) => g >= 0.75).length, c.id).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("不规则老城的干扰项里至少 3 个也是不规则老城", () => {
+    for (const id of ["venice", "rome"]) {
+      const grids = pickCandidates(index, morphology, id, 1)
+        .filter((x) => x.id !== id)
+        .map((x) => morphology[x.id].grid);
+      expect(grids.filter((g) => g <= 0.1).length, id).toBeGreaterThanOrEqual(3);
+    }
   });
 });

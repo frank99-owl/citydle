@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Fixed
+- Distractor similarity: `grid` is now Boeing's orientation order φ = 1 − r². The old `(1 − r)²` squashed 57 of 100 cities below 0.01, so the "3 morphologically similar" distractors were effectively water class plus an alphabetical tie-break. Orientation bins are now centred on the cardinal directions, so a north–south / east–west grid no longer splits across two bins. Agrees with OSMnx on the same bboxes within 0.035 (12 cities). Changes the similar distractors on 98 of 100 days.
+
+### Added
+- `src/lib/citydle/orientation.mjs` (φ shared by the pipeline and tests) and tests for φ plus real-library checks
+
 ## [0.3.0] - 2026-06-10 — 100-city library
 
 ### Added

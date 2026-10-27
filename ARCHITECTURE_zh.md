@@ -43,7 +43,7 @@
 
 `validate-cities.mjs` —— 每次拉取后必跑的校验门:段连续性(间距阈值抓假连线)、边界、tier 合法性、计数、索引完整性。有错 exit 1。
 
-`compute-morphology.mjs` —— 每城街道方向熵(Boeing 方法)→ `grid` 网格度 0–1,加水系分类(coast/river/inland)→ `public/cities/morphology.json`,驱动干扰项相似度。
+`compute-morphology.mjs` —— 每城街道方向秩序度 φ(Boeing 2019;`src/lib/citydle/orientation.mjs`,按长度加权、箱中心对齐正方向;与 OSMnx 同 bbox 对照误差 ≤ 0.035)→ `grid` 网格度 0–1,加水系分类(coast/river/inland)→ `public/cities/morphology.json`,驱动干扰项相似度。
 
 multipolygon relation 形式的水体(如悉尼港)通过 bbox 过滤的成员 way 拉取,按 way id 去重。
 
@@ -75,7 +75,7 @@ src/components/citydle/
 
 ## 4. 测试与 CI
 
-- `vitest`:`src/lib/citydle/__tests__/` —— 期数计算、确定性、不重复轮、候选生成、骨架规则、街名线索(18 个)。
+- `vitest`:`src/lib/citydle/__tests__/` —— 期数计算、确定性、不重复轮、候选生成、骨架规则、街名线索、方向秩序度 φ,以及真实城市库检查(φ 对照 OSMnx、网格城与老城的干扰项)(31 个)。
 - `npm run lint` + `npm run build` 必须通过;构建产物全静态(所有路由 ○)。
 - 视觉抽查:`node inspect-cities.mjs` 渲染全城市总览;`node make-prototype.mjs` 生成独立 demo。
 

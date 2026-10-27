@@ -43,7 +43,7 @@
 
 `validate-cities.mjs` — QA gate, run after every fetch. Checks segment continuity (gap thresholds catch fake joins), bounds, tier validity, counts, index completeness. Exit 1 on error.
 
-`compute-morphology.mjs` — per-city street-orientation entropy (Boeing method) → `grid` 0–1, plus `water` class (coast/river/inland) → `public/cities/morphology.json`. Drives distractor similarity.
+`compute-morphology.mjs` — per-city street-orientation order φ (Boeing 2019; `src/lib/citydle/orientation.mjs`, length-weighted, bins centred on the cardinal directions; agrees with OSMnx on the same bboxes within 0.035) → `grid` 0–1, plus `water` class (coast/river/inland) → `public/cities/morphology.json`. Drives distractor similarity.
 
 Water mapped as multipolygon relations (e.g. Sydney Harbour) is fetched via bbox-filtered member ways and deduped by way id.
 
@@ -78,7 +78,7 @@ src/components/citydle/
 
 ## 4. Testing & CI
 
-- `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule, street name clue (18 tests).
+- `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule, street name clue, orientation order φ, and checks on the real library (φ vs OSMnx anchors, distractors of grid and old-town cities) (31 tests).
 - `npm run lint` + `npm run build` must pass; the build is fully static (every route ○).
 - Visual QA: `node inspect-cities.mjs` renders all cities into `prototype/inspect.html`; `node make-prototype.mjs` builds the standalone demo.
 
