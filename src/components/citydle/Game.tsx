@@ -66,13 +66,17 @@ export function Game() {
 
   const t = STRINGS[lang];
 
-  // 初始化:语言 → 期数 → 拉索引+形态 → 定答案与候选 → 拉城市数据 → 恢复当日成绩
+  // 语言与期数只能在浏览器里读(localStorage、本机时钟):页面是静态预渲染的,挂载后同步一次
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 挂载后从浏览器同步一次,预渲染时读不到
+    setLang(loadLang());
+    setDay(dayNumber());
+  }, []);
+
+  // 初始化:期数 → 拉索引+形态 → 定答案与候选 → 拉城市数据 → 恢复当日成绩
   useEffect(() => {
     let cancelled = false;
-    setPhase("loading");
-    setLang(loadLang());
     const d = dayNumber();
-    setDay(d);
     (async () => {
       try {
         const [idxRes, morphRes] = await Promise.all([fetch("/cities/index.json"), fetch("/cities/morphology.json")]);
@@ -87,6 +91,7 @@ export function Game() {
         if (!cityRes.ok) throw new Error("city fetch failed");
         const city = await cityRes.json();
         if (cancelled) return;
+        setDay(d);
         setPuzzle({
           bbox: city.bbox,
           layers: buildClueLayers(city),
@@ -270,7 +275,13 @@ export function Game() {
         {phase === "error" && (
           <div className={styles.center}>
             <span>{t.loadError}</span>
-            <button className={styles.primaryBtn} onClick={() => setReloadKey((k) => k + 1)}>
+            <button
+              className={styles.primaryBtn}
+              onClick={() => {
+                setPhase("loading");
+                setReloadKey((k) => k + 1);
+              }}
+            >
               {t.retry}
             </button>
           </div>
