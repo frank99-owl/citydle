@@ -72,13 +72,13 @@ src/components/citydle/
 
 **Determinism**: everything random is seeded by the day number, so every player worldwide gets the same answer, the same 6 candidates, in the same order. Epoch: `EPOCH_UTC` in `daily.ts`.
 
-**Game rules**: 6 clue levels (skeleton → +water → +secondary → +full texture → +street name → +country/initial). A wrong pick eliminates that candidate *and* burns a clue. Win = correct pick at level L (share as L/6). 5 wrong picks or running out of clues = loss (X/6).
+**Game rules**: 6 clue levels (skeleton → +water → +secondary → +full texture → +street name → +continent, from `continents.mjs`). A wrong pick eliminates that candidate *and* burns a clue. Win = correct pick at level L (share as L/6). 5 wrong picks or running out of clues = loss (X/6).
 
 **Anti-replay**: the daily result is stored in localStorage; reloading shows the settle screen. After the daily, **practice mode** offers unlimited random rounds (today's answer excluded; daily stats/streak untouched). (Server-side judging / real anti-cheat is explicitly out of MVP scope — the answer is derivable client-side, same as early Wordle.)
 
 ## 4. Testing & CI
 
-- `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule, street name clue, orientation order φ, and checks on the real library (φ vs OSMnx anchors, distractors of grid and old-town cities) (31 tests).
+- `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule, street name clue, orientation order φ, the continent hint, playtest assignment and result codes, and checks on the real library (φ vs OSMnx anchors, distractors of grid and old-town cities, clue 6 not giving the answer away) (47 tests).
 - `npm run lint` + `npm run build` must pass; the build is fully static (every route ○).
 - Visual QA: `node inspect-cities.mjs` renders all cities into `prototype/inspect.html`; `node make-prototype.mjs` builds the standalone demo.
 

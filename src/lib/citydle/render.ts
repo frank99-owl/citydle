@@ -55,7 +55,8 @@ function outlinedText(ctx: CanvasRenderingContext2D, text: string, x: number, y:
 }
 
 export interface RenderHints {
-  countryHint: string;
+  /** 线索 6 的提示文字(所在大洲);空串则不画 */
+  hint: string;
 }
 
 /** 把第 level 层线索画到 canvas 上(level 1–6,层层叠加) */
@@ -95,7 +96,7 @@ export function drawClue(
     const [x, y] = proj(layers.nameStreet.at[0], layers.nameStreet.at[1]);
     outlinedText(ctx, layers.nameStreet.name, x, y - 8 * k, Math.round(13 * k));
   }
-  if (lv >= 6 && hints.countryHint) {
-    outlinedText(ctx, hints.countryHint, W / 2, 26 * k, Math.round(14 * k));
+  if (lv >= 6 && hints.hint) {
+    outlinedText(ctx, hints.hint, W / 2, 26 * k, Math.round(14 * k));
   }
 }
