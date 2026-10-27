@@ -23,7 +23,7 @@ Each puzzle reveals the same city's road network in progressive layers:
 | 3 | + Secondary roads |
 | 4 | + Full street texture (most distinctive layer) |
 | 5 | + One street name |
-| 6 | + Country / first letter (last resort, not the answer itself) |
+| 6 | + Continent (narrows the field; country + first letter used to leave only the answer in 98% of puzzles) |
 
 A landmark clue will join the ladder once the pipeline fetches real OSM POIs — never fabricated.
 

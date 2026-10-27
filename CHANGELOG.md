@@ -9,8 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Distractor similarity: `grid` is now Boeing's orientation order φ = 1 − r². The old `(1 − r)²` squashed 57 of 100 cities below 0.01, so the "3 morphologically similar" distractors were effectively water class plus an alphabetical tie-break. Orientation bins are now centred on the cardinal directions, so a north–south / east–west grid no longer splits across two bins. Agrees with OSMnx on the same bboxes within 0.035 (12 cities). Changes the similar distractors on 98 of 100 days.
 
+### Changed
+- Clue 6 now shows the continent instead of country + first letter. Candidates rarely share a country or an initial, so the old hint left only the answer in 98 of 100 puzzles of a cycle; the continent leaves the answer alone in 27 and 2.56 candidates on average. The country-to-continent map lives in `src/lib/citydle/continents.mjs`, shared with the prototype and the playtest page.
+
 ### Added
 - `src/lib/citydle/orientation.mjs` (φ shared by the pipeline and tests) and tests for φ plus real-library checks
+- Blind playtest (`playtest/`) comparing φ and legacy distractors, with a result-code summary script
 
 ## [0.3.0] - 2026-06-10 — 100-city library
 

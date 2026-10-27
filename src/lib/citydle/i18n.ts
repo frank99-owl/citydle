@@ -4,7 +4,7 @@ export type Lang = "zh" | "en";
 export const STRINGS = {
   zh: {
     brand: "城脉",
-    clues: ["骨架剪影", "+ 水系与海岸", "+ 次干路网", "+ 完整路网纹理", "+ 一条街名", "+ 国家与首字母"],
+    clues: ["骨架剪影", "+ 水系与海岸", "+ 次干路网", "+ 完整路网纹理", "+ 一条街名", "+ 所在大洲"],
     step: (n: number, max: number) => `线索 ${n} / ${max}`,
     puzzleNo: (n: number) => `#${n}`,
     skip: "不确定?看下一条线索 →",
@@ -20,7 +20,7 @@ export const STRINGS = {
     won: (lv: number, max: number) => `猜中了!${lv} / ${max}`,
     lost: "没猜中",
     answer: "答案:",
-    countryHint: (country: string, initial: string) => `提示:${country} · 首字母 ${initial}`,
+    continentHint: (continent: string) => `提示:${continent}`,
     played: "已玩",
     winRate: "胜率",
     streak: "连胜",
@@ -37,7 +37,7 @@ export const STRINGS = {
   },
   en: {
     brand: "Citydle",
-    clues: ["Skeleton", "+ Water & coast", "+ Secondary roads", "+ Full street texture", "+ One street name", "+ Country & initial"],
+    clues: ["Skeleton", "+ Water & coast", "+ Secondary roads", "+ Full street texture", "+ One street name", "+ Continent"],
     step: (n: number, max: number) => `Clue ${n} / ${max}`,
     puzzleNo: (n: number) => `#${n}`,
     skip: "Not sure? Reveal next clue →",
@@ -53,7 +53,7 @@ export const STRINGS = {
     won: (lv: number, max: number) => `Got it! ${lv} / ${max}`,
     lost: "Out of clues",
     answer: "Answer: ",
-    countryHint: (country: string, initial: string) => `Hint: ${country} · starts with ${initial}`,
+    continentHint: (continent: string) => `Hint: ${continent}`,
     played: "Played",
     winRate: "Win %",
     streak: "Streak",

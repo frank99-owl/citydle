@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./Game.module.css";
 import { dayNumber, msToNextPuzzle, pickAnswerId, pickCandidates, pickPracticeAnswerId } from "@/lib/citydle/daily";
 import { buildClueLayers, type ClueLayers } from "@/lib/citydle/clues";
+import { continentOf } from "@/lib/citydle/continents.mjs";
 import { drawClue, MAX_CLUES } from "@/lib/citydle/render";
 import { STRINGS, type Lang } from "@/lib/citydle/i18n";
 import { loadDayRecord, loadLang, loadOnboarded, loadStats, saveLang, saveOnboarded, saveResult, type Stats } from "@/lib/citydle/storage";
@@ -117,12 +118,10 @@ export function Game() {
   // 画布:线索层级变化或窗口尺寸变化时重绘;结束后完整揭示(第 6 层)
   const draw = useCallback(() => {
     if (!puzzle || !canvasRef.current) return;
-    const country = puzzle.answer.country;
-    const countryHint = country
-      ? t.countryHint(lang === "zh" ? country.cn : country.en, puzzle.answer.en[0])
-      : "";
+    const continent = puzzle.answer.country ? continentOf(puzzle.answer.country.en) : null;
+    const hint = continent ? t.continentHint(lang === "zh" ? continent.cn : continent.en) : "";
     const drawLevel = phase === "done" ? MAX_CLUES : level;
-    drawClue(canvasRef.current, puzzle.bbox, puzzle.layers, drawLevel, { countryHint });
+    drawClue(canvasRef.current, puzzle.bbox, puzzle.layers, drawLevel, { hint });
   }, [puzzle, level, phase, lang, t]);
 
   useEffect(() => {

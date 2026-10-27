@@ -64,9 +64,11 @@ const armsFor = (id, seed) => ({
 });
 const puzzles = chosen.map((id, i) => ({ id, grid: phiMorph[id].grid, legacyGrid: legacyMorph[id].grid, arms: armsFor(id, SEED_DAY + i) }));
 const warm = { id: warmup, arms: armsFor(warmup, SEED_DAY + N) };
-const set = "s" + hashString(JSON.stringify({ puzzles, warm })).toString(16);
+// 线索 6 给什么直接改变难度,算进题集 id:换了提示的页面收回来的成绩码不会和旧的混在一起
+const CLUE6 = "continent";
+const set = "s" + hashString(JSON.stringify({ puzzles, warm, clue6: CLUE6 })).toString(16);
 // 题集按日期变(避开未来 30 天的答案),所以每份题集都入库:成绩码里带着题集 id,汇总时按 id 找回
-const setJson = JSON.stringify({ set, createdFor: { day: today, legacyRef: LEGACY_REF }, warmup: warm, puzzles }, null, 1);
+const setJson = JSON.stringify({ set, createdFor: { day: today, legacyRef: LEGACY_REF, clue6: CLUE6 }, warmup: warm, puzzles }, null, 1);
 fs.mkdirSync(path.join(HERE, "sets"), { recursive: true });
 fs.writeFileSync(path.join(HERE, "sets", `${set}.json`), setJson + "\n");
 
@@ -80,7 +82,7 @@ const names = Object.fromEntries(index.map((c) => [c.id, { cn: c.cn, en: c.en, c
 const DATA = { set, warmup: warm, puzzles: puzzles.map(({ id, arms }) => ({ id, arms })), names, geometry };
 
 const strip = (f) => stripTypeScriptTypes(fs.readFileSync(path.join(ROOT, f), "utf8"), { mode: "strip" }).replace(/^export /gm, "");
-const lib = ["src/lib/citydle/daily.ts", "src/lib/citydle/clues.ts", "src/lib/citydle/render.ts", "src/lib/citydle/i18n.ts", "src/lib/citydle/playtest.mjs"]
+const lib = ["src/lib/citydle/daily.ts", "src/lib/citydle/clues.ts", "src/lib/citydle/render.ts", "src/lib/citydle/i18n.ts", "src/lib/citydle/continents.mjs", "src/lib/citydle/playtest.mjs"]
   .map((f) => (f.endsWith(".mjs") ? fs.readFileSync(path.join(ROOT, f), "utf8").replace(/^export /gm, "") : strip(f)))
   .join("\n");
 

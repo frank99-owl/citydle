@@ -1,4 +1,4 @@
-// 盲测页逻辑。与 DATA、游戏源码(STRINGS / buildClueLayers / drawClue / mulberry32 / seededShuffle)
+// 盲测页逻辑。与 DATA、游戏源码(STRINGS / buildClueLayers / drawClue / mulberry32 / seededShuffle / continentOf)
 // 和 playtest.mjs(assignPuzzles / encodeResult / LOST_LEVEL)一起内联在同一个作用域里,由 make-playtest.mjs 拼装。
 // 规则与 Game.tsx 一致:6 条线索,选错划掉并消耗一条线索,错满 5 个或线索用完即失败。
 
@@ -155,9 +155,9 @@ function blocks(level, done, won) {
 function drawBoard() {
   const slot = state.order[state.step];
   const cur = state.cur;
-  const country = DATA.names[slot.id].country;
-  const hint = s().countryHint(state.lang === "zh" ? country.cn : country.en, DATA.names[slot.id].en[0]);
-  drawClue($("board"), DATA.geometry[slot.id].bbox, layersOf(slot.id), cur.done ? MAX_CLUES : cur.level, { countryHint: hint });
+  const continent = continentOf(DATA.names[slot.id].country.en);
+  const hint = continent ? s().continentHint(state.lang === "zh" ? continent.cn : continent.en) : "";
+  drawClue($("board"), DATA.geometry[slot.id].bbox, layersOf(slot.id), cur.done ? MAX_CLUES : cur.level, { hint });
 }
 
 function renderPlay() {

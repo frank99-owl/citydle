@@ -1,12 +1,13 @@
 // make-prototype.mjs — 城脉(Citydle)可玩单局交互原型生成器。
 // 读取 public/cities/*.json(30 城真实 OSM 数据),生成「刚好一屏、不滚动」的可玩 demo。
 // 玩法:6 层真实线索递进 + 6 选 1。线索全部来自真实数据,没有的就不出现:
-//   1 干道剪影 → 2 +水系海岸 → 3 +次干路网 → 4 +完整路网 → 5 +一条街名 → 6 +国家首字母
+//   1 干道剪影 → 2 +水系海岸 → 3 +次干路网 → 4 +完整路网 → 5 +一条街名 → 6 +所在大洲
 // (CONCEPT 里的「地标」线索暂缺 POI 数据,等管线补拉后再加,不编造。)
 // 运行: node make-prototype.mjs  →  打开 prototype/index.html(data.js 同目录)
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { continentOf } from "./src/lib/citydle/continents.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const citiesDir = path.join(__dirname, "public", "cities");
@@ -50,7 +51,7 @@ for (const f of files) {
     water: d.water, coast: d.coastline,
     nameStreet,
     country: d.country ? d.country.cn + " " + d.country.en : "",
-    initial: d.en[0],
+    continent: (d.country && continentOf(d.country.en)?.cn) || "",
   };
   const m = morphology[d.id] || { grid: 0, water: "inland" };
   index.push({ id: d.id, cn: d.cn, en: d.en, grid: m.grid, water: m.water });
@@ -128,7 +129,7 @@ const html = `<!doctype html>
 <script src="data.js"></script>
 <script>
 const CITIES = window.CITYDLE.cities, INDEX = window.CITYDLE.index;
-const CLUE = ['干道剪影','+ 水系与海岸','+ 次干路网','+ 完整路网纹理','+ 一条街名','+ 国家与首字母'];
+const CLUE = ['干道剪影','+ 水系与海岸','+ 次干路网','+ 完整路网纹理','+ 一条街名','+ 所在大洲'];
 const C = { bg:'#14100c', faint:'rgba(94,79,55,0.75)', mid:'rgba(154,125,78,0.9)', bright:'#e6c178', glow:'#f4dca0', water:'rgba(74,144,194,0.55)', coast:'rgba(63,182,168,0.85)' };
 const MAX = 6, WRONG_MAX = 5;
 
@@ -170,9 +171,9 @@ function draw(){
     ctx.strokeStyle='rgba(0,0,0,0.75)'; ctx.strokeText(city.nameStreet.name,p[0],p[1]-8);
     ctx.fillStyle=C.glow; ctx.fillText(city.nameStreet.name,p[0],p[1]-8);
   }
-  if(lv>=6){
+  if(lv>=6 && city.continent){
     ctx.font='600 14px Georgia,serif'; ctx.textAlign='center';
-    const txt='提示:'+city.country+' · 首字母 '+city.initial;
+    const txt='提示:'+city.continent;
     ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,0.7)'; ctx.strokeText(txt,W/2,26);
     ctx.fillStyle=C.glow; ctx.fillText(txt,W/2,26);
   }

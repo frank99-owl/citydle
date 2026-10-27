@@ -8,7 +8,9 @@ import fs from "fs";
 import { createRequire, stripTypeScriptTypes } from "module";
 import path from "path";
 import { fileURLToPath } from "url";
+import { continentOf } from "./src/lib/citydle/continents.mjs";
 import { pickAnswerId, pickCandidates } from "./src/lib/citydle/daily.ts";
+import { STRINGS } from "./src/lib/citydle/i18n.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIR = path.join(__dirname, "public", "cities");
@@ -60,14 +62,15 @@ await page.waitForFunction(() => window.__citydle);
 
 for (const entry of index) {
   const city = JSON.parse(fs.readFileSync(path.join(DIR, `${entry.id}.json`)));
-  // 与 Game.tsx 的英文界面同一文案：t.countryHint(country.en, answer.en[0])
-  const hint = `Hint: ${entry.country.en} · starts with ${entry.en[0]}`;
+  // 与 Game.tsx 的英文界面同一文案
+  const continent = continentOf(entry.country.en);
+  const hint = continent ? STRINGS.en.continentHint(continent.en) : "";
   for (let level = 1; level <= 6; level++) {
     const dataUrl = await page.evaluate(
       ({ city, level, hint }) => {
         const cv = document.getElementById("c");
         const layers = window.__citydle.buildClueLayers(city);
-        window.__citydle.drawClue(cv, city.bbox, layers, level, { countryHint: hint });
+        window.__citydle.drawClue(cv, city.bbox, layers, level, { hint });
         return cv.toDataURL("image/png");
       },
       { city, level, hint },
