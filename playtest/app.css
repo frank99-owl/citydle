@@ -1,0 +1,378 @@
+/* 盲测页沿用游戏本身的「沧桑制图师」外观:暗羊皮纸底 + 暖金线条,刻意只做暗色一套。
+   版式:窄屏上下堆叠(地图在上、选项在下),宽屏地图居左、选项面板居右。 */
+:root {
+  --bg: #14100c;
+  --panel: #1b150f;
+  --line: #392c1b;
+  --ink: #d8c5a0;
+  --muted: #9a8762;
+  --gold: #e6c178;
+  --miss: #b5583f;
+  --hit: #7fa65a;
+  --display: "Cinzel", Georgia, serif;
+  --body: "IM Fell English", Georgia, "Songti SC", "Noto Serif SC", serif;
+  color-scheme: dark;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+body {
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-block: 4px 12px;
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.mark {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+.tag {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.progress {
+  margin: 0 0 0 auto;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.ghost {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 4px 10px;
+  min-height: 32px;
+}
+.primary {
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  min-height: 44px;
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.primary:hover {
+  filter: brightness(1.06);
+}
+
+h1 {
+  font-family: var(--display);
+  color: var(--gold);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 500;
+  margin: 8px 0 0;
+  text-wrap: balance;
+}
+h2 {
+  font-family: var(--display);
+  color: var(--gold);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+/* 开场 */
+.intro,
+.done {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.lead {
+  margin: 0;
+  font-size: 17px;
+}
+.sheet {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rules {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.start label {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 14px;
+}
+.start input {
+  flex: 1 1 200px;
+  min-width: 0;
+  min-height: 44px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+}
+
+/* 答题 */
+.play {
+  display: grid;
+  gap: 16px;
+}
+.board {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.board canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.clue {
+  margin: 0;
+  color: var(--gold);
+  font-size: 15px;
+}
+.blocks {
+  display: flex;
+  gap: 5px;
+}
+.blocks span {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+.blocks .used {
+  background: var(--miss);
+  border-color: var(--miss);
+}
+.blocks .now {
+  border-color: var(--gold);
+}
+.blocks .hit {
+  background: var(--hit);
+  border-color: var(--hit);
+}
+.cands {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.cand {
+  min-height: 48px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.cand:hover:not(:disabled) {
+  border-color: var(--gold);
+}
+.cand:disabled {
+  cursor: default;
+}
+.cand.out {
+  text-decoration: line-through;
+  color: var(--muted);
+  opacity: 0.55;
+}
+.cand.answer {
+  border-color: var(--hit);
+  color: var(--gold);
+}
+.skip {
+  background: none;
+  border: 1px dashed var(--line);
+  color: var(--ink);
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.skip:hover {
+  border-color: var(--gold);
+}
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.verdict p {
+  margin: 0;
+}
+.verdict-line {
+  font-family: var(--display);
+  color: var(--gold);
+  font-size: 18px;
+}
+.verdict-answer {
+  color: var(--muted);
+}
+
+@media (min-width: 760px) {
+  .play {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: start;
+  }
+  .board {
+    max-height: calc(100vh - 120px);
+    max-width: calc(100vh - 120px);
+  }
+  .cands {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 结束 */
+.code-label {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: -8px;
+}
+#code {
+  width: 100%;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: 13px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+  word-break: break-all;
+  resize: vertical;
+}
+.copy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.copy-status {
+  color: var(--hit);
+  font-size: 14px;
+}
+.summary {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.summary li {
+  display: grid;
+  grid-template-columns: 2.2em minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.summary li:last-child {
+  border-bottom: none;
+}
+.summary .n {
+  color: var(--muted);
+}
+.summary .blocks span {
+  width: 14px;
+  height: 14px;
+}
+.note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.credit {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.credit a {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cand,
+  .skip,
+  .primary {
+    transition: border-color 0.15s, filter 0.15s;
+  }
+}

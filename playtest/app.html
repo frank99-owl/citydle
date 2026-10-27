@@ -1,0 +1,53 @@
+<div class="app">
+  <header class="bar">
+    <div class="brand"><span class="mark" data-t="brand">城脉</span><span class="tag" data-t="tag">盲测</span></div>
+    <p class="progress" id="progress"></p>
+    <button id="lang" class="ghost" type="button">EN</button>
+  </header>
+
+  <section id="intro" class="screen intro">
+    <h1 data-t="introTitle">帮忙试玩城脉</h1>
+    <p class="lead" data-t="introLead"></p>
+    <div class="sheet">
+      <h2 data-t="rulesTitle">怎么玩</h2>
+      <ul id="rules" class="rules"></ul>
+      <h2 data-t="notesTitle">开始前</h2>
+      <ul id="notes" class="rules"></ul>
+    </div>
+    <form id="startForm" class="start">
+      <label for="name" data-t="nameLabel">你的称呼(选填)</label>
+      <input id="name" name="name" type="text" maxlength="40" autocomplete="off">
+      <button id="start" class="primary" type="submit" data-t="start">开始</button>
+    </form>
+  </section>
+
+  <section id="play" class="screen play" hidden>
+    <div class="board"><canvas id="board"></canvas></div>
+    <div class="panel">
+      <p class="clue" id="clue"></p>
+      <div class="blocks" id="blocks" aria-hidden="true"></div>
+      <div class="cands" id="cands"></div>
+      <button id="skip" class="skip" type="button"></button>
+      <div class="verdict" id="verdict" hidden>
+        <p class="verdict-line" id="verdictLine"></p>
+        <p class="verdict-answer" id="verdictAnswer"></p>
+        <button id="next" class="primary" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="done" class="screen done" hidden>
+    <h1 data-t="doneTitle">测完了,谢谢!</h1>
+    <p class="lead" data-t="doneLead"></p>
+    <label for="code" class="code-label" data-t="codeLabel">成绩码</label>
+    <textarea id="code" readonly rows="5" spellcheck="false"></textarea>
+    <div class="copy-row">
+      <button id="copy" class="primary" type="button" data-t="copy">复制成绩码</button>
+      <span class="copy-status" id="copyStatus" role="status"></span>
+    </div>
+    <ol class="summary" id="summary"></ol>
+    <p class="note" data-t="doneNote"></p>
+  </section>
+
+  <footer class="credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL)</footer>
+</div>

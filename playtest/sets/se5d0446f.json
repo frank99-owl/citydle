@@ -1,0 +1,488 @@
+{
+ "set": "se5d0446f",
+ "createdFor": {
+  "day": 140,
+  "legacyRef": "fb6c6c4"
+ },
+ "warmup": {
+  "id": "marseille",
+  "arms": {
+   "phi": {
+    "candidates": [
+     "budapest",
+     "stockholm",
+     "prague",
+     "copenhagen",
+     "auckland",
+     "marseille"
+    ],
+    "similar": [
+     "copenhagen",
+     "stockholm",
+     "auckland"
+    ]
+   },
+   "legacy": {
+    "candidates": [
+     "saint-petersburg",
+     "new-york",
+     "barcelona",
+     "hong-kong",
+     "auckland",
+     "marseille"
+    ],
+    "similar": [
+     "hong-kong",
+     "new-york",
+     "auckland"
+    ]
+   }
+  }
+ },
+ "puzzles": [
+  {
+   "id": "rome",
+   "grid": 0.03,
+   "legacyGrid": 0,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "rome",
+      "budapest",
+      "cologne",
+      "krakow",
+      "venice",
+      "milan"
+     ],
+     "similar": [
+      "venice",
+      "krakow",
+      "milan"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "rome",
+      "zurich",
+      "brasilia",
+      "moscow",
+      "kuala-lumpur",
+      "venice"
+     ],
+     "similar": [
+      "kuala-lumpur",
+      "moscow",
+      "venice"
+     ]
+    }
+   }
+  },
+  {
+   "id": "milan",
+   "grid": 0.039,
+   "legacyGrid": 0.001,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "milan",
+      "seville",
+      "krakow",
+      "hamburg",
+      "bordeaux",
+      "lagos"
+     ],
+     "similar": [
+      "seville",
+      "krakow",
+      "hamburg"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "milan",
+      "bangkok",
+      "chongqing",
+      "dublin",
+      "madrid",
+      "porto"
+     ],
+     "similar": [
+      "bangkok",
+      "chongqing",
+      "dublin"
+     ]
+    }
+   }
+  },
+  {
+   "id": "bordeaux",
+   "grid": 0.073,
+   "legacyGrid": 0.002,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "porto",
+      "bangkok",
+      "tianjin",
+      "bordeaux",
+      "mumbai",
+      "dubai"
+     ],
+     "similar": [
+      "porto",
+      "bangkok",
+      "tianjin"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "athens",
+      "budapest",
+      "florence",
+      "bordeaux",
+      "auckland",
+      "montreal"
+     ],
+     "similar": [
+      "athens",
+      "budapest",
+      "florence"
+     ]
+    }
+   }
+  },
+  {
+   "id": "berlin",
+   "grid": 0.085,
+   "legacyGrid": 0.006,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "saint-petersburg",
+      "madrid",
+      "tianjin",
+      "zurich",
+      "lisbon",
+      "berlin"
+     ],
+     "similar": [
+      "madrid",
+      "tianjin",
+      "zurich"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "porto",
+      "edinburgh",
+      "cairo",
+      "munich",
+      "new-orleans",
+      "berlin"
+     ],
+     "similar": [
+      "edinburgh",
+      "cairo",
+      "munich"
+     ]
+    }
+   }
+  },
+  {
+   "id": "brisbane",
+   "grid": 0.142,
+   "legacyGrid": 0.009,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "brussels",
+      "mexico-city",
+      "brisbane",
+      "amsterdam",
+      "brasilia",
+      "lima"
+     ],
+     "similar": [
+      "amsterdam",
+      "brussels",
+      "brasilia"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "prague",
+      "miami",
+      "brisbane",
+      "guangzhou",
+      "saint-petersburg",
+      "melbourne"
+     ],
+     "similar": [
+      "guangzhou",
+      "prague",
+      "saint-petersburg"
+     ]
+    }
+   }
+  },
+  {
+   "id": "athens",
+   "grid": 0.156,
+   "legacyGrid": 0.002,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "tokyo",
+      "athens",
+      "saint-petersburg",
+      "edinburgh",
+      "munich",
+      "dubai"
+     ],
+     "similar": [
+      "saint-petersburg",
+      "tokyo",
+      "munich"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "budapest",
+      "athens",
+      "bordeaux",
+      "tianjin",
+      "florence",
+      "osaka"
+     ],
+     "similar": [
+      "bordeaux",
+      "budapest",
+      "florence"
+     ]
+    }
+   }
+  },
+  {
+   "id": "mumbai",
+   "grid": 0.185,
+   "legacyGrid": 0.007,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "tunis",
+      "saint-petersburg",
+      "stockholm",
+      "mumbai",
+      "new-york",
+      "rio-de-janeiro"
+     ],
+     "similar": [
+      "new-york",
+      "rio-de-janeiro",
+      "stockholm"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "chongqing",
+      "munich",
+      "hong-kong",
+      "mumbai",
+      "copenhagen",
+      "tel-aviv"
+     ],
+     "similar": [
+      "copenhagen",
+      "tel-aviv",
+      "hong-kong"
+     ]
+    }
+   }
+  },
+  {
+   "id": "jakarta",
+   "grid": 0.248,
+   "legacyGrid": 0.019,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "chongqing",
+      "new-york",
+      "singapore",
+      "jakarta",
+      "lima",
+      "shanghai"
+     ],
+     "similar": [
+      "singapore",
+      "shanghai",
+      "lima"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "hamburg",
+      "montreal",
+      "lyon",
+      "jakarta",
+      "melbourne",
+      "tunis"
+     ],
+     "similar": [
+      "lyon",
+      "tunis",
+      "melbourne"
+     ]
+    }
+   }
+  },
+  {
+   "id": "lima",
+   "grid": 0.281,
+   "legacyGrid": 0.039,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "shanghai",
+      "tunis",
+      "bordeaux",
+      "copenhagen",
+      "lima",
+      "singapore"
+     ],
+     "similar": [
+      "tunis",
+      "shanghai",
+      "singapore"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "quebec-city",
+      "ho-chi-minh",
+      "tianjin",
+      "seattle",
+      "lima",
+      "melbourne"
+     ],
+     "similar": [
+      "ho-chi-minh",
+      "quebec-city",
+      "melbourne"
+     ]
+    }
+   }
+  },
+  {
+   "id": "melbourne",
+   "grid": 0.41,
+   "legacyGrid": 0.022,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "ho-chi-minh",
+      "santiago",
+      "lima",
+      "new-orleans",
+      "shanghai",
+      "melbourne"
+     ],
+     "similar": [
+      "santiago",
+      "ho-chi-minh",
+      "new-orleans"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "jakarta",
+      "shanghai",
+      "quebec-city",
+      "lyon",
+      "brisbane",
+      "melbourne"
+     ],
+     "similar": [
+      "shanghai",
+      "jakarta",
+      "lyon"
+     ]
+    }
+   }
+  },
+  {
+   "id": "chengdu",
+   "grid": 0.529,
+   "legacyGrid": 0.064,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "munich",
+      "denver",
+      "chengdu",
+      "hangzhou",
+      "perth",
+      "singapore"
+     ],
+     "similar": [
+      "perth",
+      "hangzhou",
+      "denver"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "pittsburgh",
+      "lima",
+      "chengdu",
+      "hangzhou",
+      "santiago",
+      "guangzhou"
+     ],
+     "similar": [
+      "santiago",
+      "hangzhou",
+      "lima"
+     ]
+    }
+   }
+  },
+  {
+   "id": "mexico-city",
+   "grid": 0.788,
+   "legacyGrid": 0.233,
+   "arms": {
+    "phi": {
+     "candidates": [
+      "shenzhen",
+      "mexico-city",
+      "toronto",
+      "montreal",
+      "bogota",
+      "miami"
+     ],
+     "similar": [
+      "shenzhen",
+      "toronto",
+      "montreal"
+     ]
+    },
+    "legacy": {
+     "candidates": [
+      "bogota",
+      "mexico-city",
+      "los-angeles",
+      "delhi",
+      "miami",
+      "buenos-aires"
+     ],
+     "similar": [
+      "bogota",
+      "los-angeles",
+      "delhi"
+     ]
+    }
+   }
+  }
+ ]
+}
