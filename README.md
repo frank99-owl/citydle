@@ -74,7 +74,8 @@ Every line you see on screen represents a real road or feature that exists in th
 | Unlimited practice mode after the daily (random city, stats untouched) | ✅ Done |
 | Fluid all-device responsive layout + first-visit onboarding | ✅ Done |
 | Full codebase rebuild — legacy gameplay removed, app is fully static | ✅ Done |
-| Difficulty curve tuning (post-launch, data-driven) | 📋 Planned |
+| Puzzle-fairness audit — corrected φ distractor metric, continent-only clue 6, blind playtest tooling | ✅ Done |
+| Difficulty curve tuning (needs human playtest results) | 📋 Planned |
 | Landmark clue (needs OSM POI pipeline support) | 📋 Planned |
 | Analytics (PostHog) / server-side judging / anti-cheat | 📋 Planned |
 
@@ -84,7 +85,7 @@ Every line you see on screen represents a real road or feature that exists in th
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | Next.js 14 (App Router) — fully static output, zero server code |
+| **Framework** | Next.js 16 (App Router) + React 19 — fully static output, zero server code |
 | **Language** | TypeScript |
 | **Styling** | Tailwind base + CSS Modules |
 | **Rendering** | Raw `<canvas>` (no map library) |
@@ -122,9 +123,19 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```bash
 node fetch-cities.mjs            # refetch the 100-city library from Overpass
 node validate-cities.mjs         # machine QA gate — must pass after every fetch
-node compute-morphology.mjs      # grid score + water class → morphology.json
+node compute-morphology.mjs      # street-orientation order φ + water class → morphology.json
 node make-prototype.mjs          # standalone playable demo → prototype/index.html
 node inspect-cities.mjs          # all-city visual QA sheet → prototype/inspect.html
+```
+
+### Puzzle review
+
+These scripts load the game's TypeScript directly, so they need Node 23.6 or later.
+
+```bash
+PLAYWRIGHT_DIR=<folder with playwright> node render-clues.mjs   # every city at clue levels 1–6 → prototype/audit/
+node playtest/make-playtest.mjs   # blind playtest page (φ vs legacy distractors) → prototype/playtest/
+node playtest/report.mjs codes.txt   # summarise result codes pasted back by testers
 ```
 
 ### Production Build
@@ -179,7 +190,10 @@ npm test
 # Watch mode
 npm run test:watch
 
-# Build verification (lint + type check)
+# Lint (ESLint flat config, next/core-web-vitals)
+npm run lint
+
+# Build verification (type check + static build)
 npm run build
 ```
 

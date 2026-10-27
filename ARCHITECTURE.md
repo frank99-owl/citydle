@@ -59,7 +59,11 @@ src/lib/citydle/
 │                 lower tiers when arterials < 30km (selection, never invention)
 ├── render.ts     canvas renderer; frames the curated bbox; parchment/gold
 ├── storage.ts    localStorage: day record, stats, streak, language
-└── i18n.ts       ~20 UI strings, zh/en (country names come from index.json)
+├── i18n.ts       ~20 UI strings, zh/en (country names come from index.json)
+├── continents.mjs  country → continent for clue 6 (shared with the
+│                 prototype and the playtest page)
+├── orientation.mjs street-orientation order φ (used by compute-morphology.mjs)
+└── playtest.mjs  blind-playtest arm assignment, result codes, summary
 
 src/components/citydle/
 ├── Game.tsx         single-screen game: fetch index+morphology+city,
@@ -79,8 +83,9 @@ src/components/citydle/
 ## 4. Testing & CI
 
 - `vitest`: `src/lib/citydle/__tests__/` — day math, determinism, no-repeat cycle, candidate selection, skeleton rule, street name clue, orientation order φ, the continent hint, playtest assignment and result codes, and checks on the real library (φ vs OSMnx anchors, distractors of grid and old-town cities, clue 6 not giving the answer away) (47 tests).
-- `npm run lint` + `npm run build` must pass; the build is fully static (every route ○).
+- `npm run lint` (ESLint flat config, `eslint.config.mjs`) + `npm run build` must pass; the build is fully static (every route ○). CI runs lint, tests and build.
 - Visual QA: `node inspect-cities.mjs` renders all cities into `prototype/inspect.html`; `node make-prototype.mjs` builds the standalone demo.
+- Puzzle review: `render-clues.mjs` renders every city at clue levels 1–6 with the game's own renderer; `playtest/` builds a blind playtest page and summarises the result codes testers send back. Both need Node ≥ 23.6.
 
 ## 5. Deployment
 

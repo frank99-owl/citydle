@@ -76,7 +76,8 @@
 | 每日答完可无限练习（随机出题、不计成绩） | ✅ 已完成 |
 | 全设备流体自适应布局 + 首访引导 | ✅ 已完成 |
 | 代码完整重构——旧玩法已删除，应用全静态 | ✅ 已完成 |
-| 难度曲线调优（上线后按数据） | 📋 计划中 |
+| 题目公平性审计——修正 φ 干扰项指标、第 6 条只给大洲、盲测工具 | ✅ 已完成 |
+| 难度曲线调优（需要真人试玩数据） | 📋 计划中 |
 | 地标线索（待管线支持 OSM POI） | 📋 计划中 |
 | 数据分析（PostHog）/ 服务端判题 / 反作弊 | 📋 计划中 |
 
@@ -86,7 +87,7 @@
 
 | 类别 | 技术 |
 |------|------|
-| **框架** | Next.js 14 (App Router) |
+| **框架** | Next.js 16 (App Router) + React 19 |
 | **语言** | TypeScript |
 | **样式** | Tailwind CSS + CSS 变量 |
 | **渲染** | 原生 `<canvas>`（不用地图库） |
@@ -124,9 +125,19 @@ npm run dev
 ```bash
 node fetch-cities.mjs            # 从 Overpass 重拉 100 城数据
 node validate-cities.mjs         # 机器校验门——每次拉取后必须通过
-node compute-morphology.mjs      # 网格度 + 水系分类 → morphology.json
+node compute-morphology.mjs      # 街道方向秩序度 φ + 水系分类 → morphology.json
 node make-prototype.mjs          # 独立可玩 demo → prototype/index.html
 node inspect-cities.mjs          # 全城市视觉抽查 → prototype/inspect.html
+```
+
+### 审题工具
+
+这几个脚本直接加载游戏的 TypeScript 源码，需要 Node 23.6 或更高版本。
+
+```bash
+PLAYWRIGHT_DIR=<装了 playwright 的目录> node render-clues.mjs   # 每座城的 6 层线索图 → prototype/audit/
+node playtest/make-playtest.mjs   # 盲测页（φ 组 vs 旧指标组干扰项）→ prototype/playtest/
+node playtest/report.mjs codes.txt   # 汇总测试者发回的成绩码
 ```
 
 ### 生产构建
@@ -183,7 +194,10 @@ npm test
 # 监听模式
 npm run test:watch
 
-# 构建验证（含 lint + 类型检查）
+# Lint（ESLint flat config，next/core-web-vitals）
+npm run lint
+
+# 构建验证（类型检查 + 静态构建）
 npm run build
 ```
 

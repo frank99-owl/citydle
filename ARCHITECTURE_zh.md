@@ -58,7 +58,10 @@ src/lib/citydle/
 ├── clues.ts      6 层真实线索;干道 <30km 时从低层级补足(只选取,不编造)
 ├── render.ts     Canvas 渲染;按精选 bbox 取景;羊皮纸+暖金
 ├── storage.ts    localStorage:当日成绩、统计、streak、语言
-└── i18n.ts       约 20 条界面文案,中英(国家名来自 index.json)
+├── i18n.ts       约 20 条界面文案,中英(国家名来自 index.json)
+├── continents.mjs  国家 → 大洲,线索 6 用(原型和盲测页共用)
+├── orientation.mjs 街道方向秩序度 φ(compute-morphology.mjs 用)
+└── playtest.mjs  盲测分组、成绩码、结果汇总
 
 src/components/citydle/
 ├── Game.tsx         单屏游戏:拉索引+形态+城市数据,
@@ -76,8 +79,9 @@ src/components/citydle/
 ## 4. 测试与 CI
 
 - `vitest`:`src/lib/citydle/__tests__/` —— 期数计算、确定性、不重复轮、候选生成、骨架规则、街名线索、方向秩序度 φ、大洲提示、盲测分组与成绩码,以及真实城市库检查(φ 对照 OSMnx、网格城与老城的干扰项、线索 6 不直接给出答案)(47 个)。
-- `npm run lint` + `npm run build` 必须通过;构建产物全静态(所有路由 ○)。
+- `npm run lint`(ESLint flat config,`eslint.config.mjs`)+ `npm run build` 必须通过;构建产物全静态(所有路由 ○)。CI 跑 lint、测试和构建。
 - 视觉抽查:`node inspect-cities.mjs` 渲染全城市总览;`node make-prototype.mjs` 生成独立 demo。
+- 审题:`render-clues.mjs` 用游戏自己的渲染器把每座城的 6 层线索画成图;`playtest/` 生成盲测页并汇总测试者发回的成绩码。两者都需要 Node ≥ 23.6。
 
 ## 5. 部署
 
